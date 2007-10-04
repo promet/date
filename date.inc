@@ -417,7 +417,7 @@ function date_convert_timezone(&$date, $timezone_in = 'GMT', $timezone_out = 'GM
     if ($offset   = date_offset(date_gmgetdate($date->local->timestamp), $date->local->timezone)) {
       $out_date = $date->local->timestamp - $offset;
       date_set_date($date, $out_date, $timezone_out, $type, DATE_UNIX);
-      $date->offset = -$offset;
+      $date->local->offset = $offset;
     // no offset, just set other part of date object to same value
     }
     else {
