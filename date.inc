@@ -1197,7 +1197,7 @@ function date_iso2array($iso) {
   if (!date_preg($iso)) return 'ERROR';
   if (!date_is_valid($iso, DATE_ISO)) return 'ERROR';
   // a unix date requires a year, month, and day
-  if (date_iso_year($iso)) {
+  if (date_iso_year($iso) && date_iso_mon($iso) && date_iso_day($iso)) {
     $unix = date_iso2unix($iso);
     if ($unix === 'ERROR') {
       return 'ERROR';
@@ -1241,7 +1241,7 @@ function date_iso2unix($iso) {
   // A unix date requires a year, month, and day.
   // Make sure not to set '0' for month or day since that will revert to
   // the previous month or day.
-  if (date_iso_year($iso) && date_iso_mon($iso) && date_iso_day($iso)) {
+  if (date_iso_year($iso)) {
     $array = array(
       'hours' => date_iso_hours($iso),
       'minutes' => date_iso_minutes($iso),
