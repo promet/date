@@ -289,7 +289,7 @@ function date_clear_all($remove = FALSE) {
     cache_clear_all('date_browser_views', 'cache');
   }
   else {
-    if (module_exists('views')) {
+    if (module_exist('views')) {
       date_views_browser_get_views(TRUE);
     }
   }
