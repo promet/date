@@ -213,7 +213,10 @@ function date_field_settings($op, $field) {
       return date_columns($field);
 
     case 'filters':
-      return date_views_filters($field);
+      return _date_views_filters($field);
+
+    case 'arguments':
+      return _date_views_arguments($field);
   }
 }
 
