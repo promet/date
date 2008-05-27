@@ -65,19 +65,19 @@ function date_api_views_plugins() {
     'display' => array(
       // Display plugin for date navigation.
       'date_nav' => $base + array(
-        'title' => t('Date navigation'),
+        'title' => t('Date browser'),
         'help' => t('Date back/next navigation to attach to other displays. Requires the Date argument.'),
         'handler' => 'date_plugin_display_attachment',
         'theme' => 'views_view',
         'use ajax' => TRUE,
-        'admin' => t('Date navigation'),
+        'admin' => t('Date browser'),
         'help topic' => 'display-date_navigation',
       ),
     ),
     'style' => array(
       // Style plugin for the navigation display.
       'date_nav' => $base + array(
-        'title' => t('Date navigation style'),
+        'title' => t('Date browser style'),
         'help' => t('Creates back/next navigation.'),
         'handler' => 'date_navigation_plugin_style',
         'theme' => 'date_navigation',
