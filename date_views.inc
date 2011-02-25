@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Views field filters
