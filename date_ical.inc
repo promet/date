@@ -1,5 +1,4 @@
 <?php
-/* $Id$ */
 
 /**
  * Turn an array of events into a valid iCalendar file

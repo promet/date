@@ -1,4 +1,3 @@
-# $Id$
 #
 # LANGUAGE translation of Drupal (date module)
 # Copyright 2008 Sylvain Moreau <sylvain.moreau@ows.fr>
