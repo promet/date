@@ -1,5 +1,4 @@
 <?php
-// $Id$
 function date_install_clear() {
   cache_clear_all('date_', 'cache', '*');
   if (db_table_exists('cache_views')) {

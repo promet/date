@@ -1,5 +1,4 @@
 <?php
-//$Id$
 /**
  * Implementation of hook_requirements().
  * Make sure a site timezone name has been selected.
