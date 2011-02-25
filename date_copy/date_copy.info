@@ -1,4 +1,3 @@
-; $Id$
 name = Date Copy
 description = Import and export CCK date data.
 dependencies[] = content

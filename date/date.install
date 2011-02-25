@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function date_install_load() {
   // Updates happen in random order, whether or not the module is enabled,
