@@ -141,7 +141,8 @@ Drupal.date.EndDateHandler.prototype.syncEndDate = function () {
  */
 if (!Function.prototype.bind) {
   Function.prototype.bind = function (oThis) {
-    if (typeof this !== "function") // closest thing possible to the ECMAScript 5 internal IsCallable function
+    // Closest thing possible to the ECMAScript 5 internal IsCallable function.
+    if (typeof this !== "function")
       throw new TypeError("Function.prototype.bind - what is trying to be fBound is not callable");
 
     var aArgs = Array.prototype.slice.call(arguments, 1),
