@@ -1,5 +1,9 @@
 <?php
+
 /**
+ * @file
+ * Context integration for Date module.
+ *
  * @TODO
  *
  * Currently only implemented for nodes. Need to add $plugin->execute()
@@ -22,7 +26,7 @@ function date_context_context_node_condition_alter($node, $op) {
 }
 
 /**
- * Implements hook_context_plugins()
+ * Implements hook_context_plugins().
  */
 function date_context_context_plugins() {
   $plugins = array();
@@ -36,9 +40,8 @@ function date_context_context_plugins() {
 }
 
 /**
- * Implements hook_context_registry()
+ * Implements hook_context_registry().
  */
-
 function date_context_context_registry() {
   return array(
     'conditions' => array(
@@ -50,10 +53,18 @@ function date_context_context_registry() {
     ),
   );
 }
+
 /**
  * Expose term views/term forms by vocabulary as a context condition.
  */
 class date_context_date_condition extends context_condition_node {
+
+  /**
+   * Declares condition values.
+   *
+   * @return array
+   *   An array of date field names.
+   */
   function condition_values() {
     $values = array();
     $fields = field_info_fields();
@@ -65,6 +76,15 @@ class date_context_date_condition extends context_condition_node {
     return $values;
   }
 
+  /**
+   * Adds options to the condition options form.
+   *
+   * @param object $context
+   *   The current context object.
+   *
+   * @return array
+   *   An array of form elements.
+   */
   function options_form($context) {
     $defaults = $this->fetch_from_context($context, 'options');
     $options = array(
@@ -96,81 +116,95 @@ class date_context_date_condition extends context_condition_node {
     return $form;
   }
 
+  /**
+   * Runs the condition.
+   *
+   * @param object $entity
+   *   The entity object being checked.
+   * @param string $op
+   *   The operation being performed.
+   */
   function execute($entity, $op) {
-    if (in_array($op, array('view', 'form'))) {
-      foreach ($this->get_contexts() as $context) {
-        $options = $this->fetch_from_context($context, 'options');
-        $fields = $this->fetch_from_context($context, 'values');
+    if (!in_array($op, array('view', 'form'))) {
+      return;
+    }
 
-        foreach ($fields as $field_name => $label) {
+    foreach ($this->get_contexts() as $context) {
+      $options = $this->fetch_from_context($context, 'options');
+      $fields = $this->fetch_from_context($context, 'values');
 
-          // If this field does not exist on this entity, just move along.
-          if (empty($entity->{$field_name})) {
-            continue;
-          }
+      foreach ($fields as $field_name => $label) {
+        // If this field does not exist on this entity, just move along.
+        if (empty($entity->$field_name)) {
+          continue;
+        }
 
-          $items = field_get_items('node', $entity, $field_name);
+        $items = field_get_items('node', $entity, $field_name);
 
-          // If there are no values, nothing to do unless we were looking for 'empty' or '!='.
-          if (empty($items)) {
-            if ($options['operation'] == '!=' || $options['operation'] == 'empty') {
-              $this->condition_met($context, $field_name);
-            }
-          }
-
-          // We don't have to construct the date values if we're just testing for 'not empty'.
-          elseif ($options['operation'] == 'not empty') {
+        // If there are no values, nothing to do unless we were looking for
+        // 'empty' or '!='.
+        if (empty($items)) {
+          if ($options['operation'] == '!=' || $options['operation'] == 'empty') {
             $this->condition_met($context, $field_name);
           }
+          return;
+        }
 
-          // All other operations need to retrieve the date values for comparision.
-          else {
-            $field = field_info_field($field_name);
-            $timezone_db = date_get_timezone_db($field['settings']['tz_handling']);
-            foreach ($items as $delta => $item) {
-              $timezone = date_get_timezone($field['settings']['tz_handling'], $item['timezone']);
-              $date = new DateObject($item['value'], $timezone_db);
-              date_timezone_set($date, timezone_open($timezone));
-              $date1 = $date->format(DATE_FORMAT_DATETIME);
-              $date = new DateObject($item['value2'], $timezone_db);
-              date_timezone_set($date, timezone_open($timezone));
-              $date2 = $date->format(DATE_FORMAT_DATETIME);
-              str_replace('now', 'today', $options['value']);
-              $date = date_create($options['value'], date_default_timezone_object());
-              $compdate = $date->format(DATE_FORMAT_DATETIME);
-              switch($options['operation']) {
-                case '=':
-                  if ($date2 >= $compdate && $date1 <= $compdate) {
-                    $this->condition_met($context, $field_name);
-                  }
-                  break;
-                case '>':
-                  if ($date1 > $compdate) {
-                    $this->condition_met($context, $field_name);
-                  }
-                  break;
-                case '>=':
-                  if ($date1 >= $compdate) {
-                    $this->condition_met($context, $field_name);
-                  }
-                  break;
-                case '<':
-                  if ($date2 < $compdate) {
-                    $this->condition_met($context, $field_name);
-                  }
-                  break;
-                case '<=':
-                  if ($date2 <= $compdate) {
-                    $this->condition_met($context, $field_name);
-                  }
-                  break;
-                case '!=':
-                  if ($date1 < $compdate || $date2 > $compdate) {
-                    $this->condition_met($context, $field_name);
-                  }
-                  break;
+        // We don't have to construct the date values if we're just testing for
+        // 'not empty'.
+        if ($options['operation'] == 'not empty') {
+          $this->condition_met($context, $field_name);
+          return;
+        }
+
+        // All other operations need to retrieve the date values to compare.
+        $field = field_info_field($field_name);
+        $timezone_db = date_get_timezone_db($field['settings']['tz_handling']);
+        foreach ($items as $delta => $item) {
+          $timezone = date_get_timezone($field['settings']['tz_handling'], $item['timezone']);
+
+          $date = new DateObject($item['value'], $timezone_db);
+          date_timezone_set($date, timezone_open($timezone));
+          $date1 = $date->format(DATE_FORMAT_DATETIME);
+
+          $date = new DateObject($item['value2'], $timezone_db);
+          date_timezone_set($date, timezone_open($timezone));
+          $date2 = $date->format(DATE_FORMAT_DATETIME);
+
+          str_replace('now', 'today', $options['value']);
+          $date = date_create($options['value'], date_default_timezone_object());
+          $compdate = $date->format(DATE_FORMAT_DATETIME);
+          switch ($options['operation']) {
+            case '=':
+              if ($date2 >= $compdate && $date1 <= $compdate) {
+                $this->condition_met($context, $field_name);
               }
-            }
+              break;
+            case '>':
+              if ($date1 > $compdate) {
+                $this->condition_met($context, $field_name);
+              }
+              break;
+            case '>=':
+              if ($date1 >= $compdate) {
+                $this->condition_met($context, $field_name);
+              }
+              break;
+            case '<':
+              if ($date2 < $compdate) {
+                $this->condition_met($context, $field_name);
+              }
+              break;
+            case '<=':
+              if ($date2 <= $compdate) {
+                $this->condition_met($context, $field_name);
+              }
+              break;
+            case '!=':
+              if ($date1 < $compdate || $date2 > $compdate) {
+                $this->condition_met($context, $field_name);
+              }
+              break;
           }
         }
       }
