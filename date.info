@@ -2,8 +2,8 @@ name = Date
 description = Makes date/time fields available.
 dependencies[] = date_api
 package = Date/Time
-core = 7.x
-php = 5.2
+core = 8.x
+
 files[] = tests/date_api.test
 files[] = tests/date.test
 files[] = tests/date_field.test

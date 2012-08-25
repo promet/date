@@ -1,4 +1,4 @@
-core = "7.x"
+core = "8.x"
 dependencies[] = "date"
 dependencies[] = "date_repeat"
 dependencies[] = "date_repeat_field"

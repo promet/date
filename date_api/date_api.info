@@ -1,8 +1,7 @@
 name = Date API
 description = A Date API that can be used by other modules.
 package = Date/Time
-core = 7.x
-php = 5.2
+core = 8.x
 
 stylesheets[all][] = date.css
 
