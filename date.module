@@ -616,7 +616,7 @@ function date_entity_metadata_field_setter(&$entity, $name, $value, $langcode, $
   if (!isset($langcode)) {
     // Try to figure out the default language used by the entity.
     // @todo: Update once http://drupal.org/node/1260640 has been fixed.
-    $langcode = isset($entity->language) ? $entity->language : LANGUAGE_NONE;
+    $langcode = isset($entity->langcode) ? $entity->langcode : LANGUAGE_NONE;
   }
   $values = $field['cardinality'] == 1 ? array($value) : (array) $value;
 
