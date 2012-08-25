@@ -73,9 +73,9 @@ function date_popup_get_preferred_timepicker() {
 }
 
 /**
- * Implements hook_library().
+ * Implements hook_library_info().
  */
-function date_popup_library() {
+function date_popup_library_info() {
   $libraries = array();
 
   $path = drupal_get_path('module', 'date_popup');
