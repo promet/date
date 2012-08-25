@@ -88,7 +88,8 @@ function date_api_enable() {
  * Implements hook_uninstall().
  */
 function date_api_uninstall() {
-  cache_clear_all('date_timezone_identifiers_list', 'cache');
+  cache()->deletePrefix('date_timezone_identifiers_list');
+
   $variables = array(
     'date_api_version',
     'date_min_year',
