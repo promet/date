@@ -255,14 +255,14 @@ function date_combo_element_process($element, &$form_state, $form) {
   $delta = $element['#delta'];
   $bundle = $element['#bundle'];
   $entity_type = $element['#entity_type'];
-  $langcode = $element['#language'];
+  $langcode = $element['#langcode'];
   $date_is_default = $element['#date_is_default'];
 
   $field = field_widget_field($element, $form_state);
   $instance = field_widget_instance($element, $form_state);
 
   // Figure out how many items are in the form, including new ones added by ajax.
-  $field_state = field_form_get_state($element['#field_parents'], $field_name, $element['#language'], $form_state);
+  $field_state = field_form_get_state($element['#field_parents'], $field_name, $element['#langcode'], $form_state);
   $items_count = $field_state['items_count'];
 
   $columns = $element['#columns'];
@@ -441,7 +441,7 @@ function date_combo_validate($element, &$form_state) {
 
   $field_name = $element['#field_name'];
   $delta = $element['#delta'];
-  $langcode = $element['#language'];
+  $langcode = $element['#langcode'];
 
   $form_values = drupal_array_get_nested_value($form_state['values'], $element['#field_parents']);
   $form_input = drupal_array_get_nested_value($form_state['input'], $element['#field_parents']);
