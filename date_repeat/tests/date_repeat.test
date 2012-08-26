@@ -15,12 +15,9 @@ class DateRepeatTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Implements setUp().
+   * Load the date_repeat module.
    */
-  public function setUp() {
-    // Load the date_repeat module.
-    parent::setUp('date_api', 'date_repeat');
-  }
+  public static $modules = array('date_api', 'date_repeat');
 
   public function testDateRepeat() {
     require_once('./' . drupal_get_path('module', 'date_api') . '/date_api_ical.inc');
