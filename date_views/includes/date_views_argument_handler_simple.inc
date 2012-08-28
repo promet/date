@@ -18,7 +18,7 @@ class date_views_argument_handler_simple extends views_handler_argument_date {
 
     // Add a date handler.
     module_load_include('inc', 'date_api', 'date_api_sql');
-    $this->date_handler = new date_sql_handler(DATE_UNIX);
+    $this->date_handler = new DateSqlHandler(DATE_UNIX);
     if (!empty($this->definition['field_name'])) {
       $field = field_info_field($this->definition['field_name']);
       if (!empty($field) && !empty($field['type'])) {

@@ -187,7 +187,7 @@ class date_views_argument_handler extends date_views_argument_handler_simple {
     $this->query_fields = array();
     foreach ($this->options['date_fields'] as $delta => $name) {
       if (array_key_exists($name, $fields) && $field = $fields[$name]) {
-        $date_handler = new date_sql_handler($field['sql_type'], date_default_timezone());
+        $date_handler = new DateSqlHandler($field['sql_type'], date_default_timezone());
         $date_handler->granularity = $this->options['granularity'];
         $date_handler->db_timezone = date_get_timezone_db($field['tz_handling']);
         $date_handler->local_timezone = date_get_timezone($field['tz_handling']);
