@@ -4,7 +4,12 @@
  * @file
  * Basic functions for Date tests.
  */
-abstract class DateFieldBasic extends DrupalWebTestCase {
+
+namespace Drupal\date\Tests
+
+use Drupal\simpletest\WebTestBase;
+
+abstract class DateFieldBase extends WebTestBase {
   protected $privileged_user;
 
   /**
@@ -167,7 +172,7 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
 
 }
 
-class DateFieldTestCase extends DateFieldBasic {
+class DateFieldTest extends DateFieldBase {
 
   /**
    * @todo.

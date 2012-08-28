@@ -3,7 +3,11 @@
  * @file
  * Timezone tests.
  */
-class DateTimezoneTestCase extends DateFieldBasic {
+namespace Drupal\date\Tests
+
+use Drupal\simpletest\WebTestBase;
+
+class DateTimezoneTest extends DateFieldBase {
 
   /**
    * @todo.

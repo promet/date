@@ -4,8 +4,11 @@
  * @file
  * Test Date Repeat calculations.
  */
+namespace Drupal\date_repeat\Tests
 
-class DateRepeatTestCase extends DrupalWebTestCase {
+use Drupal\simpletest\WebTestBase;
+
+class DateRepeatTest extends WebTestBase {
   public static function getInfo() {
     return array(
       'name' => t('Date Repeat'),

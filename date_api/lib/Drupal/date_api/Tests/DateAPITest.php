@@ -5,7 +5,11 @@
  * Test Date API functions
  */
 
-class DateAPITestCase extends DrupalWebTestCase {
+namespace Drupal\date_api\Tests
+
+use Drupal\simpletest\WebTestBase;
+
+class DateAPITest extends WebTestBase {
   /**
    * @todo.
    */

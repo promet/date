@@ -4,8 +4,11 @@
  * @file
  * Test date UI.
  */
+namespace Drupal\date\Tests
 
-class DateUITestCase extends DrupalWebTestCase {
+use Drupal\simpletest\WebTestBase;
+
+class DateUITest extends WebTestBase {
   protected $privileged_user;
 
   /**

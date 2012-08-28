@@ -5,7 +5,11 @@
  * Test Date Repeat form.
  */
 
-class DateRepeatFormTestCase extends DrupalWebTestCase {
+namespace Drupal\date_repeat\Tests
+
+use Drupal\simpletest\WebTestBase;
+
+class DateRepeatFormTest extends WebTestBase {
   protected $privileged_user;
 
   public static function getInfo() {

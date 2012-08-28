@@ -3,7 +3,12 @@
  * @file
  * Date validation tests.
  */
-class DateValidationTestCase extends DateFieldBasic {
+
+namespace Drupal\date\Tests
+
+use Drupal\simpletest\WebTestBase;
+
+class DateValidationTest extends DateFieldBase {
 
   /**
    * @todo.
