@@ -4,11 +4,14 @@
  * @file
  * Test for using date fields with Migrate module.
  */
+namespace Drupal\date_migrate\Tests
+
+use Drupal\simpletest\WebTestBase;
 
 /**
  * Test date migration.
  */
-class DateMigrateExampleUnitTest extends DrupalWebTestCase {
+class DateMigrateExampleUnitTest extends WebTestBase {
 
   /**
    * Provides information about this test.

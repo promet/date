@@ -3,6 +3,3 @@ description = A Date Repeat API to calculate repeating dates and times from iCal
 dependencies[] = date_api
 package = Date/Time
 core = 8.x
-
-files[] = tests/date_repeat.test
-files[] = tests/date_repeat_form.test

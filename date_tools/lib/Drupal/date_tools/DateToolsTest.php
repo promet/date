@@ -4,8 +4,11 @@
  * @file
  * Tests for Date Tools.
  */
+namespace Drupal\date_tools\Tests
 
-class DateToolsTestCase extends DrupalWebTestCase {
+use Drupal\simpletest\WebTestBase;
+
+class DateToolsTest extends WebTestBase {
   protected $privileged_user;
 
   /**

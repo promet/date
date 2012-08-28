@@ -10,4 +10,4 @@ dependencies[] = date
 dependencies[] = node
 
 files[] = date.migrate.inc
-files[] = date_migrate.test
+
