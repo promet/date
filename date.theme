@@ -233,7 +233,7 @@ function theme_date_display_single($variables) {
   $attributes = $variables['attributes'];
 
   // Wrap the result with the attributes.
-  return '<span class="date-display-single"' . drupal_attributes($attributes) . '>' . $date . $timezone . '</span>';
+  return '<span class="date-display-single"' . new Attribute($attributes) . '>' . $date . $timezone . '</span>';
 }
 
 /**
@@ -275,8 +275,8 @@ function theme_date_display_range($variables) {
 
   // Wrap the result with the attributes.
   return t('!start-date to !end-date', array(
-    '!start-date' => '<span class="date-display-start"' . drupal_attributes($attributes_start) . '>' . $date1 . '</span>',
-    '!end-date' => '<span class="date-display-end"' . drupal_attributes($attributes_end) . '>' . $date2 . $timezone . '</span>',
+    '!start-date' => '<span class="date-display-start"' . new Attribute($attributes_start) . '>' . $date1 . '</span>',
+    '!end-date' => '<span class="date-display-end"' . new Attribute($attributes_end) . '>' . $date2 . $timezone . '</span>',
   ));
 }
 
@@ -303,7 +303,7 @@ function theme_date_display_interval($variables) {
   );
 
   if ($return = theme('date_time_ago', $time_ago_vars)) {
-    return '<span class="date-display-interval"' . drupal_attributes($attributes) . ">$return</span>";
+    return '<span class="date-display-interval"' . new Attribute($attributes) . ">$return</span>";
   }
   else {
     return '';
