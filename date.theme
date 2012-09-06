@@ -4,6 +4,7 @@
  * @file
  * Theme functions.
  */
+use Drupal\Core\Template\Attribute;
 
 /**
  * @addtogroup themeable
