@@ -19,6 +19,8 @@
  *
  */
 
+use Drupal\Core\Template\Attribute;
+
 /**
  * Load needed files.
  *
@@ -662,6 +664,7 @@ function date_popup_datepicker_format_replacements() {
  * Use a class that will float date and time next to each other.
  */
 function theme_date_popup($vars) {
+
   $element = $vars['element'];
   $attributes = !empty($element['#wrapper_attributes']) ? $element['#wrapper_attributes'] : array('class' => array());
   $attributes['class'][] = 'container-inline-date';
