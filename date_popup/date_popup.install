@@ -31,3 +31,13 @@ function date_popup_enable() {
 function date_popup_disable() {
 
 }
+
+/**
+ * Moves Date Popup settings from variable to config.
+ */
+function date_popup_update_8001() {
+  update_variables_to_config('date_popup.settings', array(
+    'date_popup_timepicker' => 'timepicker',
+  ));
+}
+

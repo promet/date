@@ -29,7 +29,7 @@ abstract class DateFieldBase extends WebTestBase {
     );
     $this->drupalLogin($this->privileged_user);
 
-    variable_set('date_popup_timepicker', 'none');
+    config('date_popup.settings')->set('timepicker', 'none')->save();
 
     module_load_include('inc', 'node', 'content_types');
     module_load_include('inc', 'node', 'node.pages');
