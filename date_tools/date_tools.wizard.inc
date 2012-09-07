@@ -357,7 +357,7 @@ function date_tools_wizard_create_content_type($name, $bundle, $description, $ty
   node_type_save((object) $values);
 
   // Add the body field.
-  $trim_length = variable_get('teaser_length', 600);
+  $trim_length = config('aggregator.settings')->get('items.teaser_length');
 
   $field = field_info_field('body');
   $instance = array(
