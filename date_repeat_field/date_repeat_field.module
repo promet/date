@@ -275,7 +275,7 @@ function date_repeat_field_widget_validate($element, &$form_state) {
 
   $field_name = $element['#field_name'];
   $delta = $element['#delta'];
-  $langcode = $element['#langcode'];
+  $langcode = $element['#language'];
 
   // If the widget has been hidden by #access, the RRULE will still be in its
   // original string form here. Nothing to process.
@@ -388,7 +388,7 @@ function date_repeat_after_build(&$element, &$form_state) {
   foreach ($form_state['storage']['repeat_fields'] as $field_name => $parents) {
     // Remove unnecessary items in the form added by the Add more handling.
     $value = drupal_array_get_nested_value($element, $parents);
-    $langcode = $value['#langcode'];
+    $langcode = $value['#language'];
     unset($value[$langcode]['add_more'], $value[$langcode]['#suffix'], $value[$langcode]['#prefix'], $value[$langcode][0]['_weight']);
     $value[$langcode]['#cardinality'] = 1;
     $value[$langcode]['#max_delta'] = 1;
