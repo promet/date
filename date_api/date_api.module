@@ -819,8 +819,9 @@ class DateObject extends DateTime {
     $now = date_now();
     switch ($part) {
       case 'year':
+        $date_api_info = config('date_api.info');
         $fallback = $now->format('Y');
-        return !is_int($value) || empty($value) || $value < variable_get('date_min_year', 1) || $value > variable_get('date_max_year', 4000) ? $fallback : $value;
+        return !is_int($value) || empty($value) || $value < $date_api_info->get('year.min') || $value > $date_api_info->get('year.min') ? $fallback : $value;
         break;
       case 'month':
         $fallback = $default == 'first' ? 1 : $now->format('n');
@@ -1885,7 +1886,7 @@ function date_day_of_week_name($date = NULL, $abbr = TRUE) {
  *   A numeric array containing the start and end dates of a week.
  */
 function date_week_range($week, $year) {
-  if (variable_get('date_api_use_iso8601', FALSE)) {
+  if (config('date_api.settings')->get('iso8601')) {
     return date_iso_week_range($week, $year);
   }
   $min_date = new DateObject($year . '-01-01 00:00:00');
@@ -1974,7 +1975,7 @@ function date_week($date) {
   $date = new DateObject($date . ' 12:00:00', 'UTC');
 
   // If we are using ISO weeks, this is easy.
-  if (variable_get('date_api_use_iso8601', FALSE)) {
+  if (config('date_api.settings')->get('iso8601')) {
     return intval($date->format('W'));
   }
 
@@ -2492,13 +2493,14 @@ function date_api_database_info($field, $revision = FIELD_LOAD_CURRENT) {
  * default is FALSE (US/UK/AUS norm).
  */
 function date_api_form_system_regional_settings_alter(&$form, &$form_state, $form_id) {
-  $form['locale']['date_api_use_iso8601'] = array(
+  $form['locale']['date_api_iso8601'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use ISO-8601 week numbers'),
-    '#default_value' => variable_get('date_api_use_iso8601', FALSE),
+    '#default_value' => config('date_api.settings')->get('iso8601'),
     '#description' => t('IMPORTANT! If checked, First day of week MUST be set to Monday'),
   );
   $form['#validate'][] = 'date_api_form_system_settings_validate';
+  $form['#submit'][] = 'date_api_form_system_settings_submit';
 }
 
 /**
@@ -2506,9 +2508,17 @@ function date_api_form_system_regional_settings_alter(&$form, &$form_state, $for
  */
 function date_api_form_system_settings_validate(&$form, &$form_state) {
   $form_values = $form_state['values'];
-  if ($form_values['date_api_use_iso8601'] && $form_values['date_first_day'] != 1) {
+  if ($form_values['date_api_iso8601'] && $form_values['date_first_day'] != 1) {
     form_set_error('date_first_day', t('When using ISO-8601 week numbers, the first day of the week must be set to Monday.'));
   }
+}
+
+/**
+ * Store the Date API 8601 week numbers setting.
+ */
+function date_api_form_system_settings_submit($form, &$form_state) {
+  $form_values = $form_state['values'];
+  config('date_api.settings')->set('iso8601', $form_values['date_api_iso8601'])->save();
 }
 
 /**

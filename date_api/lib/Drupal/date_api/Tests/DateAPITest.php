@@ -31,7 +31,7 @@ class DateAPITest extends WebTestBase {
    */
   public function setUp() {
     parent::setUp();
-    variable_set('date_api_use_iso8601', FALSE);
+    config('date_api.settings')->set('iso8601', FALSE)->save();
     variable_set('date_first_day', 1);
   }
 
@@ -139,7 +139,8 @@ class DateAPITest extends WebTestBase {
 
     // Test week range with calendar weeks.
     variable_set('date_first_day', 0);
-    variable_set('date_api_use_iso8601', FALSE);
+    $date_api_settings = config('date_api.settings');
+    $date_api_settings->set('iso8601', FALSE)->save();
     $expected = '2008-01-27 to 2008-02-03';
     $result = date_week_range(5, 2008);
     $value = $result[0]->format(DATE_FORMAT_DATE) . ' to ' . $result[1]->format(DATE_FORMAT_DATE);
@@ -151,7 +152,7 @@ class DateAPITest extends WebTestBase {
 
     // And now with ISO weeks.
     variable_set('date_first_day', 1);
-    variable_set('date_api_use_iso8601', TRUE);
+    $date_api_settings->set('iso8601', TRUE)->save();
     $expected = '2008-01-28 to 2008-02-04';
     $result = date_week_range(5, 2008);
     $value = $result[0]->format(DATE_FORMAT_DATE) . ' to ' . $result[1]->format(DATE_FORMAT_DATE);
@@ -160,7 +161,7 @@ class DateAPITest extends WebTestBase {
     $result = date_week_range(5, 2009);
     $value = $result[0]->format(DATE_FORMAT_DATE) . ' to ' . $result[1]->format(DATE_FORMAT_DATE);
     $this->assertEqual($expected, $value, "Test ISO date_week_range(5, 2009): should be $expected, found $value.");
-    variable_set('date_api_use_iso8601', FALSE);
+    $date_api_settings->set('iso8601', FALSE)->save();
 
     // Find calendar week for a date.
     variable_set('date_first_day', 0);
@@ -411,7 +412,6 @@ class DateAPITest extends WebTestBase {
    */
   public function tearDown() {
     variable_del('date_first_day');
-    variable_del('date_api_use_iso8601');
     parent::tearDown();
   }
 }

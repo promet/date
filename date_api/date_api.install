@@ -6,26 +6,6 @@
  */
 
 /**
- * Helper function for setting Date variables.
- */
-function date_api_set_variables() {
-  // Set absolute minimum and maximum year for dates on this site.
-  // There is actually no maximum and minimum year in PHP 5, but a date with
-  // a year less than 0 would result in negative ISO and DATETIME dates,
-  // like -1250-01-01T00:00:00, which probably won't make sense or work
-  // correctly anywhere.
-  // The odd construct of using variable_get() instead of variable_set()
-  // is so we don't accidentally write over an existing value. If
-  // no value is set, variable_get() will set it.
-  variable_get('date_max_year', 4000);
-  variable_get('date_min_year', 1);
-  variable_get('date_php_min_year', 1901);
-
-  // Set an API version in a way that other modules can test for compatibility.
-  variable_set('date_api_version', '7.2');
-}
-
-/**
  * Implements hook_requirements().
  */
 function date_api_requirements($phase) {
@@ -66,22 +46,9 @@ function date_api_install() {
     // Ensure translations don't break at install time.
     $t = get_t();
 
-    // date_api_set_variables can install date_timezone. The
-    // date_timezone_install() function does a module_enable('date_api'). This
-    // means that date_api_enable() can be called before date_api_install()
-    // finishes! So the date_api schema needs to be installed before this line!
-    date_api_set_variables();
-
     $message = $t('The Date API requires that you set up the <a href="@regional_settings">site timezone and first day of week settings</a> and the <a href="@regional_date_time">date format settings</a> to function correctly.', array('@regional_settings' => url('admin/config/regional/settings'), '@regional_date_time' => url('admin/config/regional/date-time')));
     drupal_set_message(filter_xss_admin($message), 'warning');
   }
-}
-
-/**
- * Implements hook_enable().
- */
-function date_api_enable() {
-  date_api_set_variables();
 }
 
 /**
@@ -89,18 +56,6 @@ function date_api_enable() {
  */
 function date_api_uninstall() {
   cache()->deletePrefix('date_timezone_identifiers_list');
-
-  $variables = array(
-    'date_api_version',
-    'date_min_year',
-    'date_max_year',
-    'date_php_min_year',
-    'date_db_tz_support',
-    'date_api_use_iso8601',
-    );
-  foreach ($variables as $variable) {
-    variable_del($variable);
-  }
 
   if (db_table_exists('views_display')) {
     $displays = array(
@@ -118,4 +73,25 @@ function date_api_update_last_removed() {
   return 7001;
 }
 
+/**
+ * Moves Date API informational data from variable to config.
+ */
+function date_api_update_8001() {
+  update_variables_to_config('date_api.info', array(
+    'date_max_year' => 'year.max',
+    'date_min_year' => 'year.min',
+    'date_php_min_year' => 'php_min_year',
+    'date_api_version' => 'version',
+    'date_db_tz_support' => 'db_tz_support',
+  ));
+}
+
+/**
+ * Moves Date API settings from variable to config.
+ */
+function date_api_update_8002() {
+  update_variables_to_config('date_api.settings', array(
+    'date_api_use_iso8601' => 'iso8601',
+  ));
+}
 

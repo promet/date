@@ -34,7 +34,8 @@ class DateSqlHandler {
    * See if the db has timezone name support.
    */
   function db_tz_support($reset = FALSE) {
-    $has_support = variable_get('date_db_tz_support', -1);
+    $date_api_info = config('date_api.info');
+    $has_support = $date_api_info->get('db_tz_support');
     if ($has_support == -1 || $reset) {
       $has_support = FALSE;
       switch ($this->db_type) {
@@ -52,7 +53,7 @@ class DateSqlHandler {
           }
           break;
       }
-      variable_set('date_db_tz_support', $has_support);
+      $date_api_info->get('db_tz_support', $has_support)->save();
     }
     return $has_support;
   }

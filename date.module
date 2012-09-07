@@ -475,11 +475,12 @@ function date_prepare_entity($formatter, $entity_type, $entity, $field, $instanc
 
   // Otherwise removed values that should not be displayed.
   if (!empty($options['multiple_from']) || !empty($options['multiple_to']) || !empty($max_count)) {
+    $date_api_config = config('date_api.info');
     $format = date_type_format($field['type']);
     include_once drupal_get_path('module', 'date_api') . '/date_api_sql.inc';
     $date_handler = new DateSqlHandler($field);
-    $arg0 = !empty($options['multiple_from']) ? $date_handler->arg_replace($options['multiple_from']) : variable_get('date_min_year', 100) . '-01-01T00:00:00';
-    $arg1 = !empty($options['multiple_to']) ? $date_handler->arg_replace($options['multiple_to']) : variable_get('date_max_year', 4000) . '-12-31T23:59:59';
+    $arg0 = !empty($options['multiple_from']) ? $date_handler->arg_replace($options['multiple_from']) : $date_api_config->get('year.min') . '-01-01T00:00:00';
+    $arg1 = !empty($options['multiple_to']) ? $date_handler->arg_replace($options['multiple_to']) : $date_api_config->get('year.max') . '-12-31T23:59:59';
     if (!empty($arg0) && !empty($arg1)) {
       $arg = $arg0 . '--' . $arg1;
     }
