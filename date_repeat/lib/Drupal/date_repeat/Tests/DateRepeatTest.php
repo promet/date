@@ -4,7 +4,7 @@
  * @file
  * Test Date Repeat calculations.
  */
-namespace Drupal\date_repeat\Tests
+namespace Drupal\date_repeat\Tests;
 
 use Drupal\simpletest\WebTestBase;
 

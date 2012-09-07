@@ -5,7 +5,7 @@
  * Test Date Repeat form.
  */
 
-namespace Drupal\date_repeat\Tests
+namespace Drupal\date_repeat\Tests;
 
 use Drupal\simpletest\WebTestBase;
 

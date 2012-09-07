@@ -4,7 +4,7 @@
  * @file
  * Test date UI.
  */
-namespace Drupal\date\Tests
+namespace Drupal\date\Tests;
 
 use Drupal\simpletest\WebTestBase;
 

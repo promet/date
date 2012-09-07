@@ -1,6 +1,6 @@
 <?php
 
-namespace DateAPI
+namespace DateAPI;
 
 /**
  * A class to manipulate date SQL.

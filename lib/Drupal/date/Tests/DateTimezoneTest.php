@@ -3,7 +3,7 @@
  * @file
  * Timezone tests.
  */
-namespace Drupal\date\Tests
+namespace Drupal\date\Tests;
 
 use Drupal\simpletest\WebTestBase;
 

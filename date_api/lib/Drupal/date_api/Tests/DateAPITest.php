@@ -5,7 +5,7 @@
  * Test Date API functions
  */
 
-namespace Drupal\date_api\Tests
+namespace Drupal\date_api\Tests;
 
 use Drupal\simpletest\WebTestBase;
 
