@@ -19,6 +19,7 @@
  *
  */
 
+use Drupal\date_api\DateObject;
 use Drupal\Core\Template\Attribute;
 
 /**

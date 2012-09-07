@@ -2,6 +2,8 @@
 
 namespace DateAPI;
 
+use Drupal\date_api\DateObject;
+
 /**
  * A class to manipulate date SQL.
  */

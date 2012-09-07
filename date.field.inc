@@ -5,6 +5,8 @@
  * Field hooks to implement a date field.
  */
 
+use Drupal\date_api\DateObject;
+
 /**
  * Implements hook_field_formatter_info().
  */

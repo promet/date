@@ -30,6 +30,9 @@
  * BYSETPOS
  *   Seldom used anywhere, so no reason to complicated the code.
  */
+
+use Drupal\date_api\DateObject;
+
 /**
  * Generate the repeat setting form.
  */

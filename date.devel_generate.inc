@@ -5,6 +5,8 @@
  * Date Devel Generate code.
  */
 
+use Drupal\date_api\DateObject;
+
 /**
  * Implements hook_devel_generate().
  *

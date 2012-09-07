@@ -25,6 +25,8 @@
  *   Seldom used anywhere, so no reason to complicated the code.
  */
 
+use Drupal\date_api\DateObject;
+
 /**
  * Private implementation of date_repeat_calc().
  *

@@ -7,6 +7,8 @@
  * This file must be included when these functions are needed.
  */
 
+use Drupal\date_api\DateObject;
+
 /**
  * Return an array of iCalendar information from an iCalendar file.
  *

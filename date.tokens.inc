@@ -5,6 +5,8 @@
  * Token module integration.
  */
 
+use Drupal\date_api\DateObject;
+
 /**
  * Implements hook_token_info().
  */

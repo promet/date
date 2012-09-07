@@ -21,6 +21,8 @@
  * number of values to the field. For now, we require the UNTIL date.
  */
 
+use Drupal\date_api\DateObject;
+
 /**
  * Implements hook_theme().
  */

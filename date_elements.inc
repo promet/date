@@ -7,6 +7,8 @@
  * included only during form editing.
  */
 
+use Drupal\date_api\DateObject;
+
 /**
  * Private implementation of hook_widget().
  *

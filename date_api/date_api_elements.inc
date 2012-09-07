@@ -6,6 +6,8 @@
  * This file is only included during the edit process to reduce memory usage.
  */
 
+use Drupal\date_api\DateObject;
+
 /**
  * Implements hook_element_info().
  *

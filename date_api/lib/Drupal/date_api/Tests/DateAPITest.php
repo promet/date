@@ -8,6 +8,8 @@
 namespace Drupal\date_api\Tests;
 
 use Drupal\simpletest\WebTestBase;
+use Drupal\date_api\DateObject;
+use DateTimeZone;
 
 class DateAPITest extends WebTestBase {
   /**

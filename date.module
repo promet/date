@@ -5,6 +5,8 @@
  * Defines date/time field types.
  */
 
+use Drupal\date_api\DateObject;
+
 module_load_include('theme', 'date', 'date');
 module_load_include('inc', 'date', 'date.field');
 module_load_include('inc', 'date', 'date_elements');

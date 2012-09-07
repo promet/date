@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\date_api\DateObject;
+
 /**
  * Expose term views/term forms by vocabulary as a context condition.
  */
