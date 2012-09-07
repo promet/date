@@ -156,7 +156,7 @@ function date_tools_wizard_form_submit(&$form, &$form_state) {
     $form_state['redirect'] = 'admin/structure/views/template/' . $view_name . '/add';
   }
   else {
-    $form_state['redirect'] = 'admin/structure/types/manage/' . str_replace('_', '-', $form_state['values']['bundle']) . '/fields';
+    $form_state['redirect'] = 'admin/structure/types/manage/' . $form_state['values']['bundle'] . '/fields';
   }
 }
 
@@ -346,7 +346,7 @@ function date_tools_wizard_create_content_type($name, $bundle, $description, $ty
     'custom' => '1',
     'modified' => '1',
     'locked' => '0',
-    'url_str' => str_replace('_', '-', $bundle),
+    'url_str' => $bundle,
   );
 
   // Allow overrides of these values.
