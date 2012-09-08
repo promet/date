@@ -8,6 +8,7 @@ namespace Drupal\date_api;
 
 use DateTime;
 use DateTimezone;
+use Exception;
 
 /**
  * Extend PHP DateTime class with granularity handling, merge functionality and
@@ -22,42 +23,6 @@ class DateObject extends DateTime {
   public $granularity = array();
   public $errors = array();
   protected static $allgranularity = array('year', 'month', 'day', 'hour', 'minute', 'second', 'timezone');
-  private $serializedTime;
-  private $serializedTimezone;
-
-  /**
-   * Prepares the object during serialization.
-   *
-   * We are extending a core class and core classes cannot be serialized.
-   *
-   * @return array
-   *   Returns an array with the names of the variables that were serialized.
-   *
-   * @see http://bugs.php.net/41334
-   * @see http://bugs.php.net/39821
-   */
-  public function __sleep() {
-    $this->serializedTime = $this->format('c');
-    $this->serializedTimezone = $this->getTimezone()->getName();
-    return array('serializedTime', 'serializedTimezone');
-  }
-
-  /**
-   * Re-builds the object using local variables.
-   */
-  public function __wakeup() {
-    $this->__construct($this->serializedTime, new DateTimeZone($this->serializedTimezone));
-  }
-
-  /**
-   * Returns the date object as a string.
-   *
-   * @return string
-   *   The date object formatted as a string.
-   */
-  public function __toString() {
-    return $this->format(DATE_FORMAT_DATETIME) . ' ' . $this->getTimeZone()->getName();
-  }
 
   /**
    * Constructs a date object.
@@ -137,9 +102,6 @@ class DateObject extends DateTime {
       }
     }
     elseif (is_string($time)) {
-      // PHP < 5.3 doesn't like the GMT- notation for parsing timezones.
-      $time = str_replace("GMT-", "-", $time);
-      $time = str_replace("GMT+", "+", $time);
       // We are going to let the parent dateObject do a best effort attempt to
       // turn this string into a valid date. It might fail and we want to
       // control the error messages.
@@ -223,12 +185,6 @@ class DateObject extends DateTime {
    *   Whether or not to skip a date with no time. Defaults to FALSE.
    */
   public function setTimezone($tz, $force = FALSE) {
-    // PHP 5.2.6 has a fatal error when setting a date's timezone to itself.
-    // http://bugs.php.net/bug.php?id=45038
-    if (version_compare(PHP_VERSION, '5.2.7', '<') && $tz == $this->getTimezone()) {
-      $tz = new DateTimeZone($tz->getName());
-    }
-
     if (!$this->hasTime() || !$this->hasGranularity('timezone') || $force) {
       // This has no time or timezone granularity, so timezone doesn't mean
       // much. We set the timezone using the method, which will change the
