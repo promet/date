@@ -853,7 +853,7 @@ function date_format_interval($date, $granularity = 2, $display_ago = TRUE) {
  *   The current time as a date object.
  */
 function date_now($timezone = NULL) {
-  return new DateObject('now', $timezone);
+  return new DateObject(REQUEST_TIME, $timezone);
 }
 
 /**

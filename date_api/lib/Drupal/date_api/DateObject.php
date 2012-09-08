@@ -14,15 +14,14 @@ use Exception;
  * Extend PHP DateTime class with granularity handling, merge functionality and
  * slightly more flexible initialization parameters.
  *
- * This class is a Drupal independent extension of the >= PHP 5.2 DateTime
- * class.
- *
- * @see FeedsDateTimeElement class
+ * This class is a Drupal independent extension of the PHP DateTime class.
  */
 class DateObject extends DateTime {
+
   public $granularity = array();
   public $errors = array();
   protected static $allgranularity = array('year', 'month', 'day', 'hour', 'minute', 'second', 'timezone');
+  public static $default_format = 'Y-m-d H:i:s';
 
   /**
    * Constructs a date object.
@@ -38,6 +37,7 @@ class DateObject extends DateTime {
    *   large years, which php's parser fails on.
    */
   public function __construct($time = 'now', $tz = NULL, $format = NULL) {
+
     $this->timeOnly = FALSE;
     $this->dateOnly = FALSE;
 
@@ -54,20 +54,22 @@ class DateObject extends DateTime {
       $tz = date_default_timezone_object();
     }
 
-    // Special handling for Unix timestamps expressed in the local timezone.
-    // Create a date object in UTC and convert it to the local timezone. Don't
-    // try to turn things like '2010' with a format of 'Y' into a timestamp.
+    // Handling for Unix timestamps.
+    // Create a date object and convert it to the local timezone.
+    // Don't try to turn things like '2010' with a format of 'Y' into a timestamp.
     if (is_numeric($time) && (empty($format) || $format == 'U')) {
       // Assume timestamp.
-      $time = "@" . $time;
-      $date = new DateObject($time, 'UTC');
-      if ($tz->getName() != 'UTC') {
-        $date->setTimezone($tz);
-      }
-      $time = $date->format(DATE_FORMAT_DATETIME);
-      $format = DATE_FORMAT_DATETIME;
-      $this->addGranularity('timezone');
+      parent::__construct();
+      $this->setTimestamp($time);
+      $this->setTimezone($tz);
+      $time = $this->format(self::$default_format);
+      $this->setGranularityFromTime($time, $tz);
+      return;
     }
+
+    // Handling for arrays of date parts.
+    // Make this into an ISO date, forcing a full ISO date even if some values
+    // are missing.
     elseif (is_array($time)) {
       // Assume we were passed an indexed array.
       if (empty($time['year']) && empty($time['month']) && empty($time['day'])) {
@@ -77,20 +79,20 @@ class DateObject extends DateTime {
         $this->dateOnly = TRUE;
       }
       $this->errors = $this->arrayErrors($time);
-      // Make this into an ISO date, forcing a full ISO date even if some values
-      // are missing.
       $time = $this->toISO($time, TRUE);
       // We checked for errors already, skip parsing the input values.
       $format = NULL;
     }
+
+    // Make sure dates like 2010-00-00T00:00:00 get converted to
+    // 2010-01-01T00:00:00 before creating a date object
+    // to avoid unintended changes in the month or day.
     else {
-      // Make sure dates like 2010-00-00T00:00:00 get converted to
-      // 2010-01-01T00:00:00 before creating a date object
-      // to avoid unintended changes in the month or day.
-      $time = date_make_iso_valid($time);
+      //$time = date_make_iso_valid($time);
     }
 
-    // The parse function will also set errors on the date parts.
+    // The parse function will create a date from a string and an expected
+    // format, and set errors on missing date parts.
     if (!empty($format)) {
       $arg = self::$allgranularity;
       $element = array_pop($arg);
@@ -102,21 +104,30 @@ class DateObject extends DateTime {
         return FALSE;
       }
     }
-    elseif (is_string($time)) {
-      // We are going to let the parent dateObject do a best effort attempt to
-      // turn this string into a valid date. It might fail and we want to
-      // control the error messages.
+
+    // We are going to let the parent dateObject do a best effort attempt to
+    // turn this string into a valid date. It might fail and we want to
+    // control the error messages.
+    if (is_string($time)) {
       try {
         @parent::__construct($time, $tz);
+        //$date = new DateTime($time, $tz);
       }
       catch (Exception $e) {
-        $this->errors['date'] = $e;
-        return;
+        $errors = $this->getLastErrors();
+        if (empty($date) || ($errors['warning_count'] + $errors['error_count']) > 0) {
+          $this->errors['date'] = t('Invalid date');
+          return;
+        }
       }
+      //parent::__construct();
+      //$this->setTimestamp($date->getTimestamp());
+      //$this->setTimezone($date->getTimezone());
       if (empty($this->granularity)) {
-        $this->setGranularityFromTime($time, $tz);
+        $this->setGranularityFromTime($this->format(self::$default_format), $tz);
       }
     }
+
     // If this tz was given as just an offset or the timezone
     // was invalid, we need to do some tweaking.
     if (!$this->getTimezone() || !preg_match('/[a-zA-Z]/', $this->getTimezone()->getName())) {
@@ -124,7 +135,7 @@ class DateObject extends DateTime {
       // If the timezone name is an offset and the original
       // $tz has a name, use it. This happens if you pass in
       // a date string with an offset along with a specific timezone name.
-      if (!preg_match('/[a-zA-Z]/', $this->getTimezone()->getName()) && preg_match('/[a-zA-Z]/', $tz->getName())) {
+      if ($this->getTimezone() && !preg_match('/[a-zA-Z]/', $this->getTimezone()->getName()) && preg_match('/[a-zA-Z]/', $tz->getName())) {
         $this->setTimezone($tz);
       }
       // If we get this far, we have no information about the timezone name,
@@ -183,6 +194,7 @@ class DateObject extends DateTime {
    *   Returns the formatted date string on success or FALSE on failure.
    */
   public function format($format, $force = FALSE) {
+    return parent::format($format);
     return parent::format($force ? $format : date_limit_format($format, $this->granularity));
   }
 
@@ -246,7 +258,7 @@ class DateObject extends DateTime {
   }
 
   /**
-   * Determines if a a date is valid for a given granularity.
+   * Determines if a date is valid for a given granularity.
    *
    * @param array|null $granularity
    *   An array of date parts. Defaults to NULL.
@@ -318,17 +330,11 @@ class DateObject extends DateTime {
   protected function setGranularityFromTime($time, $tz) {
     $this->granularity = array();
     $temp = date_parse($time);
-    // Special case for 'now'.
-    if ($time == 'now') {
-      $this->granularity = array('year', 'month', 'day', 'hour', 'minute', 'second');
-    }
-    else {
-      // This PHP date_parse() method currently doesn't have resolution down to
-      // seconds, so if there is some time, all will be set.
-      foreach (self::$allgranularity as $g) {
-        if ((isset($temp[$g]) && is_numeric($temp[$g])) || ($g == 'timezone' && (isset($temp['zone_type']) && $temp['zone_type'] > 0))) {
-          $this->granularity[] = $g;
-        }
+    // This PHP date_parse() method currently doesn't have resolution down to
+    // seconds, so if there is some time, all will be set.
+    foreach (self::$allgranularity as $g) {
+      if ((isset($temp[$g]) && is_numeric($temp[$g])) || ($g == 'timezone' && (isset($temp['zone_type']) && $temp['zone_type'] > 0))) {
+        $this->granularity[] = $g;
       }
     }
     if ($tz) {
@@ -622,7 +628,7 @@ class DateObject extends DateTime {
       case 'year':
         $date_api_info = config('date_api.info');
         $fallback = $now->format('Y');
-        return !is_int($value) || empty($value) || $value < $date_api_info->get('year.min') || $value > $date_api_info->get('year.min') ? $fallback : $value;
+        return !is_int($value) || empty($value) || $value < $date_api_info->get('year.min') || $value > $date_api_info->get('year.max') ? $fallback : $value;
         break;
       case 'month':
         $fallback = $default == 'first' ? 1 : $now->format('n');
