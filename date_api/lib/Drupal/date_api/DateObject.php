@@ -53,6 +53,7 @@ class DateObject extends DateTime {
     elseif (empty($tz)) {
       $tz = date_default_timezone_object();
     }
+
     // Special handling for Unix timestamps expressed in the local timezone.
     // Create a date object in UTC and convert it to the local timezone. Don't
     // try to turn things like '2010' with a format of 'Y' into a timestamp.
@@ -133,40 +134,6 @@ class DateObject extends DateTime {
         $this->errors['timezone'] = t('No valid timezone name was provided.');
       }
     }
-  }
-
-  /**
-   * Merges two date objects together using the current date values as defaults.
-   *
-   * @param object $other
-   *   Another date object to merge with.
-   *
-   * @return object
-   *   A merged date object.
-   */
-  public function merge(FeedsDateTime $other) {
-    $other_tz = $other->getTimezone();
-    $this_tz = $this->getTimezone();
-    // Figure out which timezone to use for combination.
-    $use_tz = ($this->hasGranularity('timezone') || !$other->hasGranularity('timezone')) ? $this_tz : $other_tz;
-
-    $this2 = clone $this;
-    $this2->setTimezone($use_tz);
-    $other->setTimezone($use_tz);
-    $val = $this2->toArray(TRUE);
-    $otherval = $other->toArray();
-    foreach (self::$allgranularity as $g) {
-      if ($other->hasGranularity($g) && !$this2->hasGranularity($g)) {
-        // The other class has a property we don't; steal it.
-        $this2->addGranularity($g);
-        $val[$g] = $otherval[$g];
-      }
-    }
-    $other->setTimezone($other_tz);
-
-    $this2->setDate($val['year'], $val['month'], $val['day']);
-    $this2->setTime($val['hour'], $val['minute'], $val['second']);
-    return $this2;
   }
 
   /**
