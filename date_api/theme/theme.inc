@@ -5,6 +5,8 @@
  * Theme files for Date API.
  */
 
+use Drupal\Core\Template\Attribute;
+
 /**
  * Returns HTML for a date timezone element.
  */
