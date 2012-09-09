@@ -18,6 +18,10 @@ use Exception;
  * format, a string with a known format, or an array of date parts.
  * It also adds an errors array to the date object.
  *
+ * As with the base class, we return a date object even if it has errors.
+ * It has an errors array attached to it that explains what the errors are.
+ * The calling script can decide what to do with any errors reported.
+ *
  */
 class DateObject extends DateTime {
 
@@ -124,8 +128,7 @@ class DateObject extends DateTime {
   public function constructFromTimestamp( int $time, object $timezone) {
     parent::__construct('', $timezone);
     $this->setTimestamp($time);
-    $errors = $this->getLastErrors();
-    $this->errors += $errors['errors'];
+    $this->getErrors();
   }
 
   /**
@@ -141,8 +144,7 @@ class DateObject extends DateTime {
     $this->errors += $this->arrayErrors($time);
     $this->input_adjusted = $this->toISO($time, TRUE);
     parent::__construct($this->input_adjusted, $timezone);
-    $errors = $this->getLastErrors();
-    $this->errors += $errors['errors'];
+    $this->getErrors();
   }
 
   /**
@@ -160,8 +162,27 @@ class DateObject extends DateTime {
     $date = parent::createFromFormat($format, $time, $timezone);
     $this->setTimestamp($date->getTimestamp());
     $this->setTimezone($date->getTimezone());
-    $errors = $date->getLastErrors();
+    $this->getErrors($date);
+  }
+
+  /**
+   * Examine getLastErrors() and see what errors to report.
+   * We report anything in the errors array, and also
+   * check the warnings array for a message that the date 
+   * was invalid.
+   * @see http://us3.php.net/manual/en/datetime.getlasterrors.php.
+   */
+  protected function getErrors($from = NULL) {
+    if (!empty($from)) {
+      $errors = $from->getLastErrors();
+    }
+    else {
+      $errors = $this->getLastErrors();
+    }
     $this->errors += $errors['errors'];
+    if (!empty($errors['warnings']) && in_array('The parsed date was invalid', $errors['warnings'])) {
+      $this->errors['date'] = 'The date is invalid.';
+    }
   }
 
   /**
