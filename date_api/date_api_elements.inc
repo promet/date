@@ -135,10 +135,7 @@ function date_default_date($element) {
   }
   $date = new DateObject($default_value, $element['#date_timezone'], $format);
   if (is_object($date)) {
-    $date->limitGranularity($granularity);
-    if ($date->validGranularity($granularity, $element['#date_flexible'])) {
-      date_increment_round($date, $element['#date_increment']);
-    }
+    date_increment_round($date, $element['#date_increment']);
     return $date;
   }
   return NULL;
@@ -739,16 +736,16 @@ function date_select_input_date($element, $input) {
   unset($input['ampm']);
 
   // Make the input match the granularity.
-  foreach (DateGranularity::nongranularity($granularity) as $part) {
-    unset($input[$part]);
-  }
+  //foreach (DateGranularity::nongranularity($granularity) as $part) {
+  //  unset($input[$part]);
+  //}
 
   $date = new DateObject($input, $element['#date_timezone']);
   if (is_object($date)) {
-    $date->limitGranularity($granularity);
-    if ($date->validGranularity($granularity, $element['#date_flexible'])) {
+    //$date->limitGranularity($granularity);
+    //if ($date->validGranularity($granularity, $element['#date_flexible'])) {
       date_increment_round($date, $element['#date_increment']);
-    }
+    //}
     return $date;
   }
   return NULL;

@@ -162,7 +162,6 @@ function date_local_date($item, $timezone, $field, $instance, $part = 'value') {
   */
 
   $date = new DateObject($value, date_get_timezone_db($field['settings']['tz_handling']));
-  $date->limitGranularity($field['settings']['granularity']);
   if (empty($date)) {
     return NULL;
   }
@@ -236,7 +235,6 @@ function date_default_value_part($item, $field, $instance, $langcode, $part = 'v
   }
   // The default value needs to be in the database timezone.
   date_timezone_set($date, timezone_open($timezone_db));
-  $date->limitGranularity($field['settings']['granularity']);
   return $date;
 }
 

@@ -137,7 +137,7 @@ class DateObject extends DateTime {
    *   A DateTimezone object.
    */
   public function constructFromArray( array $time, object $timezone) {
-    // arrayErrors finds errors in the input array.
+    // arrayErrors finds errors in the input array from the original input.
     $this->errors += $this->arrayErrors($time);
     $this->input_adjusted = $this->toISO($time, TRUE);
     parent::__construct($this->input_adjusted, $timezone);
@@ -313,6 +313,58 @@ class DateObject extends DateTime {
       }
     }
     return $errors;
+  }
+
+  /**
+   * Converts a date part into something that will produce a valid date.
+   *
+   * @param string $part
+   *   The date part.
+   * @param int $value
+   *   The date value for this part.
+   * @param string $default
+   *   (optional) If the fallback should use the first value of the date part,
+   *   or the current value of the date part. Defaults to 'first'.
+   * @param int $month
+   *   (optional) Used when the date part is less than 'month' to specify the
+   *   date. Defaults to NULL.
+   * @param int $year
+   *   (optional) Used when the date part is less than 'year' to specify the
+   *   date. Defaults to NULL.
+   *
+   * @return int
+   *   A valid date value.
+   */
+  protected function forceValid($part, $value, $default = 'first', $month = NULL, $year = NULL) {
+    $now = new DateObject();
+    switch ($part) {
+      case 'year':
+        $date_api_info = config('date_api.info');
+        $fallback = $now->format('Y');
+        return !is_int($value) || empty($value) || $value < $date_api_info->get('year.min') || $value > $date_api_info->get('year.max') ? $fallback : $value;
+        break;
+      case 'month':
+        $fallback = $default == 'first' ? 1 : $now->format('n');
+        return !is_int($value) || empty($value) || $value <= 0 || $value > 12 ? $fallback : $value;
+        break;
+      case 'day':
+        $fallback = $default == 'first' ? 1 : $now->format('j');
+        $max_day = isset($year) && isset($month) ? date_days_in_month($year, $month) : 31;
+        return !is_int($value) || empty($value) || $value <= 0 || $value > $max_day ? $fallback : $value;
+        break;
+      case 'hour':
+        $fallback = $default == 'first' ? 0 : $now->format('G');
+        return !is_int($value) || $value < 0 || $value > 23 ? $fallback : $value;
+        break;
+      case 'minute':
+        $fallback = $default == 'first' ? 0 : $now->format('i');
+        return !is_int($value) || $value < 0 || $value > 59 ? $fallback : $value;
+        break;
+      case 'second':
+        $fallback = $default == 'first' ? 0 : $now->format('s');
+        return !is_int($value) || $value < 0 || $value > 59 ? $fallback : $value;
+        break;
+    }
   }
 
   /**

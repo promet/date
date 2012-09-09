@@ -416,4 +416,29 @@ class DateGranularity {
         return self::limitFormat($format, array($part));
     }
   }
+
+  /**
+   * Determines if a date is valid for a given granularity.
+   *
+   * @param array|null $granularity
+   *   An array of date parts. Defaults to NULL.
+   * @param bool $flexible
+   *   TRUE if the granuliarty is flexible, FALSE otherwise. Defaults to FALSE.
+   *
+   * @return bool
+   *   Whether a date is valid for a given granularity.
+   */
+  public function validGranularity($granularity = NULL, $flexible = FALSE) {
+    $true = $this->hasGranularity() && (!$granularity || $flexible || $this->hasGranularity($granularity));
+    if (!$true && $granularity) {
+      foreach ((array) $granularity as $part) {
+        if (!$this->hasGranularity($part)) {
+          $this->errors[$part] = t("The @part is missing.", array('@part' => $part));
+        }
+      }
+    }
+    return $true;
+  }
+
+
 }
