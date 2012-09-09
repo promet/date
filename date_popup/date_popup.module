@@ -20,6 +20,7 @@
  */
 
 use Drupal\date_api\DateObject;
+use Drupal\date_api\DateGranularity;
 use Drupal\Core\Template\Attribute;
 
 /**
@@ -221,29 +222,29 @@ function date_popup_element_info() {
 }
 
 function date_popup_date_granularity($element) {
-  $granularity = date_format_order($element['#date_format']);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
   return array_intersect($granularity, array('month', 'day', 'year'));
 }
 
 function date_popup_time_granularity($element) {
-  $granularity = date_format_order($element['#date_format']);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
   return array_intersect($granularity, array('hour', 'minute', 'second'));
 }
 
 function date_popup_date_format($element) {
-  return (date_limit_format($element['#date_format'], date_popup_date_granularity($element)));
+  return (DateGranularity::limitFormat($element['#date_format'], date_popup_date_granularity($element)));
 }
 
 function date_popup_time_format($element) {
-  return date_popup_format_to_popup_time(date_limit_format($element['#date_format'], date_popup_time_granularity($element)), $element['#timepicker']);
+  return date_popup_format_to_popup_time(DateGranularity::limitFormat($element['#date_format'], date_popup_time_granularity($element)), $element['#timepicker']);
 }
 
 /**
  * Element value callback for date_popup element.
  */
 function date_popup_element_value_callback($element, $input = FALSE, &$form_state) {
-  $granularity = date_format_order($element['#date_format']);
-  $has_time = date_has_time($granularity);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
+  $has_time = DateGranularity::hasTime($granularity);
   $date = NULL;
   $return = $has_time ? array('date' => '', 'time' => '') : array('date' => '');
   // Normal input from submitting the form element.
@@ -313,7 +314,7 @@ function date_popup_element_process($element, &$form_state, $form) {
  * Process the date portion of the element.
  */
 function date_popup_process_date_part(&$element) {
-  $granularity = date_format_order($element['#date_format']);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
   $date_granularity = date_popup_date_granularity($element);
   if (empty($date_granularity)) return array();
 
@@ -376,8 +377,8 @@ function date_popup_process_date_part(&$element) {
  * Process the time portion of the element.
  */
 function date_popup_process_time_part(&$element) {
-  $granularity = date_format_order($element['#date_format']);
-  $has_time = date_has_time($granularity);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
+  $has_time = DateGranularity::hasTime($granularity);
   if (empty($has_time)) return array();
 
   if ($element['#timepicker'] == 'best-available') {
@@ -404,7 +405,7 @@ function date_popup_process_time_part(&$element) {
     case 'wvega':
       $func = 'timepicker';
       $time_granularity = array_intersect($granularity, array('hour', 'minute', 'second'));
-      $format = date_popup_format_to_popup_time(date_limit_format($element['#date_format'], $time_granularity), 'wvega');
+      $format = date_popup_format_to_popup_time(DateGranularity::limitFormat($element['#date_format'], $time_granularity), 'wvega');
       // The first value in the dropdown list should be the same as the element
       // default_value, but it needs to be in JS format (i.e. milliseconds since
       // the epoch).
@@ -479,10 +480,10 @@ function date_popup_validate($element, &$form_state) {
 
   drupal_alter('date_popup_pre_validate', $element, $form_state, $input);
 
-  $granularity = date_format_order($element['#date_format']);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
   $date_granularity = date_popup_date_granularity($element);
   $time_granularity = date_popup_time_granularity($element);
-  $has_time = date_has_time($granularity);
+  $has_time = DateGranularity::hasTime($granularity);
 
   $label = !empty($element['#date_title']) ? $element['#date_title'] : (!empty($element['#title']) ? $element['#title'] : '');
   $label = t($label);
@@ -529,8 +530,8 @@ function date_popup_input_date($element, $input, $auto_complete = FALSE) {
     return NULL;
   }
   date_popup_add();
-  $granularity = date_format_order($element['#date_format']);
-  $has_time = date_has_time($granularity);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
+  $has_time = DateGranularity::hasTime($granularity);
   $flexible = !empty($element['#date_flexible']) ? $element['#date_flexible'] : 0;
 
   $format = date_popup_date_format($element);

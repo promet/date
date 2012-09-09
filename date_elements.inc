@@ -8,6 +8,7 @@
  */
 
 use Drupal\date_api\DateObject;
+use Drupal\date_api\DateGranularity;
 
 /**
  * Private implementation of hook_widget().
@@ -326,7 +327,7 @@ function date_combo_element_process($element, &$form_state, $form) {
     '#default_value' => isset($element['#default_value'][$from_field]) ? $element['#default_value'][$from_field] : '',
     '#delta'         => $delta,
     '#date_timezone' => $element['#date_timezone'],
-    '#date_format'      => date_limit_format(date_input_format($element, $field, $instance), $field['settings']['granularity']),
+    '#date_format'      => DateGranularity::limitFormat(date_input_format($element, $field, $instance), $field['settings']['granularity']),
     '#date_text_parts'  => (array) $instance['widget']['settings']['text_parts'],
     '#date_increment'   => $instance['widget']['settings']['increment'],
     '#date_year_range'  => $instance['widget']['settings']['year_range'],
@@ -582,8 +583,8 @@ function date_combo_validate($element, &$form_state) {
       // test a roundtrip back to the original timezone to catch
       // invalid dates, like 2AM on the day that spring daylight savings
       // time begins in the US.
-      $granularity = date_format_order($element[$from_field]['#date_format']);
-      if ($timezone != $timezone_db && date_has_time($granularity)) {
+      $granularity = DateGranularity::formatOrder($element[$from_field]['#date_format']);
+      if ($timezone != $timezone_db && DateGranularity::hasTime($granularity)) {
         date_timezone_set($from_date, timezone_open($timezone));
         date_timezone_set($to_date, timezone_open($timezone));
 

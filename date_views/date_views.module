@@ -1,5 +1,8 @@
 <?php
 
+use Drupal\date_api\DateObject;
+use Drupal\date_api\DateGranularity;
+
 /**
  * Implements hook_views_api().
  *
@@ -186,16 +189,16 @@ function date_pager_url($view, $date_type = NULL, $date_arg = NULL, $force_view_
   if (!empty($date_type)) {
     switch ($date_type) {
       case 'year':
-        $args[$pos] = date_pad($view->date_info->year, 4);
+        $args[$pos] = DateObject::datePad($view->date_info->year, 4);
         break;
       case 'week':
-        $args[$pos] = date_pad($view->date_info->year, 4) . '-W' . date_pad($view->date_info->week);
+        $args[$pos] = DateObject::datePad($view->date_info->year, 4) . '-W' . DateObject::datePad($view->date_info->week);
         break;
       case 'day':
-        $args[$pos] = date_pad($view->date_info->year, 4) . '-' . date_pad($view->date_info->month) . '-' . date_pad($view->date_info->day);
+        $args[$pos] = DateObject::datePad($view->date_info->year, 4) . '-' . DateObject::datePad($view->date_info->month) . '-' . DateObject::datePad($view->date_info->day);
         break;
       default:
-        $args[$pos] = date_pad($view->date_info->year, 4) . '-' . date_pad($view->date_info->month);
+        $args[$pos] = DateObject::datePad($view->date_info->year, 4) . '-' . DateObject::datePad($view->date_info->month);
         break;
     }
   }
@@ -374,7 +377,7 @@ function date_views_select_validate(&$form, &$form_state) {
   if (empty($form['value']) && empty($form['min'])) {
     return;
   }
-  $granularity = (!empty($form['min']['#date_format'])) ? date_format_order($form['min']['#date_format']) : date_format_order($form['value']['#date_format']);
+  $granularity = (!empty($form['min']['#date_format'])) ? DateGranularity::formatOrder($form['min']['#date_format']) : DateGranularity::formatOrder($form['value']['#date_format']);
   $filled = array();
   $value = drupal_array_get_nested_value($form_state['input'], $form['#parents']);
   foreach ($granularity as $part) {

@@ -7,6 +7,7 @@
  */
 
 use Drupal\date_api\DateObject;
+use Drupal\date_api\DateGranularity;
 
 /**
  * Implements hook_element_info().
@@ -108,7 +109,7 @@ function _date_api_element_info() {
  * Create a date object from a datetime string value.
  */
 function date_default_date($element) {
-  $granularity = date_format_order($element['#date_format']);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
   $default_value = $element['#default_value'];
   $format = DATE_FORMAT_DATETIME;
 
@@ -404,7 +405,7 @@ function date_text_input_date($element, $input) {
   if (empty($input) || !is_array($input) || !array_key_exists('date', $input) || empty($input['date'])) {
     return NULL;
   }
-  $granularity = date_format_order($element['#date_format']);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
   $date = new DateObject($input['date'], $element['#date_timezone'], $element['#date_format']);
   if (is_object($date)) {
     $date->limitGranularity($granularity);
@@ -429,7 +430,7 @@ function date_select_element_value_callback($element, $input = FALSE, &$form_sta
   elseif (!empty($element['#default_value'])) {
     $date = date_default_date($element);
   }
-  $granularity = date_format_order($element['#date_format']);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
   $formats = array('year' => 'Y', 'month' => 'n', 'day' => 'j', 'hour' => 'H', 'minute' => 'i', 'second' => 's');
   foreach ($granularity as $field) {
     if ($field != 'timezone') {
@@ -456,7 +457,7 @@ function date_select_element_process($element, &$form_state, $form) {
   }
 
   $date = NULL;
-  $granularity = date_format_order($element['#date_format']);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
 
   if (is_array($element['#default_value'])) {
     $date = date_select_input_date($element, $element['#default_value']);
@@ -471,9 +472,9 @@ function date_select_element_process($element, &$form_state, $form) {
   $element += (array) date_parts_element($element, $date, $element['#date_format']);
 
   // Store a hidden value for all date parts not in the current display.
-  $granularity = date_format_order($element['#date_format']);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
   $formats = array('year' => 'Y', 'month' => 'n', 'day' => 'j', 'hour' => 'H', 'minute' => 'i', 'second' => 's');
-  foreach (date_nongranularity($granularity) as $field) {
+  foreach (DateGranularity::nongranularity($granularity) as $field) {
     if ($field != 'timezone') {
       $element[$field] = array(
         '#type' => 'value',
@@ -516,7 +517,7 @@ function date_select_element_process($element, &$form_state, $form) {
  *   The form array for the submitted date parts.
  */
 function date_parts_element($element, $date, $format) {
-  $granularity = date_format_order($format);
+  $granularity = DateGranularity::formatOrder($format);
   $sub_element = array('#granularity' => $granularity);
   $order = array_flip($granularity);
 
@@ -622,7 +623,7 @@ function date_parts_element($element, $date, $format) {
     $sub_element[$field]['#value'] = $default;
   }
 
-  if (($hours_format == 'g' || $hours_format == 'h') && date_has_time($granularity)) {
+  if (($hours_format == 'g' || $hours_format == 'h') && DateGranularity::hasTime($granularity)) {
     $sub_element['ampm'] = array(
       '#type' => 'select',
       '#theme' => 'date_select_element',
@@ -726,7 +727,7 @@ function date_select_input_date($element, $input) {
       return NULL;
     }
   }
-  $granularity = date_format_order($element['#date_format']);
+  $granularity = DateGranularity::formatOrder($element['#date_format']);
   if (isset($input['ampm'])) {
     if ($input['ampm'] == 'pm' && $input['hour'] < 12) {
       $input['hour'] += 12;
@@ -738,7 +739,7 @@ function date_select_input_date($element, $input) {
   unset($input['ampm']);
 
   // Make the input match the granularity.
-  foreach (date_nongranularity($granularity) as $part) {
+  foreach (DateGranularity::nongranularity($granularity) as $part) {
     unset($input[$part]);
   }
 

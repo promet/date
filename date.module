@@ -6,6 +6,7 @@
  */
 
 use Drupal\date_api\DateObject;
+use Drupal\date_api\DateGranularity;
 
 module_load_include('theme', 'date', 'date');
 module_load_include('inc', 'date', 'date.field');
@@ -221,12 +222,13 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
       $dates[$processed] = array();
 
       // Check to see if this date was already created by date_field_load().
-      if (isset($item['db'][$processed])) {
+      if (1 ==2 && isset($item['db'][$processed])) {
         $date = $item['db'][$processed];
       }
       else {
         $date = new DateObject($item[$processed], $timezone_db, $db_format);
-        $date->limitGranularity($field['settings']['granularity']);
+        $granularity = new DateGranularity();
+        $granularity->setGranularityFromArray($field['settings']['granularity']);
       }
 
       $dates[$processed]['db']['object'] = $date;
@@ -257,9 +259,9 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
         }
         elseif (!empty($format)) {
           $dates[$processed]['formatted'] = date_format_date($date, 'custom', $format);
-          $dates[$processed]['formatted_date'] = date_format_date($date, 'custom', date_limit_format($format, array('year', 'month', 'day')));
-          $dates[$processed]['formatted_time'] = date_format_date($date, 'custom', date_limit_format($format, array('hour', 'minute', 'second')));
-          $dates[$processed]['formatted_timezone'] = date_format_date($date, 'custom', date_limit_format($format, array('timezone')));
+          $dates[$processed]['formatted_date'] = date_format_date($date, 'custom', DateGranularity::limitFormat($format, array('year', 'month', 'day')));
+          $dates[$processed]['formatted_time'] = date_format_date($date, 'custom', DateGranularity::limitFormat($format, array('hour', 'minute', 'second')));
+          $dates[$processed]['formatted_timezone'] = date_format_date($date, 'custom', DateGranularity::limitFormat($format, array('timezone')));
         }
       }
     }
@@ -403,7 +405,7 @@ function date_formatter_format($formatter, $settings, $granularity = array(), $l
 
   // A selected format might include timezone information.
   array_push($granularity, 'timezone');
-  return date_limit_format($format, $granularity);
+  return DateGranularity::limitFormat($format, $granularity);
 }
 
 /**
@@ -672,14 +674,14 @@ function date_field_all_day($field, $instance, $date1, $date2 = NULL) {
   if (empty($date1) || !is_object($date1)) {
     return FALSE;
   }
-  elseif (!date_has_time($field['settings']['granularity'])) {
+  elseif (!DateGranularity::hasTime($field['settings']['granularity'])) {
     return TRUE;
   }
   if (empty($date2)) {
     $date2 = $date1;
   }
 
-  $granularity = date_granularity_precision($field['settings']['granularity']);
+  $granularity = DateGranularity::precision($field['settings']['granularity']);
   $increment = isset($instance['widget']['settings']['increment']) ? $instance['widget']['settings']['increment'] : 1;
   return date_is_all_day(date_format($date1, DATE_FORMAT_DATETIME), date_format($date2, DATE_FORMAT_DATETIME), $granularity, $increment);
 }

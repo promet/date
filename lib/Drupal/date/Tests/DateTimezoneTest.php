@@ -6,6 +6,7 @@
 namespace Drupal\date\Tests;
 
 use Drupal\simpletest\WebTestBase;
+use Drupal\date_api\DateGranularity;
 
 class DateTimezoneTest extends DateFieldBase {
 
@@ -35,7 +36,7 @@ class DateTimezoneTest extends DateFieldBase {
           }
           $field_name = "field_test";
           $label = 'Test';
-          $granularity = date_granularity_array_from_precision($max_granularity);
+          $granularity = DateGranularity::arrayFromPrecision($max_granularity);
           $options = array(
             'label' => $label,
             'widget_type' => 'date_text',

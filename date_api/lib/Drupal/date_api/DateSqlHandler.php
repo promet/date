@@ -1,8 +1,9 @@
 <?php
 
-namespace DateAPI;
+namespace Drupal\date_api;
 
 use Drupal\date_api\DateObject;
+use Drupal\date_api\DateGranularity;
 
 /**
  * A class to manipulate date SQL.
@@ -840,23 +841,23 @@ class DateSqlHandler {
         $formats['sql'] = 'Y';
         break;
       case 'month':
-        $formats['display'] = date_limit_format($long, array('year', 'month'));
+        $formats['display'] = DateGranularity::limitFormat($long, array('year', 'month'));
         $formats['sql'] = 'Y-m';
         break;
       case 'day':
-        $formats['display'] = date_limit_format($long, array('year', 'month', 'day'));
+        $formats['display'] = DateGranularity::limitFormat($long, array('year', 'month', 'day'));
         $formats['sql'] = 'Y-m-d';
         break;
       case 'hour':
-        $formats['display'] = date_limit_format($long, array('year', 'month', 'day', 'hour'));
+        $formats['display'] = DateGranularity::limitFormat($long, array('year', 'month', 'day', 'hour'));
         $formats['sql'] = 'Y-m-d\TH';
         break;
       case 'minute':
-        $formats['display'] = date_limit_format($long, array('year', 'month', 'day', 'hour', 'minute'));
+        $formats['display'] = DateGranularity::limitFormat($long, array('year', 'month', 'day', 'hour', 'minute'));
         $formats['sql'] = 'Y-m-d\TH:i';
         break;
       case 'second':
-        $formats['display'] = date_limit_format($long, array('year', 'month', 'day', 'hour', 'minute', 'second'));
+        $formats['display'] = DateGranularity::limitFormat($long, array('year', 'month', 'day', 'hour', 'minute', 'second'));
         $formats['sql'] = 'Y-m-d\TH:i:s';
         break;
       case 'week':

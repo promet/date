@@ -5,6 +5,7 @@
  * Theme functions.
  */
 use Drupal\Core\Template\Attribute;
+use Drupal\date_api\DateGranularity;
 
 /**
  * @addtogroup themeable
@@ -75,7 +76,7 @@ function theme_date_display_combination($variables) {
   $attributes  = $variables['attributes'];
   $rdf_mapping = $variables['rdf_mapping'];
   $add_rdf     = $variables['add_rdf'];
-  $precision   = date_granularity_precision($field['settings']['granularity']);
+  $precision   = DateGranularity::precision($field['settings']['granularity']);
 
   $output = '';
 
@@ -145,7 +146,7 @@ function theme_date_display_combination($variables) {
 
   // A date with a granularity of 'hour' has a time string that is an integer
   // value. We can't use that to replace time strings in formatted dates.
-  $has_time_string = date_has_time($field['settings']['granularity']);
+  $has_time_string = DateGranularity::hasTime($field['settings']['granularity']);
   if ($precision == 'hour') {
     $has_time_string = FALSE;
   }

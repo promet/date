@@ -401,14 +401,14 @@ function date_ical_parse_date($field, $data) {
       case 'DATE':
         preg_match(DATE_REGEX_ICAL_DATE, $data, $regs);
         // Date.
-        $datetime = date_pad($regs[1]) . '-' . date_pad($regs[2]) . '-' . date_pad($regs[3]);
+        $datetime = DateObject::datePad($regs[1]) . '-' . DateObject::datePad($regs[2]) . '-' . DateObject::datePad($regs[3]);
         break;
       case 'DATE-TIME':
         preg_match(DATE_REGEX_ICAL_DATETIME, $data, $regs);
         // Date.
-        $datetime = date_pad($regs[1]) . '-' . date_pad($regs[2]) . '-' . date_pad($regs[3]);
+        $datetime = DateObject::datePad($regs[1]) . '-' . DateObject::datePad($regs[2]) . '-' . DateObject::datePad($regs[3]);
         // Time.
-        $datetime .= ' ' . date_pad($regs[4]) . ':' . date_pad($regs[5]) . ':' . date_pad($regs[6]);
+        $datetime .= ' ' . DateObject::datePad($regs[4]) . ':' . DateObject::datePad($regs[5]) . ':' . DateObject::datePad($regs[6]);
         $has_time = TRUE;
         break;
     }
@@ -418,13 +418,13 @@ function date_ical_parse_date($field, $data) {
     preg_match(DATE_REGEX_LOOSE, $data, $regs);
     if (!empty($regs) && count($regs) > 2) {
       // Date.
-      $datetime = date_pad($regs[1]) . '-' . date_pad($regs[2]) . '-' . date_pad($regs[3]);
+      $datetime = DateObject::datePad($regs[1]) . '-' . DateObject::datePad($regs[2]) . '-' . DateObject::datePad($regs[3]);
       if (isset($regs[4])) {
         $has_time = TRUE;
         // Time.
-        $datetime .= ' ' . (!empty($regs[5]) ? date_pad($regs[5]) : '00') .
-         ':' . (!empty($regs[6]) ? date_pad($regs[6]) : '00') .
-         ':' . (!empty($regs[7]) ? date_pad($regs[7]) : '00');
+        $datetime .= ' ' . (!empty($regs[5]) ? DateObject::datePad($regs[5]) : '00') .
+         ':' . (!empty($regs[6]) ? DateObject::datePad($regs[6]) : '00') .
+         ':' . (!empty($regs[7]) ? DateObject::datePad($regs[7]) : '00');
       }
     }
   }

@@ -5,6 +5,7 @@
  */
 
 use Drupal\date_api\DateObject;
+use Drupal\date_api\DateGranularity;
 
 class date_views_filter_handler_simple extends views_handler_filter_date {
   var $date_handler = NULL;
@@ -331,7 +332,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
         '#type' => $type,
         '#size' => 20,
         '#default_value' => !empty($this->value[$prefix]) ? $this->value[$prefix] : $default_date,
-        '#date_format' => date_limit_format($format, $granularity),
+        '#date_format' => DateGranularity::limitFormat($format, $granularity),
         '#date_label_position' => 'within',
         '#date_year_range' => $this->options['year_range'],
         '#process' => array($type . '_element_process'),
@@ -366,7 +367,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
         '#type' => $type,
         '#size' => 20,
         '#default_value' => !empty($this->value[$prefix]) ? $this->value[$prefix] : $default_date,
-        '#date_format' => date_limit_format($format, $granularity),
+        '#date_format' => DateGranularity::limitFormat($format, $granularity),
         '#date_label_position' => 'within',
         '#date_year_range' => $this->options['year_range'],
         '#process' => array($type . '_element_process'),

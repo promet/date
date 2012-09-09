@@ -5,6 +5,8 @@
  * The Date Wizard code.
  */
 
+use Drupal\date_api\DateGranularity;
+
 /**
  * @todo.
  */
@@ -141,7 +143,7 @@ function date_tools_wizard_form_validate(&$form, &$form_state) {
   if (strlen($field_name) > 32) {
     form_set_error('field_name', t('The field name must be no more than 26 characters long.'));
   }
-  if (!date_has_time($form_state['values']['granularity']) && $form_state['values']['tz_handling'] != 'none') {
+  if (!DateGranularity::hasTime($form_state['values']['granularity']) && $form_state['values']['tz_handling'] != 'none') {
     form_set_error('tz_handling', t('Timezone handling must be none for granularity without time.'));
   }
 }

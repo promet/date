@@ -339,7 +339,7 @@ function hook_date_combo_process_alter(&$element, &$form_state, $context) {
       '#theme_wrappers' => array('date_repeat_rrule'),
       '#default_value' => isset($item['rrule']) ? $item['rrule'] : '',
       '#date_timezone' => $element['#date_timezone'],
-      '#date_format'      => date_limit_format(date_input_format($element, $field, $instance), $field['settings']['granularity']),
+      '#date_format'      => DateGranularity::limitFormat(date_input_format($element, $field, $instance), $field['settings']['granularity']),
       '#date_text_parts'  => (array) $instance['widget']['settings']['text_parts'],
       '#date_increment'   => $instance['widget']['settings']['increment'],
       '#date_year_range'  => $instance['widget']['settings']['year_range'],

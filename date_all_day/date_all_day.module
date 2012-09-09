@@ -16,6 +16,8 @@
  * date_popup, then date_combo.
  */
 
+use Drupal\date_api\DateGranularity;
+
 /**
  * Implements hook_theme().
  */
@@ -118,18 +120,18 @@ function theme_date_all_day($vars) {
   }
 
   $suffix = '';
-  if (!date_has_time($field['settings']['granularity'])) {
-    $format = date_limit_format($format, array('year', 'month', 'day'));
+  if (!DateGranularity::hasTime($field['settings']['granularity'])) {
+    $format = DateGranularity::limitFormat($format, array('year', 'month', 'day'));
   }
   else {
-    $format_granularity = date_format_order($format);
+    $format_granularity = DateGranularity::formatOrder($format);
     $format_has_time = FALSE;
     if (in_array('hour', $format_granularity)) {
       $format_has_time = TRUE;
     }
     $all_day = date_all_day_field($field, $instance, $date1, $date2);
     if ($all_day && $format_has_time) {
-      $format = date_limit_format($format, array('year', 'month', 'day'));
+      $format = DateGranularity::limitFormat($format, array('year', 'month', 'day'));
       $suffix = ' ' . theme('date_all_day_label');
     }
   }
@@ -157,14 +159,14 @@ function date_all_day_field($field, $instance, $date1, $date2 = NULL) {
   if (empty($date1) || !is_object($date1)) {
     return FALSE;
   }
-  elseif (!date_has_time($field['settings']['granularity'])) {
+  elseif (!DateGranularity::hasTime($field['settings']['granularity'])) {
     return TRUE;
   }
   if (empty($date2)) {
     $date2 = $date1;
   }
 
-  $granularity = date_granularity_precision($field['settings']['granularity']);
+  $granularity = DateGranularity::precision($field['settings']['granularity']);
   $increment = isset($instance['widget']['settings']['increment']) ? $instance['widget']['settings']['increment'] : 1;
   return date_is_all_day(date_format($date1, DATE_FORMAT_DATETIME), date_format($date2, DATE_FORMAT_DATETIME), $granularity, $increment);
 
@@ -412,7 +414,7 @@ function date_all_day_date_field_widget_settings_form_alter(&$form, $context) {
   );
 
   // Hide the option to use the all day checkbox for dates with no time.
-  if (!date_has_time($field['settings']['granularity'])) {
+  if (!DateGranularity::hasTime($field['settings']['granularity'])) {
     $form['display_all_day']['#type'] = 'hidden';
     $form['display_all_day']['#value'] = 0;
   }
