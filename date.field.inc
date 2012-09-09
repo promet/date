@@ -328,8 +328,6 @@ function date_field_load($entity_type, $entities, $field, $instances, $langcode,
         if (!empty($field['settings']['cache_enabled']) && ($delta < $field['settings']['cache_count'] || $field['settings']['cache_count'] == 0)) {
           foreach ($process as $processed) {
             if (!empty($item[$processed])) {
-              $date = new DateObject($item[$processed], $item['timezone_db'], $db_format);
-              $date->limitGranularity($field['settings']['granularity']);
               $item['db'][$processed] = $date;
             }
           }

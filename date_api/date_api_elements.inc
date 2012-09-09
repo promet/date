@@ -405,10 +405,6 @@ function date_text_input_date($element, $input) {
   $granularity = DateGranularity::formatOrder($element['#date_format']);
   $date = new DateObject($input['date'], $element['#date_timezone'], $element['#date_format']);
   if (is_object($date)) {
-    $date->limitGranularity($granularity);
-    if ($date->validGranularity($granularity, $element['#date_flexible'])) {
-      date_increment_round($date, $element['#date_increment']);
-    }
     return $date;
   }
   return NULL;
@@ -742,10 +738,6 @@ function date_select_input_date($element, $input) {
 
   $date = new DateObject($input, $element['#date_timezone']);
   if (is_object($date)) {
-    //$date->limitGranularity($granularity);
-    //if ($date->validGranularity($granularity, $element['#date_flexible'])) {
-      date_increment_round($date, $element['#date_increment']);
-    //}
     return $date;
   }
   return NULL;
