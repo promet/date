@@ -125,7 +125,7 @@ class DateObject extends DateTime {
    * @param object $timezone
    *   A DateTimezone object.
    */
-  public function constructFromTimestamp( int $time, object $timezone) {
+  public function constructFromTimestamp($time, DateTimezone $timezone) {
     parent::__construct('', $timezone);
     $this->setTimestamp($time);
     $this->getErrors();
@@ -139,7 +139,7 @@ class DateObject extends DateTime {
    * @param object $timezone
    *   A DateTimezone object.
    */
-  public function constructFromArray( array $time, object $timezone) {
+  public function constructFromArray($time, DateTimezone $timezone) {
     // arrayErrors finds errors in the input array from the original input.
     $this->errors += $this->arrayErrors($time);
     $this->input_adjusted = $this->toISO($time, TRUE);
@@ -157,7 +157,7 @@ class DateObject extends DateTime {
    * @param object $timezone
    *   A DateTimezone object.
    */
-  public function constructFromFormat(string $format, string $time, object $timezone) {
+  public function constructFromFormat($format, $time, DateTimezone $timezone) {
     parent::__construct('', $timezone);
     $date = parent::createFromFormat($format, $time, $timezone);
     $this->setTimestamp($date->getTimestamp());

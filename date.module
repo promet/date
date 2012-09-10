@@ -222,13 +222,11 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
       $dates[$processed] = array();
 
       // Check to see if this date was already created by date_field_load().
-      if (1 ==2 && isset($item['db'][$processed])) {
+      if (isset($item['db'][$processed])) {
         $date = $item['db'][$processed];
       }
       else {
         $date = new DateObject($item[$processed], $timezone_db, $db_format);
-        $granularity = new DateGranularity();
-        $granularity->setGranularityFromArray($field['settings']['granularity']);
       }
 
       $dates[$processed]['db']['object'] = $date;

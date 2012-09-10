@@ -175,6 +175,8 @@ function date_local_date($item, $timezone, $field, $instance, $part = 'value') {
  */
 function date_default_value($field, $instance, $langcode) {
   $item = array();
+  // @TODO Default handling is not working the same as in D7.
+  return $item;
   $db_format = date_type_format($field['type']);
   $date = date_default_value_part($item, $field, $instance, $langcode, 'value');
   $item[0]['value'] = is_object($date) ? date_format($date, $db_format) : '';
