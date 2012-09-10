@@ -405,6 +405,7 @@ function date_text_input_date($element, $input) {
   $granularity = DateGranularity::formatOrder($element['#date_format']);
   $date = new DateObject($input['date'], $element['#date_timezone'], $element['#date_format']);
   if (is_object($date)) {
+    $date->granularity = $granularity;
     return $date;
   }
   return NULL;
@@ -732,12 +733,13 @@ function date_select_input_date($element, $input) {
   unset($input['ampm']);
 
   // Make the input match the granularity.
-  //foreach (DateGranularity::nongranularity($granularity) as $part) {
-  //  unset($input[$part]);
-  //}
+  foreach (DateGranularity::nongranularity($granularity) as $part) {
+    unset($input[$part]);
+  }
 
   $date = new DateObject($input, $element['#date_timezone']);
   if (is_object($date)) {
+    $date->granularity = $granularity;
     return $date;
   }
   return NULL;

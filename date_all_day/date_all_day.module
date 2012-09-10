@@ -112,7 +112,7 @@ function theme_date_all_day($vars) {
   $entity   = $vars['entity'];
   $view     = !empty($vars['view']) ? $vars['view'] : NULL;
 
-  $granularity_instance = new DateGranularity($field['settings']['granularity']);
+  $granularity = $field['settings']['granularity'];
 
   if (empty($date1) || !is_object($date1) || $format == 'format_interval') {
     return;
@@ -122,8 +122,8 @@ function theme_date_all_day($vars) {
   }
 
   $suffix = '';
-  if (!$granularity_instance->hasTime()) {
-    $format = $granularity_instance->limitFormat($format, array('year', 'month', 'day'));
+  if (!DateGranularity::hasTime($granularity)) {
+    $format = DateGranularity::limitFormat($format, DateGranularity::$date_parts);
   }
   else {
     $format_granularity = DateGranularity::formatOrder($format);
@@ -133,7 +133,7 @@ function theme_date_all_day($vars) {
     }
     $all_day = date_all_day_field($field, $instance, $date1, $date2);
     if ($all_day && $format_has_time) {
-      $format = $granularity_instance->limitFormat($format, array('year', 'month', 'day'));
+      $format = DateGranularity::limitFormat($format, DateGranularity::$date_parts);
       $suffix = ' ' . theme('date_all_day_label');
     }
   }

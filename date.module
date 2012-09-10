@@ -205,7 +205,6 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
   }
 
   $granularity = date_granularity($field);
-  $granularity_instance = new DateGranularity($granularity);
   $settings = $display['settings'];
   $field_name = $field['field_name'];
   $format = date_formatter_format($formatter, $settings, $granularity, $langcode);
@@ -228,6 +227,7 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
       }
       else {
         $date = new DateObject($item[$processed], $timezone_db, $db_format);
+        $date->granularity = $granularity;
       }
 
       $dates[$processed]['db']['object'] = $date;
@@ -258,9 +258,9 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
         }
         elseif (!empty($format)) {
           $dates[$processed]['formatted'] = date_format_date($date, 'custom', $format);
-          $dates[$processed]['formatted_date'] = date_format_date($date, 'custom', $granularity_instance->limitFormat($format, array('year', 'month', 'day')));
-          $dates[$processed]['formatted_time'] = date_format_date($date, 'custom', $granularity_instance->limitFormat($format, array('hour', 'minute', 'second')));
-          $dates[$processed]['formatted_timezone'] = date_format_date($date, 'custom', $granularity_instance->limitFormat($format, array('timezone')));
+          $dates[$processed]['formatted_date'] = date_format_date($date, 'custom', DateGranularity::limitFormat($format, DateGranularity::$date_parts));
+          $dates[$processed]['formatted_time'] = date_format_date($date, 'custom', DateGranularity::limitFormat($format, DateGranularity::$time_parts));
+          $dates[$processed]['formatted_timezone'] = date_format_date($date, 'custom', DateGranularity::limitFormat($format, array('timezone')));
         }
       }
     }
@@ -404,8 +404,7 @@ function date_formatter_format($formatter, $settings, $granularity = array(), $l
 
   // A selected format might include timezone information.
   array_push($granularity, 'timezone');
-  $granularity_instance = new DateGranularity($granularity);
-  return $granularity_instance->limitFormat($format);
+  return DateGranularity::limitFormat($format, $granularity);
 }
 
 /**
@@ -661,71 +660,6 @@ function date_entity_metadata_struct_setter(&$item, $name, $value, $langcode, $t
     }
     $item[$name] = $date->format($format);
   }
-}
-
-/**
- * Duplicate functionality of what is now date_all_day_field() in
- * the Date All Day module. Copy left here to avoid breaking other
- * modules that use this function.
- *
- * DEPRECATED!, will be removed at some time in the future.
- */
-function date_field_all_day($field, $instance, $date1, $date2 = NULL) {
-  if (empty($date1) || !is_object($date1)) {
-    return FALSE;
-  }
-  elseif (!DateGranularity::hasTime($field['settings']['granularity'])) {
-    return TRUE;
-  }
-  if (empty($date2)) {
-    $date2 = $date1;
-  }
-
-  $granularity = DateGranularity::precision($field['settings']['granularity']);
-  $increment = isset($instance['widget']['settings']['increment']) ? $instance['widget']['settings']['increment'] : 1;
-  return date_is_all_day(date_format($date1, DATE_FORMAT_DATETIME), date_format($date2, DATE_FORMAT_DATETIME), $granularity, $increment);
-}
-
-/**
- * Generates a Date API SQL handler for the given date field.
- *
- * The handler will be set up to make the correct timezone adjustments
- * for the field settings.
- *
- * @param array $field
- *   The $field array.
- * @param string $compare_tz
- *   The timezone used for comparison values in the SQL.
- *
- * DEPRECATED!, will be removed at some time in the future.
- */
-function date_field_get_sql_handler($field, $compare_tz = NULL) {
-  module_load_include('inc', 'date_api', 'date_api_sql');
-
-  $db_info = date_api_database_info($field);
-
-  // Create a DateAPI SQL handler class for this field type.
-  $handler = new DateSqlHandler($field['type']);
-
-  // If this date field stores a timezone in the DB, tell the handler about it.
-  if ($field['settings']['tz_handling'] == 'date') {
-    $handler->db_timezone_field = $db_info['columns']['timezone']['column'];
-  }
-  else {
-    $handler->db_timezone = date_get_timezone_db($field['settings']['tz_handling']);
-  }
-
-  if (empty($compare_tz)) {
-    $compare_tz = date_get_timezone($field['settings']['tz_handling']);
-  }
-  $handler->local_timezone = $compare_tz;
-
-  // Now that the handler is properly initialized, force the DB
-  // to use UTC so no timezone conversions get added to things like
-  // NOW() or FROM_UNIXTIME().
-  $handler->set_db_timezone();
-
-  return $handler;
 }
 
 /**
