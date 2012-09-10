@@ -13,10 +13,10 @@ use Exception;
 /**
  * This class is a Drupal independent extension of the PHP DateTime class.
  *
- * It extends the PHP DateTime class with more flexible initialization parameters,
- * allowing a date to be created from a timestamp, a string with an unknown
- * format, a string with a known format, or an array of date parts.
- * It also adds an errors array to the date object.
+ * It extends the PHP DateTime class with more flexible initialization
+ * parameters, allowing a date to be created from a timestamp, a string
+ * with an unknown format, a string with a known format, or an array of
+ * date parts. It also adds an errors array to the date object.
  *
  * As with the base class, we return a date object even if it has errors.
  * It has an errors array attached to it that explains what the errors are.
@@ -57,10 +57,10 @@ class DateObject extends DateTime {
    * @param object|string|null $timezone_name
    *   PHP DateTimeZone object, string or NULL allowed. Defaults to NULL.
    * @param string $format
-   *   PHP date() type format for parsing. Doesn't support timezones; if you
-   *   have a timezone, send NULL and the default constructor method will
-   *   hopefully parse it. $format is recommended in order to use negative or
-   *   large years, which php's parser fails on.
+   *   PHP date() type format for parsing. Doesn't support timezones;
+   *   if you have a timezone, send NULL and the default constructor method
+   *   will hopefully parse it. $format is recommended in order to use
+   *   negative or large years, which php's parser fails on.
    * @return
    *   Returns FALSE on failure.
    */
@@ -77,7 +77,8 @@ class DateObject extends DateTime {
 
     // Handling for Unix timestamps.
     // Create a date object and convert it to the local timezone.
-    // Don't try to turn a value like '2010' with a format of 'Y' into a timestamp.
+    // Don't try to turn a value like '2010' with a format of 'Y'
+    // into a timestamp.
     if (is_numeric($this->input_adjusted) && (empty($this->format) || $this->format == 'U')) {
       $this->constructFromTimestamp($this->input_adjusted, $this->timezone_object);
     }
@@ -89,8 +90,9 @@ class DateObject extends DateTime {
       $this->constructFromArray($this->input_adjusted, $this->timezone_object);
     }
 
-    // The parse function will create a date from a string and an expected
-    // format, and set errors on date parts in the format that have no value.
+    // The parse function will create a date from a string and an
+    // expected format, and set errors on date parts in the format that
+    // have no value.
     elseif (!empty($this->format)) {
       $this->constructFromFormat($this->format, $this->input_adjusted, $this->timezone_object);
     }
@@ -185,17 +187,19 @@ class DateObject extends DateTime {
       $errors = $this->getLastErrors();
     }
     $this->errors += $errors['errors'];
-    // We're interested in two kinds of errors: anything that DateTime considers an error,
-    // and also a warning that the date was invalid. PHP creates a valid date from
-    // invalid data (2012-02-30 becomes 2012-03-03, for instance), but we don't want that.
+    // We're interested in two kinds of errors: anything that DateTime
+    // considers an error, and also a warning that the date was invalid.
+    // PHP creates a valid date from invalid data (2012-02-30 becomes
+    // 2012-03-03, for instance), but we don't want that.
     if (!empty($errors['warnings']) && in_array('The parsed date was invalid', $errors['warnings'])) {
       $this->errors['date'] = self::$invalid_date_message;
     }
   }
 
   /**
-   * Set the default timezone name to use when no other information is available.
-   * The system requires that a fallback timezone name be available.
+   * Set the default timezone name to use when no other information is
+   * available. The system requires that a fallback timezone name be
+   * available.
    */
   public static function setDefaultTimezoneName($timezone_name = NULL) {
     $system_timezone = date_default_timezone_get();
@@ -224,16 +228,17 @@ class DateObject extends DateTime {
    * Prepare the input value before trying to use it.
    *
    * @param mixed $time
-   *   An input value, which could be a timestamp, a string, or an array of date parts.
+   *   An input value, which could be a timestamp, a string,
+   *   or an array of date parts.
    */
   protected function prepareInput($time) {
     // Make sure dates like 2010-00-00T00:00:00 get converted to
     // 2010-01-01T00:00:00 before creating a date object
     // to avoid unintended changes in the month or day.
-      //$temp = $this->getFuzzyDate($time, $format = NULL, 'empty');
-      //echo '<br>' . $time .'<br>';
-      //print_r($this->granularity);
-      //$time = date_make_iso_valid($time);
+    //$temp = $this->getFuzzyDate($time, $format = NULL, 'empty');
+    //echo '<br>' . $time .'<br>';
+    //print_r($this->granularity);
+    //$time = date_make_iso_valid($time);
     return $time;
   }
 
@@ -284,16 +289,16 @@ class DateObject extends DateTime {
    * @param array $array
    *   An array of date values keyed by date part.
    * @param bool $full
-   *   (optional) Whether to force a full date by filling in missing values.
-   *   Defaults to FALSE.
+   *   (optional) Whether to force a full date by filling in missing
+   *   values. Defaults to FALSE.
    *
    * @return string
    *   The date as an ISO string.
    */
   public static function toISO($array, $full = FALSE) {
-    // Add empty values to avoid errors. The empty values must create a valid
-    // date or we will get date slippage, i.e. a value of 2011-00-00 will get
-    // interpreted as November of 2010.
+    // Add empty values to avoid errors. The empty values must create a
+    // valid date or we will get date slippage, i.e. a value of
+    //  2011-00-00 will get interpreted as November of 2010.
     if ($full) {
       $array += array('year' => 0, 'month' => 1, 'day' => 1, 'hour' => 0, 'minute' => 0, 'second' => 0);
     }
@@ -326,8 +331,8 @@ class DateObject extends DateTime {
   /**
    * Finds possible errors in an array of date part values.
    *
-   * The forceValid() function will change an invalid value to a valid one, so
-   * we just need to see if the value got altered.
+   * The forceValid() function will change an invalid value to a valid one,
+   * so we just need to see if the value got altered.
    *
    * @param array $array
    *   An array of date values, keyed by date part.
@@ -343,8 +348,8 @@ class DateObject extends DateTime {
 
     $this->granularity = array();
     foreach ($array as $part => $value) {
-      // Avoid false errors when a numeric value is input as a string by casting
-      // as an integer.
+      // Avoid false errors when a numeric value is input as a string by
+      // casting as an integer.
       $value = intval($value);
       if (!empty($value) && $this->forceValid($part, $value, 'now', $default_month, $default_year) != $value) {
         $errors[$part] = 'The ' . $part . ' is invalid';
@@ -361,14 +366,14 @@ class DateObject extends DateTime {
    * @param int $value
    *   The date value for this part.
    * @param string $default
-   *   (optional) If the fallback should use the first value of the date part,
-   *   or the current value of the date part. Defaults to 'first'.
+   *   (optional) If the fallback should use the first value of the date
+   *   part, or the current value of the date part. Defaults to 'first'.
    * @param int $month
-   *   (optional) Used when the date part is less than 'month' to specify the
-   *   date. Defaults to NULL.
+   *   (optional) Used when the date part is less than 'month' to specify
+   *   the date. Defaults to NULL.
    * @param int $year
-   *   (optional) Used when the date part is less than 'year' to specify the
-   *   date. Defaults to NULL.
+   *   (optional) Used when the date part is less than 'year' to specify
+   *   the date. Defaults to NULL.
    *
    * @return int
    *   A valid date value.
