@@ -222,29 +222,38 @@ function date_popup_element_info() {
 }
 
 function date_popup_date_granularity($element) {
-  $granularity = DateGranularity::formatOrder($element['#date_format']);
+  $granularity_instance = new DateGranularity();
+  $granularity = $granularity_instance->formatOrder($element['#date_format']);
   return array_intersect($granularity, array('month', 'day', 'year'));
 }
 
 function date_popup_time_granularity($element) {
-  $granularity = DateGranularity::formatOrder($element['#date_format']);
+  $granularity_instance = new DateGranularity();
+  $granularity = $granularity_instance->formatOrder($element['#date_format']);
   return array_intersect($granularity, array('hour', 'minute', 'second'));
 }
 
 function date_popup_date_format($element) {
-  return (DateGranularity::limitFormat($element['#date_format'], date_popup_date_granularity($element)));
+  $granularity_instance = new DateGranularity();
+  $granularity = $granularity_instance->formatOrder($element['#date_format']);
+  return ($granularity_instance->limitFormat($element['#date_format'], date_popup_date_granularity($element)));
 }
 
 function date_popup_time_format($element) {
-  return date_popup_format_to_popup_time(DateGranularity::limitFormat($element['#date_format'], date_popup_time_granularity($element)), $element['#timepicker']);
+  $granularity_instance = new DateGranularity();
+  $granularity = $granularity_instance->formatOrder($element['#date_format']);
+  return date_popup_format_to_popup_time($granularity_instance->limitFormat($element['#date_format'], date_popup_time_granularity($element)), $element['#timepicker']);
 }
 
 /**
  * Element value callback for date_popup element.
  */
 function date_popup_element_value_callback($element, $input = FALSE, &$form_state) {
-  $granularity = DateGranularity::formatOrder($element['#date_format']);
-  $has_time = DateGranularity::hasTime($granularity);
+  $granularity_instance = new DateGranularity();
+  $granularity_instance->granularity = $granularity->formatOrder($element['#date_format']);
+  $has_time = $granularity_instance->hasTime();
+  $time_only = !$granularity_instance->hasDate() && $granularity_instance->hasTime();
+
   $date = NULL;
   $return = $has_time ? array('date' => '', 'time' => '') : array('date' => '');
   // Normal input from submitting the form element.
@@ -260,7 +269,7 @@ function date_popup_element_value_callback($element, $input = FALSE, &$form_stat
   }
   // Date with errors won't re-display.
   if (date_is_date($date)) {
-    $return['date'] = !$date->timeOnly ? date_format_date($date, 'custom', date_popup_date_format($element)) : '';
+    $return['date'] = !$time_only ? date_format_date($date, 'custom', date_popup_date_format($element)) : '';
     $return['time'] = $has_time ? date_format_date($date, 'custom', date_popup_time_format($element)) : '';
   }
   elseif (!empty($input)) {
@@ -315,8 +324,8 @@ function date_popup_element_process($element, &$form_state, $form) {
  */
 function date_popup_process_date_part(&$element) {
   $granularity = DateGranularity::formatOrder($element['#date_format']);
-  $date_granularity = date_popup_date_granularity($element);
-  if (empty($date_granularity)) return array();
+  $granularity_instance = date_popup_date_granularity($element);
+  if (empty($granularity_instance)) return array();
 
   // The datepicker can't handle zero or negative values like 0:+1
   // even though the Date API can handle them, so rework the value
@@ -481,7 +490,7 @@ function date_popup_validate($element, &$form_state) {
   drupal_alter('date_popup_pre_validate', $element, $form_state, $input);
 
   $granularity = DateGranularity::formatOrder($element['#date_format']);
-  $date_granularity = date_popup_date_granularity($element);
+  $granularity_instance = date_popup_date_granularity($element);
   $time_granularity = date_popup_time_granularity($element);
   $has_time = DateGranularity::hasTime($granularity);
 

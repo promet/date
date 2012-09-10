@@ -26,6 +26,12 @@ class DateGranularity {
   public $time_only = FALSE;
   public $date_only = FALSE;
 
+  public function __construct($array = NULL) {
+    if (!empty($array)) {
+      $this->setGranularityFromArray($array);
+    }
+  }
+
   /**
    * Adds a granularity entry to the array.
    *
@@ -58,16 +64,16 @@ class DateGranularity {
    * @returns bool
    *   TRUE if the date part is present in the date's granularity.
    */
-  public function hasGranularity($parts) {
+  public static function hasGranularity($parts) {
     if (is_array($parts)) {
       foreach ($parts as $part) {
-        if (!in_array($part, $this->granularity)) {
+        if (!in_array($part, self::$granularity)) {
           return FALSE;
         }
       }
       return TRUE;
     }
-    return in_array($parts, $this->granularity);
+    return in_array($parts, self::$granularity);
   }
 
   /**
@@ -75,12 +81,15 @@ class DateGranularity {
    *
    * In common usage we should not unset timezone through this.
    *
-   * @param array $granularity_array
+   * @param array $array
    *   An array of date parts.
    */
-  public static function limitGranularity($granularity_array) {
+  public function limitGranularity($array = NULL) {
+    if (empty($array)) {
+      $array = $this->granularity;
+    }
     foreach (self::$granularity_parts as $key => $val) {
-      if (!in_array($val, $granularity_array)) {
+      if (!in_array($val, $array)) {
         unset($this->granularity[$key]);
       }
     }
@@ -92,11 +101,11 @@ class DateGranularity {
    * @param string $time
    *   A date string.
    */
-  protected function setGranularityFromTime($time) {
+  public function setGranularityFromTime($time) {
     $this->granularity = array();
 
     $temp = date_parse($time);
-    foreach (self::$granularity_parts as $part) {
+    foreach ($this->granularity_parts as $part) {
       if ((isset($temp[$part]) && is_numeric($temp[$part]))) {
         $this->addGranularity($part);
       }
@@ -121,11 +130,14 @@ class DateGranularity {
   /**
    * Sorts a granularity array.
    *
-   * @param array $granularity
+   * @param array $array
    *   An array of date parts.
    */
-  public static function sorted($granularity) {
-    return array_intersect(self::$granularity_parts, $granularity);
+  public function sorted($array = NULL) {
+    if (empty($array)) {
+      $array = $this->granularity;
+    }
+    return array_intersect($this->granularity_parts, $array);
   }
   
   /**
@@ -138,8 +150,8 @@ class DateGranularity {
    *   A granularity array containing the given precision and all those above it.
    *   For example, passing in 'month' will return array('year', 'month').
    */
-  public static function arrayFromPrecision($precision) {
-    $granularity_array = self::$granularity_parts;
+  public function arrayFromPrecision($precision) {
+    $granularity_array = $this->granularity_parts;
     switch ($precision) {
       case 'year':
         return array_slice($granularity_array, -6, 1);
@@ -159,23 +171,26 @@ class DateGranularity {
   /**
    * Give a granularity array, return the highest precision.
    *
-   * @param array $granularity_array
+   * @param array $array
    *   An array of date parts.
    *
    * @return string
    *   The most precise element in a granularity array.
    */
-  public static function precision($granularity_array) {
-    $input = self::sorted($granularity_array);
+  public function precision($array = NULL) {
+    if (empty($array)) {
+      $array = $this->granularity;
+    }
+    $input = $this->sorted($array);
     return array_pop($input);
   }
   
   /**
    * Constructs a valid DATETIME format string, limited to a certain granularity.
    */
-  public static function format($granularity) {
+  public function format($granularity) {
     if (is_array($granularity)) {
-      $granularity = self::precision($granularity);
+      $granularity = $this->precision($granularity);
     }
     $format = 'Y-m-d H:i:s';
     switch ($granularity) {
@@ -198,18 +213,22 @@ class DateGranularity {
    * Limits a date format to include only elements from a given granularity array.
    *
    * Example:
-   *   DateGranularity::limitFormat('F j, Y - H:i', array('year', 'month', 'day'));
+   *   $this->limitFormat('F j, Y - H:i', array('year', 'month', 'day'));
    *   returns 'F j, Y'
    *
    * @param string $format
    *   A date format string.
-   * @param array $granularity
+   * @param array $array
    *   An array of allowed date parts, all others will be removed.
    *
    * @return string
    *   The format string with all other elements removed.
    */
-  public static function limitFormat($format, $granularity) {
+  public function limitFormat($format, $array = NULL) {
+    if (empty($array)) {
+      $array = $this->granularity;
+    }
+
     // If punctuation has been escaped, remove the escaping. Done using strtr()
     // because it is easier than getting the escape character extracted using
     // preg_replace().
@@ -223,18 +242,18 @@ class DateGranularity {
     $format = strtr($format, $replace);
   
     // Get the 'T' out of ISO date formats that don't have both date and time.
-    if (!self::hasTime($granularity) || !self::hasDate($granularity)) {
+    if (!$this->hasTime($array) || !$this->hasDate($array)) {
       $format = str_replace('\T', ' ', $format);
       $format = str_replace('T', ' ', $format);
     }
   
     $regex = array();
-    if (!self::hasTime($granularity)) {
+    if (!$this->hasTime($array)) {
       $regex[] = '((?<!\\\\)[a|A])';
     }
     // Create regular expressions to remove selected values from string.
     // Use (?<!\\\\) to keep escaped letters from being removed.
-    foreach (self::nongranularity($granularity) as $element) {
+    foreach (self::nongranularity($array) as $element) {
       switch ($element) {
         case 'year':
           $regex[] = '([\-/\.,:]?\s?(?<!\\\\)[Yy])';
@@ -353,46 +372,49 @@ class DateGranularity {
   /**
    * Strips out unwanted granularity elements.
    *
-   * @param array $granularity
+   * @param array $array
    *   An array like ('year', 'month', 'day', 'hour', 'minute', 'second');
    *
    * @return array
    *   A reduced set of granularitiy elements.
    */
-  public static function nongranularity($granularity) {
-    return array_diff(self::$granularity_parts, (array) $granularity);
+  public function nongranularity($array = NULL) {
+    if (empty($array)) {
+      $array = $this->granularity;
+    }
+    return array_diff($this->granularity_parts, (array) $array);
   }
 
   /**
    * Determines if the granularity contains a time portion.
    *
-   * @param array $granularity
+   * @param array $array
    *   An array of allowed date parts, all others will be removed.
    *
    * @return bool
    *   TRUE if the granularity contains a time portion, FALSE otherwise.
    */
-  public static function hasTime($granularity) {
-    if (!is_array($granularity)) {
-      $granularity = array();
+  public function hasTime($array = NULL) {
+    if (empty($array)) {
+      $array = $this->$granularity;
     }
-    return (bool) count(array_intersect($granularity, self::$time_parts));
+    return (bool) count(array_intersect($array, $this->time_parts));
   }
   
   /**
    * Determines if the granularity contains a date portion.
    *
-   * @param array $granularity
+   * @param array $array
    *   An array of allowed date parts, all others will be removed.
    *
    * @return bool
    *   TRUE if the granularity contains a date portion, FALSE otherwise.
    */
-  public static function hasDate($granularity) {
-    if (!is_array($granularity)) {
-      $granularity = array();
+  public function hasDate($array = NULL) {
+    if (empty($array)) {
+      $array = $this->$granularity;
     }
-    return (bool) count(array_intersect($granularity, self::$date_parts));
+    return (bool) count(array_intersect($array, $this->date_parts));
   }
 
   /**
@@ -406,14 +428,14 @@ class DateGranularity {
    * @return string
    *   The date format for the given part.
    */
-  public static function partFormat($part, $format) {
+  public function partFormat($part, $format) {
     switch ($part) {
       case 'date':
-        return self::limitFormat($format, self::$date_parts);
+        return $this->limitFormat($format, $this->$date_parts);
       case 'time':
-        return self::limitFormat($format, self::$time_parts);
+        return $this->limitFormat($format, $this->$time_parts);
       default:
-        return self::limitFormat($format, array($part));
+        return $this->limitFormat($format, array($part));
     }
   }
 

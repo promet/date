@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\date_api\DateObject.
+ * Definition of DateObject.
  */
 namespace Drupal\date_api;
 
@@ -101,8 +101,7 @@ class DateObject extends DateTime {
     }
 
     // The parse function will create a date from a string and an
-    // expected format, and set errors on date parts in the format that
-    // have no value.
+    // expected format.
     elseif (!empty($this->format)) {
       $this->constructFromFormat($this->format, $this->input_adjusted, $this->timezone_object);
     }
@@ -280,7 +279,7 @@ class DateObject extends DateTime {
    * @return array
    *   An array of formatted date part values, keyed by date parts.
    */
-  public static function toArray($date) {
+  public function toArray($date) {
     return array(
             'year'   => $date->format('Y'),
             'month'  => $date->format('n'),
@@ -303,14 +302,14 @@ class DateObject extends DateTime {
    * @return string
    *   The date as an ISO string.
    */
-  public static function toISO($array, $force_valid = FALSE) {
-    $array = self::prepareArray($array, $force_valid);
+  public function toISO($array, $force_valid = FALSE) {
+    $array = $this->prepareArray($array, $force_valid);
     $datetime = '';
     if ($array['year'] !== '') {
       $datetime = self::datePad(intval($array['year']), 4);
-      if ($full || $array['month'] !== '') {
+      if ($force_valid || $array['month'] !== '') {
         $datetime .= '-' . self::datePad(intval($array['month']));
-        if ($full || $array['day'] !== '') {
+        if ($force_valid || $array['day'] !== '') {
           $datetime .= '-' . self::datePad(intval($array['day']));
         }
       }
@@ -318,9 +317,9 @@ class DateObject extends DateTime {
     if ($array['hour'] !== '') {
       $datetime .= $datetime ? 'T' : '';
       $datetime .= self::datePad(intval($array['hour']));
-      if ($full || $array['minute'] !== '') {
+      if ($force_valid || $array['minute'] !== '') {
         $datetime .= ':' . self::datePad(intval($array['minute']));
-        if ($full || $array['second'] !== '') {
+        if ($force_valid || $array['second'] !== '') {
           $datetime .= ':' . self::datePad(intval($array['second']));
         }
       }
