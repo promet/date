@@ -17,10 +17,19 @@ use Exception;
  * parameters, allowing a date to be created from a timestamp, a string
  * with an unknown format, a string with a known format, or an array of
  * date parts. It also adds an errors array to the date object.
+ * Finally, this class changes the default PHP behavior for handling
+ * invalid date values like '2011-00-00'. PHP would convert that value
+ * to '2010-11-30' and report a warning but not an error. This class
+ * returns an error in that situation.
  *
- * As with the base class, we return a date object even if it has errors.
- * It has an errors array attached to it that explains what the errors are.
- * The calling script can decide what to do with any errors reported.
+ * As with the base class, we often return a date object even if it has
+ * errors. It has an errors array attached to it that explains what the
+ * errors are. The calling script can decide what to do about any errors
+ * reported.
+ *
+ * Translation of error messages is not handled in this class, but
+ * should be managed by the scripts that invoke it, which can be done
+ * using the values in the $errors array.
  *
  */
 class DateObject extends DateTime {
@@ -30,6 +39,7 @@ class DateObject extends DateTime {
   public static $default_format = 'Y-m-d H:i:s';
   public static $default_timezone_name = '';
   public static $invalid_date_message = 'The date is invalid.';
+  public static $missing_date_message = 'No date was input.';
 
   // The input format, if known.
   public $format = '';
@@ -52,15 +62,15 @@ class DateObject extends DateTime {
   /**
    * Constructs a date object.
    *
-   * @param string $time
-   *   A date/time string or array. Defaults to 'now'.
-   * @param object|string|null $timezone_name
+   * @param mixed $time
+   *   A date/time string, unix timestamp, or array. Defaults to 'now'.
+   * @param mixed $timezone_name
    *   PHP DateTimeZone object, string or NULL allowed. Defaults to NULL.
    * @param string $format
-   *   PHP date() type format for parsing. Doesn't support timezones;
-   *   if you have a timezone, send NULL and the default constructor method
-   *   will hopefully parse it. $format is recommended in order to use
-   *   negative or large years, which php's parser fails on.
+   *   PHP date() type format for parsing. $format is recommended in order
+   *   to use things like negative years, which php's parser fails on, or
+   *   any other specialized input with a known format.
+   *
    * @return
    *   Returns FALSE on failure.
    */
@@ -99,25 +109,30 @@ class DateObject extends DateTime {
 
     // If the input was none of the above, let the parent dateTime attempt
     // to turn this string into a valid date. It might fail and we want to
-    // control the error messages.
+    // catch the error messages.
     elseif (is_string($this->input_adjusted)) {
       try {
         @parent::__construct($this->input_adjusted, $this->timezone_object);
       }
       catch (Exception $e) {
-        $errors = $this->getLastErrors();
-        if (($errors['warning_count'] + $errors['error_count']) > 0) {
-          $this->errors += $errors['errors'];
-          return FALSE;
-        }
+        $this->errors += $e;
       }
+      $this->getErrors();
     }
 
     // If something else, or nothing, was input, we don't have a date.
     else {
+      $this->errors += self::$missing_date_message;
+    }
+
+    // Clean up the error messages.
+    $this->errors = array_unique($this->errors);
+
+    if (!empty($this->errors)) {
       return FALSE;
     }
 
+    return TRUE;
   }
 
   /**
@@ -143,10 +158,13 @@ class DateObject extends DateTime {
    *   A DateTimezone object.
    */
   public function constructFromArray($time, DateTimezone $timezone) {
-    // arrayErrors finds errors in the input array from the original input.
-    $this->errors += $this->arrayErrors($time);
-    $this->input_adjusted = $this->toISO($time, TRUE);
-    parent::__construct($this->input_adjusted, $timezone);
+    parent::__construct('', $timezone);
+
+    $time = $this->prepareArray($time, TRUE);
+    $this->input_adjusted = $this->toISO($time);
+    if ($this->verifyArray($time)) {
+      parent::__construct($this->input_adjusted, $timezone);
+    }
     $this->getErrors();
   }
 
@@ -170,29 +188,26 @@ class DateObject extends DateTime {
       $this->setTimestamp($date->getTimestamp());
       $this->setTimezone($date->getTimezone());
     }
-    $this->getErrors($date);
-    return;
+    $this->getErrors();
   }
 
   /**
    * Examine getLastErrors() and see what errors to report.
    *
-   * @see http://us3.php.net/manual/en/datetime.getlasterrors.php.
+   * We're interested in two kinds of errors: anything that DateTime
+   * considers an error, and also a warning that the date was invalid.
+   * PHP creates a valid date from invalid data with only a warning,
+   * 2011-02-30 becomes 2011-03-03, for instance, but we don't want that.
+   *
+   * @see http://us3.php.net/manual/en/datetime.getlasterrors.php
    */
-  protected function getErrors($from = NULL) {
-    if (!empty($from)) {
-      $errors = $from->getLastErrors();
+  public function getErrors() {
+    $errors = $this->getLastErrors();
+    if (!empty($errors['errors'])) {
+      $this->errors += $errors['errors'];
     }
-    else {
-      $errors = $this->getLastErrors();
-    }
-    $this->errors += $errors['errors'];
-    // We're interested in two kinds of errors: anything that DateTime
-    // considers an error, and also a warning that the date was invalid.
-    // PHP creates a valid date from invalid data (2012-02-30 becomes
-    // 2012-03-03, for instance), but we don't want that.
     if (!empty($errors['warnings']) && in_array('The parsed date was invalid', $errors['warnings'])) {
-      $this->errors['date'] = self::$invalid_date_message;
+      $this->errors[] = self::$invalid_date_message;
     }
   }
 
@@ -232,13 +247,6 @@ class DateObject extends DateTime {
    *   or an array of date parts.
    */
   protected function prepareInput($time) {
-    // Make sure dates like 2010-00-00T00:00:00 get converted to
-    // 2010-01-01T00:00:00 before creating a date object
-    // to avoid unintended changes in the month or day.
-    //$temp = $this->getFuzzyDate($time, $format = NULL, 'empty');
-    //echo '<br>' . $time .'<br>';
-    //print_r($this->granularity);
-    //$time = date_make_iso_valid($time);
     return $time;
   }
 
@@ -274,13 +282,13 @@ class DateObject extends DateTime {
    */
   public static function toArray($date) {
     return array(
-      'year' => $date->format('Y'),
-      'month' => $date->format('n'),
-      'day' => $date->format('j'),
-      'hour' => intval($date->format('H')),
-      'minute' => intval($date->format('i')),
-      'second' => intval($date->format('s')),
-    );
+            'year'   => $date->format('Y'),
+            'month'  => $date->format('n'),
+            'day'    => $date->format('j'),
+            'hour'   => intval($date->format('H')),
+            'minute' => intval($date->format('i')),
+            'second' => intval($date->format('s')),
+           );
   }
 
   /**
@@ -288,23 +296,15 @@ class DateObject extends DateTime {
    *
    * @param array $array
    *   An array of date values keyed by date part.
-   * @param bool $full
+   * @param bool $force_valid
    *   (optional) Whether to force a full date by filling in missing
    *   values. Defaults to FALSE.
    *
    * @return string
    *   The date as an ISO string.
    */
-  public static function toISO($array, $full = FALSE) {
-    // Add empty values to avoid errors. The empty values must create a
-    // valid date or we will get date slippage, i.e. a value of
-    //  2011-00-00 will get interpreted as November of 2010.
-    if ($full) {
-      $array += array('year' => 0, 'month' => 1, 'day' => 1, 'hour' => 0, 'minute' => 0, 'second' => 0);
-    }
-    else {
-      $array += array('year' => '', 'month' => '', 'day' => '', 'hour' => '', 'minute' => '', 'second' => '');
-    }
+  public static function toISO($array, $force_valid = FALSE) {
+    $array = self::prepareArray($array, $force_valid);
     $datetime = '';
     if ($array['year'] !== '') {
       $datetime = self::datePad(intval($array['year']), 4);
@@ -329,85 +329,45 @@ class DateObject extends DateTime {
   }
 
   /**
-   * Finds possible errors in an array of date part values.
-   *
-   * The forceValid() function will change an invalid value to a valid one,
-   * so we just need to see if the value got altered.
+   * Creates a complete array from a possibly incomplete array of date parts.
    *
    * @param array $array
-   *   An array of date values, keyed by date part.
+   *   An array of date values keyed by date part.
+   * @param bool $force_valid
+   *   (optional) Whether to force a valid date by filling in missing
+   *   values with valid values. Defaults to FALSE.
    *
    * @return array
-   *   An array of error messages, keyed by date part.
+   *   A complete array of date parts.
    */
-  protected function arrayErrors($array) {
-    $errors = array();
-    $now = new DateObject();
-    $default_month = !empty($array['month']) ? $array['month'] : $now->format('n');
-    $default_year = !empty($array['year']) ? $array['year'] : $now->format('Y');
-
-    $this->granularity = array();
-    foreach ($array as $part => $value) {
-      // Avoid false errors when a numeric value is input as a string by
-      // casting as an integer.
-      $value = intval($value);
-      if (!empty($value) && $this->forceValid($part, $value, 'now', $default_month, $default_year) != $value) {
-        $errors[$part] = 'The ' . $part . ' is invalid';
-      }
+  public function prepareArray($array, $force_valid = FALSE) {
+    if ($force_valid) {
+      $array += array('year' => 0, 'month' => 1, 'day' => 1, 'hour' => 0, 'minute' => 0, 'second' => 0);
     }
-    return $errors;
+    else {
+      $array += array('year' => '', 'month' => '', 'day' => '', 'hour' => '', 'minute' => '', 'second' => '');
+    }
+    return $array;
   }
 
   /**
-   * Converts a date part into something that will produce a valid date.
+   * Check that an array of date parts has a year, month, and day,
+   * and that those values create a valid date.
    *
-   * @param string $part
-   *   The date part.
-   * @param int $value
-   *   The date value for this part.
-   * @param string $default
-   *   (optional) If the fallback should use the first value of the date
-   *   part, or the current value of the date part. Defaults to 'first'.
-   * @param int $month
-   *   (optional) Used when the date part is less than 'month' to specify
-   *   the date. Defaults to NULL.
-   * @param int $year
-   *   (optional) Used when the date part is less than 'year' to specify
-   *   the date. Defaults to NULL.
+   * @param array $array
+   *   An array of date values keyed by date part.
    *
-   * @return int
-   *   A valid date value.
+   * @return bool
+   *   TRUE if the date parts contain a valid date, otherwise FALSE.
    */
-  protected function forceValid($part, $value, $default = 'first', $month = NULL, $year = NULL) {
-    $now = new DateObject();
-    switch ($part) {
-      case 'year':
-        $date_api_info = config('date_api.info');
-        $fallback = $now->format('Y');
-        return !is_int($value) || empty($value) || $value < $date_api_info->get('year.min') || $value > $date_api_info->get('year.max') ? $fallback : $value;
-        break;
-      case 'month':
-        $fallback = $default == 'first' ? 1 : $now->format('n');
-        return !is_int($value) || empty($value) || $value <= 0 || $value > 12 ? $fallback : $value;
-        break;
-      case 'day':
-        $fallback = $default == 'first' ? 1 : $now->format('j');
-        $max_day = isset($year) && isset($month) ? date_days_in_month($year, $month) : 31;
-        return !is_int($value) || empty($value) || $value <= 0 || $value > $max_day ? $fallback : $value;
-        break;
-      case 'hour':
-        $fallback = $default == 'first' ? 0 : $now->format('G');
-        return !is_int($value) || $value < 0 || $value > 23 ? $fallback : $value;
-        break;
-      case 'minute':
-        $fallback = $default == 'first' ? 0 : $now->format('i');
-        return !is_int($value) || $value < 0 || $value > 59 ? $fallback : $value;
-        break;
-      case 'second':
-        $fallback = $default == 'first' ? 0 : $now->format('s');
-        return !is_int($value) || $value < 0 || $value > 59 ? $fallback : $value;
-        break;
+  public function verifyArray($array) {
+    if (array_key_exists('year', $array) && array_key_exists('month', $array) && array_key_exists('day', $array)) {
+      if (checkdate($array['month'], $array['day'], $array['year'])) {
+        return TRUE;
+      }
     }
+    $this->errors[] = self::$invalid_date_message;
+    return FALSE;
   }
 
   /**
