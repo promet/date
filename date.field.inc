@@ -346,6 +346,8 @@ function date_field_load($entity_type, $entities, $field, $instances, $langcode,
 function date_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
   $field_name = $field['field_name'];
   $flexible = 0;
+
+  // @TODO Figure out what we need here now.
   return;
 
   // Don't try to validate if there were any errors before this point

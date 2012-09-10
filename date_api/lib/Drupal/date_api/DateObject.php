@@ -29,6 +29,7 @@ class DateObject extends DateTime {
   public static $date_parts = array('year', 'month', 'day', 'hour', 'minute', 'second');
   public static $default_format = 'Y-m-d H:i:s';
   public static $default_timezone_name = '';
+  public static $invalid_date_message = 'The date is invalid.';
 
   // The input format, if known.
   public $format = '';
@@ -159,17 +160,21 @@ class DateObject extends DateTime {
    */
   public function constructFromFormat($format, $time, DateTimezone $timezone) {
     parent::__construct('', $timezone);
-    $date = parent::createFromFormat($format, $time, $timezone);
-    $this->setTimestamp($date->getTimestamp());
-    $this->setTimezone($date->getTimezone());
+
+    // We try to create a date from the format and use it if we can.
+    // try/catch won't work right here, if the value is invalid
+    // it doesn't return an exception.
+    if ($date = parent::createFromFormat($format, $time, $timezone)) {
+      $this->setTimestamp($date->getTimestamp());
+      $this->setTimezone($date->getTimezone());
+    }
     $this->getErrors($date);
+    return;
   }
 
   /**
    * Examine getLastErrors() and see what errors to report.
-   * We report anything in the errors array, and also
-   * check the warnings array for a message that the date 
-   * was invalid.
+   *
    * @see http://us3.php.net/manual/en/datetime.getlasterrors.php.
    */
   protected function getErrors($from = NULL) {
@@ -180,24 +185,37 @@ class DateObject extends DateTime {
       $errors = $this->getLastErrors();
     }
     $this->errors += $errors['errors'];
+    // We're interested in two kinds of errors: anything that DateTime considers an error,
+    // and also a warning that the date was invalid. PHP creates a valid date from
+    // invalid data (2012-02-30 becomes 2012-03-03, for instance), but we don't want that.
     if (!empty($errors['warnings']) && in_array('The parsed date was invalid', $errors['warnings'])) {
-      $this->errors['date'] = 'The date is invalid.';
+      $this->errors['date'] = self::$invalid_date_message;
     }
   }
 
   /**
    * Set the default timezone name to use when no other information is available.
+   * The system requires that a fallback timezone name be available.
    */
-  public function setDefaultTimezoneName() {
-    self::$default_timezone_name = date_default_timezone_get();
+  public static function setDefaultTimezoneName($timezone_name = NULL) {
+    $system_timezone = date_default_timezone_get();
+    if (!empty($timezone_name)) {
+      self::$default_timezone_name = $timezone_name;
+    }
+    elseif (!empty($system_timezone)) {
+      self::$default_timezone_name = $system_timezone;
+    }
+    else {
+      self::$default_timezone_name = 'UTC';
+    }
   }
 
   /**
    * Get the default timezone name.
    */
-  public function getDefaultTimezoneName() {
+  public static function getDefaultTimezoneName() {
     if (empty(self::$default_timezone_name)) {
-      $this->setDefaultTimezoneName();
+      self::setDefaultTimezoneName('UTC');
     }
     return self::$default_timezone_name;
   }
@@ -226,7 +244,6 @@ class DateObject extends DateTime {
    *   Either a timezone name or a timezone object.
    */
   protected function prepareTimezone($timezone) {
-
     // Allow string timezones.
     if (!empty($timezone) && !is_object($timezone)) {
       $timezone = new DateTimeZone($timezone);
