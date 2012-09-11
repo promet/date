@@ -164,6 +164,9 @@ class DateObject extends DateTime {
     if ($this->verifyArray($time)) {
       parent::__construct($this->input_adjusted, $timezone);
     }
+    else {
+      $this->errors[] = self::$invalid_date_message;
+    }
     $this->getErrors();
   }
 
@@ -186,6 +189,15 @@ class DateObject extends DateTime {
     if ($date = parent::createFromFormat($format, $time, $timezone)) {
       $this->setTimestamp($date->getTimestamp());
       $this->setTimezone($date->getTimezone());
+
+      // The createFromFormat function is forgiving, it might
+      // create a date that is not exactly a match for the provided
+      // value, so test for that. For instance, an input value of
+      // '11' using a format of Y (4 digits) gets created as
+      // '0011' instead of '2011'.
+      if ($this->format($format) != $this->input_original) {
+        $this->errors[] = self::$invalid_date_message;
+      }
     }
     $this->getErrors();
   }
@@ -360,13 +372,37 @@ class DateObject extends DateTime {
    *   TRUE if the date parts contain a valid date, otherwise FALSE.
    */
   public function verifyArray($array) {
+    $valid_date = FALSE;
+    $valid_time = TRUE;
+    // Check for a valid date using checkdate(). Only values that
+    // meet that test are valid.
     if (array_key_exists('year', $array) && array_key_exists('month', $array) && array_key_exists('day', $array)) {
       if (checkdate($array['month'], $array['day'], $array['year'])) {
-        return TRUE;
+        $valid_date = TRUE;
       }
     }
-    $this->errors[] = self::$invalid_date_message;
-    return FALSE;
+    // Testing for valid time is reversed. Missing time is OK,
+    // but incorrect values are not.
+    foreach (array('hour', 'minute', 'second') as $key) {
+      if (array_key_exists($key, $array)) {
+        $value = $array[$key];
+        switch ($value) {
+          case 'hour':
+            if (!preg_match('/^([1-2][0-3]|[01]?[1-9])$/', $value)) {
+              $valid_time = FALSE;
+            }
+            break;
+          case 'minute':
+          case 'second':
+          default:
+            if (!preg_match('/^([0-5][0-9]|[0-9])$/', $value)) {
+              $valid_time = FALSE;
+            }
+            break;
+        }
+      }
+    }
+    return $valid_date && $valid_time;
   }
 
   /**

@@ -376,7 +376,6 @@ function date_text_validate($element, &$form_state) {
   if (empty($date) || !empty($date->errors)) {
     if (is_object($date) && !empty($date->errors)) {
       $message = t('The value input for field %field is invalid:', array('%field' => $label));
-      $message .= '<br />' . implode('<br />', $date->errors);
       form_set_error($error_field, $message);
       return;
     }
@@ -685,7 +684,6 @@ function date_select_validate($element, &$form_state) {
     // The input created a date but it has errors.
     if (is_object($date) && !empty($date->errors)) {
       $message = t('The value input for field %field is invalid:', array('%field' => $label));
-      $message .= '<br />' . implode('<br />', $date->errors);
       form_set_error($error_field, $message);
       return;
     }

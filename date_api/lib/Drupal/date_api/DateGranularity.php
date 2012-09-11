@@ -76,7 +76,7 @@ class DateGranularity {
   }
 
   /**
-   * Determines the granularity of a date based on the constructor's arguments.
+   * Create a granularity array from a string time value.
    *
    * @param string $time
    *   A date string.
@@ -93,7 +93,7 @@ class DateGranularity {
   }
 
   /**
-   * Determines the granularity of a date based on the constructor's arguments.
+   * Create a granularity array from a passed in array.
    *
    * @param array $array
    *   An array of date values, keyed by date part.
@@ -103,7 +103,7 @@ class DateGranularity {
   }
 
   /**
-   * Determines the granularity of a date based on the constructor's arguments.
+   * Create a granularity array from a date format string.
    *
    * @param string $format
    *   A date format string.

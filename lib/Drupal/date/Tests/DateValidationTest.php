@@ -77,8 +77,7 @@ class DateValidationTest extends DateFieldBase {
     $this->drupalPost('node/add/story', $edit, t('Save'));
     $should_not_be = $edit['title'] . "has been created";
     $this->assertNoText($should_not_be, "Correctly blocked creation of node with invalid month and day for a $field_type field using the $widget_type widget.");
-    $this->assertText('The month is invalid.', "Correctly blocked invalid month for a $field_type field using the $widget_type widget.");
-    $this->assertText('The day is invalid.', "Correctly blocked invalid day for a $field_type field using the $widget_type widget.");
+    $this->assertText('invalid', "Correctly blocked invalid month and day for a $field_type field using the $widget_type widget.");
 
     // Test two-digit entry for year where 4-digit is expected.
     if ($widget_type == 'date_select') {
@@ -98,7 +97,7 @@ class DateValidationTest extends DateFieldBase {
     $this->drupalPost('node/add/story', $edit, t('Save'));
     $should_not_be = $edit['title'] . " has been created";
     $this->assertNoText($should_not_be, "Correctly blocked creation of node with invalid year for a $field_type field using the $widget_type widget.");
-    $should_be = 'The year is invalid. Please check that entry includes four digits.';
+    $should_be = 'invalid';
     $this->assertText($should_be, "Correctly blocked two digit year for a $field_type field using the $widget_type widget.");
 
     // Test invalid hour/minute entry for time.
@@ -119,10 +118,8 @@ class DateValidationTest extends DateFieldBase {
     $this->drupalPost('node/add/story', $edit, t('Save'));
     $should_not_be = $edit['title'] . " has been created";
     $this->assertNoText($should_not_be, "Correctly blocked creation of node with invalid time for a $field_type field using the $widget_type widget.");
-    $should_be = 'The hour is invalid.';
-    $this->assertText($should_be, "Correctly blocked invalid hour for a $field_type field using the $widget_type widget.");
-    $should_be = 'The minute is invalid.';
-    $this->assertText($should_be, "Correctly blocked invalid minute for a $field_type field using the $widget_type widget.");
+    $should_be = 'invalid';
+    $this->assertText($should_be, "Correctly blocked invalid hour and minute for a $field_type field using the $widget_type widget.");
 
   }
 
