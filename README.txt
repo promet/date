@@ -3,32 +3,32 @@ INFORMATION FOR DEVELOPERS
 Once the Date API is installed, all functions in the API are available to be
 used anywhere by any module.
 
-The API uses the PHP 5.2 date functions to create and manipulate dates.
+The API uses the PHP 5.3 date functions to create and manipulate dates.
+
+A component class is available, new DateObject($string, $timezone, $format), where
+$string is a unixtimestamp, an ISO date, or a string like YYYY-MM-DD HH:MM:SS,
+$timezone is the name of the timezone this date is in, and $format is the format
+of date it is (DATE_FORMAT_UNIX, DATE_FORMAT_ISO, or DATE_FORMAT_DATETIME). It
+creates and return a date object set to the right date and timezone.
 
 Example, the following will create a date for the local value in one
 timezone, adjust it to a different timezone, then return the offset in seconds
 in the new timezone for the input date; The offset will be adjusted for both
 the timezone difference and daylight savings time, if necessary:
 
-$date = date_create('2007-03-11 02:00:00', timezone_open('America/Chicago'));
+$date = new DateObject('2007-03-11 02:00:00', 'America/Chicago');
 $chicago_time = date_format($date, 'Y-m-d H:i');
 
 print 'At '. $chicago_time .' in Chicago, the timezone offset in seconds
   was '. date_offset_get($date);
 
-date_timezone_set($date, timezone_open('Europe/Berlin');
+$date->timezoneSet($date, timezone_open('Europe/Berlin');
 $berlin_time = date_format($date, 'Y-m-d H:i');
 
 print 'It was '. $berlin_time .' in Berlin when it
   was '. $chicago_time .' in Chicago.';
 print 'At that time in Berlin, the timezone offset in seconds was
   '. date_offset_get($date);
-
-A helper class is available, new DateObject($string, $timezone, $format), where
-$string is a unixtimestamp, an ISO date, or a string like YYYY-MM-DD HH:MM:SS,
-$timezone is the name of the timezone this date is in, and $format is the format
-of date it is (DATE_FORMAT_UNIX, DATE_FORMAT_ISO, or DATE_FORMAT_DATETIME). It
-creates and return a date object set to the right date and timezone.
 
 Simpletest tests for these functions are included in the package.
 

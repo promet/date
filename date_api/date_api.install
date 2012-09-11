@@ -6,49 +6,10 @@
  */
 
 /**
- * Implements hook_requirements().
- */
-function date_api_requirements($phase) {
-  $requirements = array();
-
-  if ($phase == 'runtime') {
-    $t = get_t();
-    module_load_include('module', 'date_api');
-    $messages = date_api_status();
-    $error_messages = !empty($messages['errors']) ? $messages['errors'] : array();
-    $success_messages = !empty($messages['success']) ? $messages['success'] : array();
-
-    if (!empty($error_messages)) {
-      $requirements['date'] = array(
-        'title' => $t('Date API'),
-        'value' => $t('Missing system date settings'),
-        'description' => implode(' ', array_merge($error_messages, $success_messages)),
-        'severity' => REQUIREMENT_ERROR,
-      );
-    }
-    else {
-      $requirements['date'] = array(
-        'title' => $t('Date API'),
-        'value' => $t('System date settings'),
-        'description' => implode(' ', $success_messages),
-      );
-    }
-  }
-  return $requirements;
-}
-
-/**
  * Implements hook_install().
  */
 function date_api_install() {
-  // Only set the message if Drupal itself is already installed.
-  if (variable_get('install_task') == 'done') {
-    // Ensure translations don't break at install time.
-    $t = get_t();
 
-    $message = $t('The Date API requires that you set up the <a href="@regional_settings">site timezone and first day of week settings</a> and the <a href="@regional_date_time">date format settings</a> to function correctly.', array('@regional_settings' => url('admin/config/regional/settings'), '@regional_date_time' => url('admin/config/regional/date-time')));
-    drupal_set_message(filter_xss_admin($message), 'warning');
-  }
 }
 
 /**
@@ -56,14 +17,6 @@ function date_api_install() {
  */
 function date_api_uninstall() {
   cache()->deletePrefix('date_timezone_identifiers_list');
-
-  if (db_table_exists('views_display')) {
-    $displays = array(
-      'date_nav',
-    );
-    db_query("DELETE FROM {views_display} WHERE display_plugin IN ('" . implode("','", $displays) . "')");
-    db_query("DELETE FROM {cache_views}");
-  }
 }
 
 /**

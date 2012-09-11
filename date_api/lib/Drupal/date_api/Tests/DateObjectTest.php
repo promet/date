@@ -284,25 +284,25 @@ class DateObjectTest extends WebTestBase {
     $input = array('year' => 10000, 'month' => 7, 'day' => 8, 'hour' => 8, 'minute' => 0, 'second' => 0);
     $timezone = 'America/Chicago';
     $date = new dateObject($input, $timezone);
-    $this->assertNotEqual(count($date->errors), 0, "$input contains an invalid month and produces errors.");
+    $this->assertNotEqual(count($date->errors), 0, "array('year' => 10000, 'month' => 7, 'day' => 8, 'hour' => 8, 'minute' => 0, 'second' => 0) contains an invalid year and produces errors.");
 
     // Test for invalid month from date array.
     $input = array('year' => 2010, 'month' => 27, 'day' => 8, 'hour' => 8, 'minute' => 0, 'second' => 0);
     $timezone = 'America/Chicago';
     $date = new dateObject($input, $timezone);
-    $this->assertNotEqual(count($date->errors), 0, "$input contains an invalid month and produces errors.");
+    $this->assertNotEqual(count($date->errors), 0, "array('year' => 2010, 'month' => 27, 'day' => 8, 'hour' => 8, 'minute' => 0, 'second' => 0) contains an invalid month and produces errors.");
 
     // Test for invalid hour from date array.
     $input = array('year' => 2010, 'month' => 2, 'day' => 28, 'hour' => 80, 'minute' => 0, 'second' => 0);
     $timezone = 'America/Chicago';
     $date = new dateObject($input, $timezone);
-    $this->assertNotEqual(count($date->errors), 0, "$input contains an invalid hour and produces errors.");
+    $this->assertNotEqual(count($date->errors), 0, "array('year' => 2010, 'month' => 2, 'day' => 28, 'hour' => 80, 'minute' => 0, 'second' => 0) contains an invalid hour and produces errors.");
 
     // Test for invalid minute from date array.
     $input = array('year' => 2010, 'month' => 7, 'day' => 8, 'hour' => 8, 'minute' => 88, 'second' => 0);
     $timezone = 'America/Chicago';
     $date = new dateObject($input, $timezone);
-    $this->assertNotEqual(count($date->errors), 0, "$input contains an invalid month and produces errors.");
+    $this->assertNotEqual(count($date->errors), 0, "array('year' => 2010, 'month' => 7, 'day' => 8, 'hour' => 8, 'minute' => 88, 'second' => 0) contains an invalid minute and produces errors.");
 
   }
 

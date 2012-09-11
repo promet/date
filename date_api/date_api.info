@@ -4,5 +4,3 @@ package = Date/Time
 core = 8.x
 
 stylesheets[all][] = date.css
-
-files[] = date_api.module
