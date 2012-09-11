@@ -679,7 +679,7 @@ function theme_date_popup($vars) {
   if (empty($element['date']['#description'])) {
     $wrapper_attributes['class'][] = 'clearfix';
   }
-  // Add an wrapper to mimic the way a single value field works, for ease in using #states.
+  // Add a wrapper to mimic the way a single value field works, for ease in using #states.
   if (isset($element['#children'])) {
     $element['#children'] = '<div id="' . $element['#id'] . '" ' . new Attribute($wrapper_attributes) .'>' . $element['#children'] . '</div>';
   }
@@ -725,23 +725,6 @@ function date_popup_settings() {
     $form['#prefix'] .= t('<p>To install the dropdown timepicker, create a <code>!directory</code> directory in your site installation. Then visit <a href="@download">@download</a>, download the latest copy and unzip it. You will see files with names like jquery.timepicker-1.1.2.js and jquery.timepicker-1.1.2.css. Rename them to jquery.timepicker.js and jquery.timepicker.css and copy them into <code>!directory</code>.</p>', array('!directory' => 'sites/all/libraries/wvega-timepicker', '@download' => 'https://github.com/wvega/timepicker/archives/master'));
     unset($form['timepicker']['#options']['wvega']);
   }
-
-  $css = <<<EOM
-/* ___________ IE6 IFRAME FIX ________ */
-.ui-datepicker-cover {
-  display: none; /*sorry for IE5*/
-  display/**/: block; /*sorry for IE5*/
-  position: absolute; /*must have*/
-  z-index: -1; /*must have*/
-  filter: mask(); /*must have*/
-  top: -4px; /*must have*/
-  left: -4px; /*must have*/ /* LTR */
-  width: 200px; /*must have*/
-  height: 200px; /*must have*/
-}
-EOM;
-
-  $form['#suffix'] = t('<p>The Date Popup calendar includes some css for IE6 that breaks css validation. Since IE 6 is now superceded by IE 7, 8, and 9, the special css for IE 6 has been removed from the regular css used by the Date Popup. If you find you need that css after all, you can add it back in your theme. Look at the way the Garland theme adds special IE-only css in in its page.tpl.php file. The css you need is:</p>') .'<blockquote><PRE>' . $css .'</PRE></blockquote>';
   $form['#submit'][] = 'date_popup_settings_submit';
 
   return system_config_form($form, $form_state);
