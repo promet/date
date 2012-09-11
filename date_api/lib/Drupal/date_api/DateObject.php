@@ -17,7 +17,8 @@ use Exception;
  * parameters, allowing a date to be created from a timestamp, a string
  * with an unknown format, a string with a known format, or an array of
  * date parts. It also adds an errors array to the date object.
- * Finally, this class changes the default PHP behavior for handling
+ *
+ * This class also changes the default PHP behavior for handling
  * invalid date values like '2011-00-00'. PHP would convert that value
  * to '2010-11-30' and report a warning but not an error. This class
  * returns an error in that situation.
@@ -114,7 +115,7 @@ class DateObject extends DateTime {
         @parent::__construct($this->input_adjusted, $this->timezone_object);
       }
       catch (Exception $e) {
-        $this->errors += $e;
+        $this->errors[] = $e;
       }
       $this->getErrors();
     }
@@ -162,7 +163,17 @@ class DateObject extends DateTime {
     $time = $this->prepareArray($time, TRUE);
     $this->input_adjusted = $this->toISO($time);
     if ($this->verifyArray($time)) {
-      parent::__construct($this->input_adjusted, $timezone);
+
+      // Even with validation, we can end up with a value that the
+      // parent class won't handle, like a year outside the range
+      // of -9999 to 9999, which will pass checkdate() but
+      // fail to construct a date object.
+      try {
+        parent::__construct($this->input_adjusted, $timezone);
+      }
+      catch (Exception $e) {
+        $this->errors[] = $e;
+      }
     }
     else {
       $this->errors[] = self::$invalid_date_message;
@@ -377,7 +388,7 @@ class DateObject extends DateTime {
     // Check for a valid date using checkdate(). Only values that
     // meet that test are valid.
     if (array_key_exists('year', $array) && array_key_exists('month', $array) && array_key_exists('day', $array)) {
-      if (checkdate($array['month'], $array['day'], $array['year'])) {
+      if (@checkdate($array['month'], $array['day'], $array['year'])) {
         $valid_date = TRUE;
       }
     }
@@ -388,7 +399,7 @@ class DateObject extends DateTime {
         $value = $array[$key];
         switch ($value) {
           case 'hour':
-            if (!preg_match('/^([1-2][0-3]|[01]?[1-9])$/', $value)) {
+            if (!preg_match('/^([1-2][0-3]|[01]?[0-9])$/', $value)) {
               $valid_time = FALSE;
             }
             break;
