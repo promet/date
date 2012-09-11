@@ -256,7 +256,7 @@ class DateObject extends DateTime {
    */
   public static function getDefaultTimezoneName() {
     if (empty(self::$default_timezone_name)) {
-      self::setDefaultTimezoneName('UTC');
+      self::setDefaultTimezoneName();
     }
     return self::$default_timezone_name;
   }
