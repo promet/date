@@ -434,7 +434,7 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
   else {
     $end = $start;
   }
-  $duration = $end->format('U') - $start->format('U');
+  $interval = $start->diff($end);
   $start_datetime = date_format($start, DATE_FORMAT_DATETIME);
 
   if (!empty($rrule_values['UNTIL']['datetime'])) {
@@ -474,7 +474,7 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
     $date_start = new DateObject($date, $timezone, DATE_FORMAT_DATETIME);
     date_timezone_set($date_start, timezone_open($timezone_db));
     $date_end = clone($date_start);
-    date_modify($date_end, '+' . $duration . ' seconds');
+    $date_end->add($interval);
     $value[$delta] = array(
       'value' => date_format($date_start, date_type_format($field['type'])),
       'value2' => date_format($date_end, date_type_format($field['type'])),
