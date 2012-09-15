@@ -3,7 +3,7 @@ description = Views integration for date fields and date functionality.
 package = Date/Time
 dependencies[] = date_api
 dependencies[] = views
-core = 8.x
+core = x.x
 
 files[] = includes/date_views_argument_handler.inc
 files[] = includes/date_views_argument_handler_simple.inc

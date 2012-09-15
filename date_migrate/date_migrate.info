@@ -1,6 +1,6 @@
 name = Date Migration
 description = Provides support for importing into date fields with the Migrate module.
-core = 8.x
+core = x.x
 package = Date/Time
 
 dependencies[] = migrate

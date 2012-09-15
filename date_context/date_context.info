@@ -1,7 +1,7 @@
 name = Date Context
 description = Adds an option to the Context module to set a context condition based on the value of a date field.
 package = Date/Time
-core = 8.x
+core = x.x
 
 dependencies[] = date
 dependencies[] = context
