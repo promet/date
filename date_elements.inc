@@ -392,7 +392,7 @@ function date_combo_element_process($element, &$form_state, $form) {
 
   // Create label for error messages that make sense in multiple values
   // and when the title field is left blank.
-  if ($field['cardinality'] <> 1 && empty($field['settings']['repeat'])) {
+  if ($field['cardinality'] <> 1 && $items_count > 1) {
     $element[$from_field]['#date_title'] = t('@field_name Start date value #@delta', array('@field_name' => $instance['label'], '@delta' => $delta + 1));
     if (!empty($field['settings']['todate'])) {
       $element[$to_field]['#date_title'] = t('@field_name End date value #@delta', array('@field_name' => $instance['label'], '@delta' => $delta + 1));
