@@ -434,7 +434,8 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
   else {
     $end = $start;
   }
-  $duration = $start->diff($end);
+  $diff = $start->diff($end);
+  $duration = intval($diff->format('s'));
   $start_datetime = date_format($start, DATE_FORMAT_DATETIME);
 
   if (!empty($rrule_values['UNTIL']['datetime'])) {

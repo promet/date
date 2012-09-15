@@ -54,7 +54,8 @@ function date_repeat_field_date_field_insert(&$items, $context) {
   $start2 = new dateObject($item['value2'], $timezone_db, $format);
 
   // Create a repeating date rule.
-  $duration = $start->diff($start2);
+  $diff = $start->diff($start2);
+  $duration = intval($diff->format('s'));
   $form_values = array();
 
   // Create the default case more frequently than case 1 or 2.
