@@ -14,7 +14,7 @@ function theme_date_timezone($variables) {
   $element = $variables['element'];
   $attributes = $element['#attributes'];
   $wrapper_attributes = array();
-  // Add an wrapper to mimic the way a single value field works, for ease in
+  // Add a wrapper to mimic the way a single value field works, for ease in
   // using #states.
   if (isset($element['#children'])) {
     $element['#children'] = '<div id="' . $element['#id'] . '" ' . new Attribute($wrapper_attributes) . '>' . $element['#children'] . '</div>';
@@ -31,7 +31,7 @@ function theme_date_select($variables) {
   $attributes['class'][] = 'container-inline-date';
   $wrapper_attributes = array('class' => array('date-padding'));
   $wrapper_attributes['class'][] = 'clearfix';
-  // Add an wrapper to mimic the way a single value field works, for ease in
+  // Add a wrapper to mimic the way a single value field works, for ease in
   // using #states.
   if (isset($element['#children'])) {
     $element['#children'] = '<div id="' . $element['#id'] . '" ' . new Attribute($wrapper_attributes) . '>' . $element['#children'] . '</div>';
@@ -52,7 +52,7 @@ function theme_date_text($variables) {
   if (empty($element['date']['#description'])) {
     $wrapper_attributes['class'][] = 'clearfix';
   }
-  // Add an wrapper to mimic the way a single value field works, for ease in
+  // Add a wrapper to mimic the way a single value field works, for ease in
   // using #states.
   if (isset($element['#children'])) {
     $element['#children'] = '<div id="' . $element['#id'] . '" ' . new Attribute($wrapper_attributes) . '>' . $element['#children'] . '</div>';
