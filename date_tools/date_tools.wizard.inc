@@ -153,7 +153,7 @@ function date_tools_wizard_form_validate(&$form, &$form_state) {
  */
 function date_tools_wizard_form_submit(&$form, &$form_state) {
   $view_name = date_tools_wizard_build($form_state['values']);
-  menu_rebuild();
+  menu_router_rebuild();
   if (!empty($form_state['values']['calendar']) && !empty($view_name)) {
     $form_state['redirect'] = 'admin/structure/views/template/' . $view_name . '/add';
   }
