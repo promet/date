@@ -35,30 +35,67 @@ use Exception;
  */
 class DateObject extends DateTime {
 
-  // Static values used in massaging this date.
+  /**
+   * An array of possible date parts.
+   */
   public static $date_parts = array('year', 'month', 'day', 'hour', 'minute', 'second');
+
+  /**
+   * A default format, used where no other format has been declared.
+   */
   public static $default_format = 'Y-m-d H:i:s';
+
+  /**
+   * A default timezone name, used when no other timezone name is known.
+   */
   public static $default_timezone_name = '';
+
+  /**
+   * A message that the date is invalid.
+   */
   public static $invalid_date_message = 'The date is invalid.';
+
+  /**
+   * A message that the date is missing.
+   */
   public static $missing_date_message = 'No date was input.';
 
-  // The input format, if known.
+  /**
+    * The input format, if known.
+    */
   public $format = '';
 
-  // The input time value, before it is altered.
+  /**
+    * The input time value, before it is altered.
+    */
   public $input_original = '';
 
-  // The time, without timezone, of this date.
+  /**
+    * The time, without timezone, of this date.
+    */
   public $input_adjusted = '';
 
-  // The desired timezone for this date.
+  /**
+    * The desired timezone for this date.
+    */
   public $timezone_name = 'UTC';
 
-  // The timezone object for this date.
+  /**
+    * The timezone object for this date.
+    */
   public $timezone_object = '';
 
-  // An array of errors encounted when creating this date.
+  /**
+    * An array of errors encounted when creating this date.
+    */
   public $errors = array();
+
+  /**
+   * A regex string that will extract date and time parts from either
+   * a datetime string or an iso string, with or without missing date
+   * and time values.
+   */
+  public static $regex_loose = '/(\d{4})-?(\d{1,2})-?(\d{1,2})([T\s]?(\d{2}):?(\d{2}):?(\d{2})?(\.\d+)?(Z|[\+\-]\d{2}:?\d{2})?)?/';
 
   /**
    * Constructs a date object.
@@ -122,7 +159,7 @@ class DateObject extends DateTime {
 
     // If something else, or nothing, was input, we don't have a date.
     else {
-      $this->errors += self::$missing_date_message;
+      $this->errors[] = self::$missing_date_message;
     }
 
     // Clean up the error messages.
