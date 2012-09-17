@@ -18,7 +18,7 @@ use Drupal\date_api\DateGranularity;
 function hook_date_default_argument_alter(&$argument, &$value) {
   $style_options = $style_options = $argument->view->display_handler->get_option('style_options');
   if (!empty($style_options['track_date'])) {
-    $default_date = date_now();
+    $default_date = new DateObject();
     $value = $default_date->format($argument->arg_format);
   }
 }

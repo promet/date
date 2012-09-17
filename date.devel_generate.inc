@@ -26,7 +26,7 @@ function date_devel_generate($entity, $field, $instance, $bundle) {
   }
   // Pick a random year within the time range,
   // and a random second within that year.
-  $year = date_format(date_now(), 'Y') - $back + mt_rand(0, ($forward + $back));
+  $year = date_format(new DateObject(), 'Y') - $back + mt_rand(0, ($forward + $back));
   $start = new DateObject($year . '-01-01 00:00:00', date_get_timezone_db($field['settings']['tz_handling']));
   $leap = date_format($start, 'L');
   $max_days = $leap ? 366 : 365;

@@ -122,12 +122,10 @@ date_format_patterns();
 ============================================================================
 Standardized ical parser and creator
 ============================================================================
-The iCal parser is found in date_api_ical.inc, which is not included by default.
-Include that file if you want to use these functions:
+The iCal parser is Drupal/date_api/DateiCalParse. Use that class to
+manipulate iCal strings.
 
-Complete rewrite of ical imports to parse vevents, vlocations, valarms,
-and all kinds of timezone options and repeat rules for ical imports.
-The function now sticks to parsing the ical into an array that can be used
+The class parses the ical into an array that can be used
 in various ways. It no longer trys to convert timezones while parsing,
 instead a date_ical_date_format() function is provided that can be used to
 convert from the ical timezone to whatever timezone is desired in the

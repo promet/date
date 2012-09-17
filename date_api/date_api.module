@@ -34,12 +34,6 @@ const DATE_FORMAT_ICAL = "Ymd\THis";
 const DATE_FORMAT_ICAL_DATE = "Ymd";
 const DATE_FORMAT_DATE = 'Y-m-d';
 
-const DATE_REGEX_ISO = '/(\d{4})?(-(\d{2}))?(-(\d{2}))?([T\s](\d{2}))?(:(\d{2}))?(:(\d{2}))?/';
-const DATE_REGEX_DATETIME = '/(\d{4})-(\d{2})-(\d{2})\s(\d{2}):(\d{2}):?(\d{2})?/';
-const DATE_REGEX_LOOSE = '/(\d{4})-?(\d{1,2})-?(\d{1,2})([T\s]?(\d{2}):?(\d{2}):?(\d{2})?(\.\d+)?(Z|[\+\-]\d{2}:?\d{2})?)?/';
-const DATE_REGEX_ICAL_DATE = '/(\d{4})(\d{2})(\d{2})/';
-const DATE_REGEX_ICAL_DATETIME = '/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z)?/';
-
 /**
  * Core DateTime extension module used for as many date operations as possible.
  */
@@ -715,20 +709,6 @@ function date_format_interval($date, $granularity = 2, $display_ago = TRUE) {
 }
 
 /**
- * A date object for the current time.
- *
- * @param object $timezone
- *   (optional) Optionally force time to a specific timezone, defaults to user
- *   timezone, if set, otherwise site timezone. Defaults to NULL.
- *
- * @return object
- *   The current time as a date object.
- */
-function date_now($timezone = NULL) {
-  return new DateObject(REQUEST_TIME, $timezone);
-}
-
-/**
  * Determines if a timezone string is valid.
  *
  * @param string $timezone
@@ -801,7 +781,7 @@ function date_days_in_month($year, $month) {
  */
 function date_days_in_year($date = NULL) {
   if (empty($date)) {
-    $date = date_now();
+    $date = new DateObject();
   }
   elseif (!is_object($date)) {
     $date = new DateObject($date);
@@ -830,7 +810,7 @@ function date_days_in_year($date = NULL) {
  */
 function date_iso_weeks_in_year($date = NULL) {
   if (empty($date)) {
-    $date = date_now();
+    $date = new DateObject();
   }
   elseif (!is_object($date)) {
     $date = new DateObject($date);
@@ -854,7 +834,7 @@ function date_iso_weeks_in_year($date = NULL) {
  */
 function date_day_of_week($date = NULL) {
   if (empty($date)) {
-    $date = date_now();
+    $date = new DateObject();
   }
   elseif (!is_object($date)) {
     $date = new DateObject($date);
@@ -1184,7 +1164,7 @@ function date_range_valid($string) {
  *   A numerically indexed array, containing a minimum and maximum year.
  */
 function date_range_years($string, $date = NULL) {
-  $this_year = date_format(date_now(), 'Y');
+  $this_year = date_format(new DateObject(), 'Y');
   list($min_year, $max_year) = explode(':', $string);
 
   // Valid patterns would be -5:+5, 0:+1, 2008:2010.
@@ -1232,7 +1212,7 @@ function date_range_years($string, $date = NULL) {
  *   A min and max year string like '-3:+1'.
  */
 function date_range_string($years) {
-  $this_year = date_format(date_now(), 'Y');
+  $this_year = date_format(new DateObject(), 'Y');
 
   if ($years[0] < $this_year) {
     $min = '-' . ($this_year - $years[0]);
@@ -1316,7 +1296,7 @@ function date_format_type_options() {
  * This ensures a clear difference between month and day, and 12 and 24 hours.
  */
 function date_example_date() {
-  $now = date_now();
+  $now = new DateObject();
   if (date_format($now, 'M') == date_format($now, 'F')) {
     date_modify($now, '+1 month');
   }

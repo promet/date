@@ -107,7 +107,7 @@ class DateSqlHandler {
     if (!empty($this->db_timezone) && !empty($this->local_timezone)) {
       if ($this->db_timezone != $this->local_timezone) {
         if (empty($comp_date)) {
-          $comp_date = date_now($this->db_timezone);
+          $comp_date = new DateObject('now', $this->db_timezone);
         }
         $comp_date->setTimezone(timezone_open($this->local_timezone));
         return date_offset_get($comp_date);
@@ -910,7 +910,7 @@ class DateSqlHandler {
     foreach ($fromto as $arg) {
       $parts = array();
       if ($arg == '@') {
-        $date = date_now();
+        $date = new DateObject();
         $parts['date'] = $date->toArray();
       }
       elseif (preg_match('/(\d{4})?-?(W)?(\d{1,2})?-?(\d{1,2})?[T\s]?(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?/', $arg, $matches)) {
@@ -1030,7 +1030,7 @@ class DateSqlHandler {
 
     // Build a range from a period-only argument (assumes the min date is now.)
     if (empty($parts[0]['date']) && !empty($parts[0]['period']) && (empty($parts[1]))) {
-      $min_date = date_now();
+      $min_date = new DateObject();
       $max_date = clone($min_date);
       foreach ($parts[0]['period'] as $part => $value) {
         date_modify($max_date, "+$value $part");
@@ -1040,7 +1040,7 @@ class DateSqlHandler {
     }
     // Build a range from a period to period argument.
     if (empty($parts[0]['date']) && !empty($parts[0]['period']) && !empty($parts[1]['period'])) {
-      $min_date = date_now();
+      $min_date = new DateObject();
       $max_date = clone($min_date);
       foreach ($parts[0]['period'] as $part => $value) {
         date_modify($min_date, "+$value $part");
@@ -1081,14 +1081,14 @@ class DateSqlHandler {
     }
     // Build a range from period + end date.
     if (!empty($parts[0]['period'])) {
-      $min_date = date_now();
+      $min_date = new DateObject();
       foreach ($parts[0]['period'] as $part => $value) {
         date_modify($min_date, "$value $part");
       }
       return array($min_date, $max_date);
     }
      // Intercept invalid info and fall back to the current date.
-    $now = date_now();
+    $now = new DateObject();
     return array($now, $now);
   }
 }

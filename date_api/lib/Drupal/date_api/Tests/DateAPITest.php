@@ -83,8 +83,8 @@ class DateAPITest extends WebTestBase {
       'Z',
     );
     foreach ($formatters as $formatter) {
-      $date_api_format = date_format_date(date_now(), 'custom', $formatter);
-      $php_format = date_format(date_now(), $formatter);
+      $date_api_format = date_format_date(new DateObject(), 'custom', $formatter);
+      $php_format = date_format(new DateObject(), $formatter);
       $this->assertEqual($date_api_format, $php_format, 'Test that the "' . $formatter . '" formatter is formatted correctly by date_format_date()');
     }
 
