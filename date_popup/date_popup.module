@@ -326,7 +326,7 @@ function date_popup_process_date_part(&$element) {
   // even though the Date API can handle them, so rework the value
   // we pass to the datepicker to use defaults it can accept (such as +0:+1)
   // date_range_string() adds the necessary +/- signs to the range string.
-  $this_year = date_format(date_now(), 'Y');
+  $this_year = date_format(new DateObject(), 'Y');
   $date = '';
   if (!empty($element['#value']['date'])) {
     $date = new DateObject($element['#value']['date'], $element['#date_timezone'], date_popup_date_format($element));
@@ -451,7 +451,7 @@ function date_popup_process_time_part(&$element) {
   $sub_element['#value'] = $sub_element['#default_value'];
 
   // TODO, figure out exactly when we want this description. In many places it is not desired.
-  $example_date = date_now();
+  $example_date = new DateObject();
   date_increment_round($example_date, $element['#date_increment']);
   $sub_element['#description'] = t('E.g., @date', array('@date' => date_format_date($example_date, 'custom', date_popup_time_format($element))));
 

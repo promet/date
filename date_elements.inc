@@ -230,10 +230,10 @@ function date_default_value_part($item, $field, $instance, $langcode, $part = 'v
   // Special case for 'now' when using dates with no timezone,
   // make sure 'now' isn't adjusted to UTC value of 'now' .
   elseif ($field['settings']['tz_handling'] == 'none') {
-    $date = date_now();
+    $date = new DateObject();
   }
   else {
-    $date = date_now($timezone);
+    $date = new DateObject('now', $timezone);
   }
   // The default value needs to be in the database timezone.
   date_timezone_set($date, timezone_open($timezone_db));
