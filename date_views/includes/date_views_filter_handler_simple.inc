@@ -189,7 +189,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
   function year_range() {
     $year_range = explode(':', $this->options['year_range']);
     if (substr($this->options['year_range'], 0, 1) == '-' || $year_range[0] < 0) {
-      $this_year = date_format(date_now(), 'Y');
+      $this_year = date_format(new DateObject(), 'Y');
       $year_range[0] = $this_year + $year_range[0];
       $year_range[1] = $this_year + $year_range[1];
     }

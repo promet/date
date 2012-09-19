@@ -13,6 +13,10 @@
  * to their dates, and identify dates that meet the RRULE criteria.
  *
  */
+
+use Drupal\date_api\DateiCalParse;
+use Drupal\date_repeat\DateRRuleCalc;
+
 /**
  * Implements hook_element_info().
  */
@@ -191,10 +195,7 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
     return;
   }
 
-  module_load_include('inc', 'date_api', 'date_api_ical');
-  module_load_include('inc', 'date_repeat', 'date_repeat_calc');
-
-  $parts = date_repeat_split_rrule($rrule);
+  $parts = DateiCalParse::split_rrule($rrule);
   $additions = $parts[2];
   $exceptions = $parts[1];
   $rrule = $parts[0];
@@ -270,14 +271,14 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
     $description['!count'] = trim(t('!repeats_every_interval !count times', array('!repeats_every_interval ' => '', '!count' => $rrule['COUNT'])));
   }
   if (!empty($rrule['UNTIL'])) {
-    $until = date_ical_date($rrule['UNTIL'], 'UTC');
+    $until = DateiCalParse::ical_date($rrule['UNTIL'], 'UTC');
     date_timezone_set($until, date_default_timezone_object());
     $description['!until'] = trim(t('!repeats_every_interval until !until_date', array('!repeats_every_interval ' => '', '!until_date' => date_format_date($until, 'custom', $format))));
   }
   if ($exceptions) {
     $values = array();
     foreach ($exceptions as $exception) {
-      $except = date_ical_date($exception, 'UTC');
+      $except = DateiCalParse::ical_date($exception, 'UTC');
       date_timezone_set($except, date_default_timezone_object());
       $values[] = date_format_date($except, 'custom', $format);
     }
@@ -290,49 +291,13 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
   if ($additions) {
     $values = array();
     foreach ($additions as $addition) {
-      $add = date_ical_date($addition, 'UTC');
+      $add = DateiCalParse::ical_date($addition, 'UTC');
       date_timezone_set($add, date_default_timezone_object());
       $values[] = date_format_date($add, 'custom', $format);
     }
     $description['!additional'] = trim(t('Also includes !additional_dates.', array('!additional_dates' => implode(', ', $values))));
   }
   return t('Repeats !interval !bymonth !byday !count !until !except. !additional', $description);
-}
-
-/**
- * Parse an iCal rule into a parsed RRULE array and an EXDATE array.
- */
-function date_repeat_split_rrule($rrule) {
-  $parts = explode("\n", str_replace("\r\n", "\n", $rrule));
-  $rrule = array();
-  $exceptions = array();
-  $additions = array();
-  $additions = array();
-  foreach ($parts as $part) {
-    if (strstr($part, 'RRULE')) {
-      $RRULE = str_replace('RRULE:', '', $part);
-      $rrule = (array) date_ical_parse_rrule('RRULE:', $RRULE);
-    }
-    elseif (strstr($part, 'EXDATE')) {
-      $EXDATE = str_replace('EXDATE:', '', $part);
-      $exceptions = (array) date_ical_parse_exceptions('EXDATE:', $EXDATE);
-      unset($exceptions['DATA']);
-    }
-    elseif (strstr($part, 'RDATE')) {
-      $RDATE = str_replace('RDATE:', '', $part);
-      $additions = (array) date_ical_parse_exceptions('RDATE:', $RDATE);
-      unset($additions['DATA']);
-    }
-  }
-  return array($rrule, $exceptions, $additions);
-}
-
-/**
- * Analyze a RRULE and return dates that match it.
- */
-function date_repeat_calc($rrule, $start, $end, $exceptions = array(), $timezone = NULL, $additions = array()) {
-  module_load_include('inc', 'date_repeat', 'date_repeat_calc');
-  return _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additions);
 }
 
 /**

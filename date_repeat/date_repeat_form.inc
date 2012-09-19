@@ -33,6 +33,8 @@
 
 use Drupal\date_api\DateObject;
 use Drupal\date_api\DateGranularity;
+use Drupal\date_api\DateiCalParse;
+use Drupal\date_repeat\DateRRuleCalc;
 
 /**
  * Generate the repeat setting form.
@@ -53,7 +55,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
   }
   if (is_array($element['#default_value'])) {
     $element['#value'] = date_repeat_merge($element['#value'], $element);
-    $rrule = date_api_ical_build_rrule($element['#value']);
+    $rrule = DateiCalParse::build_rrule($element['#value']);
   }
   else {
     $rrule = $element['#default_value'];
@@ -63,7 +65,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
   // an array of values for the form from the RRULE's contents.
   $element['#value'] = '';
 
-  $parts = date_repeat_split_rrule($rrule);
+  $parts = DateiCalParse::split_rrule($rrule);
   $rrule = $parts[0];
 
   $exceptions = $parts[1];
@@ -905,11 +907,9 @@ function date_repeat_rrule_validate($element, &$form_state) {
     }
   }
 
-  module_load_include('inc', 'date_api', 'date_api_ical');
-
   $item = drupal_array_get_nested_value($form_state['values'], $element['#parents']);
   $item = date_repeat_merge($item, $element);
-  $rrule = date_api_ical_build_rrule($item);
+  $rrule = DateiCalParse::build_rrule($item);
   form_set_value($element, $rrule, $form_state);
 }
 

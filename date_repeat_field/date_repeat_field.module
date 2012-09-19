@@ -23,6 +23,8 @@
 
 use Drupal\date_api\DateObject;
 use Drupal\date_api\DateGranularity;
+use Drupal\date_api\DateiCalParse;
+use Drupal\date_repeat\DateRRuleCalc;
 
 /**
  * Implements hook_theme().
@@ -408,14 +410,13 @@ function date_repeat_after_build(&$element, &$form_state) {
  */
 function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $item) {
 
-  include_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/date_api_ical.inc');
   $field_name = $field['field_name'];
 
   if (empty($rrule)) {
-    $rrule = date_api_ical_build_rrule($rrule_values);
+    $rrule = DateiCalParse::ical_build_rrule($rrule_values);
   }
   elseif (empty($rrule_values)) {
-    $rrule_values = date_ical_parse_rrule(NULL, $rrule);
+    $rrule_values = DateiCalParse::parse_rrule(NULL, $rrule);
   }
 
   // By the time we get here, the start and end dates have been
@@ -435,37 +436,32 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
     $end = $start;
   }
   $interval = $start->diff($end);
-  $start_datetime = date_format($start, DATE_FORMAT_DATETIME);
 
   if (!empty($rrule_values['UNTIL']['datetime'])) {
-    $end = date_ical_date($rrule_values['UNTIL'], $timezone);
-    $end_datetime = date_format($end, DATE_FORMAT_DATETIME);
+    $end = DateiCalParse::ical_date($rrule_values['UNTIL'], $timezone);
   }
-  elseif (!empty($rrule_values['COUNT'])) {
-    $end_datetime = NULL;
-  }
-  else {
+  elseif (empty($rrule_values['COUNT'])) {
     // No UNTIL and no COUNT?
     return array();
   }
 
   // Split the RRULE into RRULE, EXDATE, and RDATE parts.
-  $parts = date_repeat_split_rrule($rrule);
+  $parts = DateiCalParse::split_rrule($rrule);
   $parsed_exceptions = (array) $parts[1];
   $exceptions = array();
   foreach ($parsed_exceptions as $exception) {
-    $date = date_ical_date($exception, $timezone);
+    $date = DateiCalParse::ical_date($exception, $timezone);
     $exceptions[] = date_format($date, 'Y-m-d');
   }
 
   $parsed_rdates = (array) $parts[2];
   $additions = array();
   foreach ($parsed_rdates as $rdate) {
-    $date = date_ical_date($rdate, $timezone);
+    $date = DateiCalParse::ical_date($rdate, $timezone);
     $additions[] = date_format($date, 'Y-m-d');
   }
 
-  $dates = date_repeat_calc($rrule, $start_datetime, $end_datetime, $exceptions, $timezone, $additions);
+  $dates = new DateRRuleCalc($rrule, $start, $end, $exceptions, $additions);
   $value = array();
   foreach ($dates as $delta => $date) {
     // date_repeat_calc always returns DATE_DATETIME dates, which is
