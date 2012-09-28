@@ -739,7 +739,7 @@ class DateSqlHandler {
     }
     // Special case for weeks.
     if (array_key_exists('week', $selected)) {
-      $dates = date_week_range($selected['week'], $selected['year']);
+      $dates = DateHelper::calendar_week_range($selected['week'], $selected['year']);
       switch ($type) {
         case 'empty_now':
         case 'empty_min':
@@ -757,7 +757,7 @@ class DateSqlHandler {
     // If this is a max date, make sure the last day of
     // the month is the right one for this date.
     if ($type == 'max') {
-      $compare['day'] = date_days_in_month($compare['year'], $compare['month']);
+      $compare['day'] = DateHelper::days_in_month($compare['year'], $compare['month']);
     }
     $value = '';
     $separators = $this->part_info('sep');

@@ -11,7 +11,7 @@ use DateTimezone;
 use Exception;
 
 /**
- * This class is a Drupal independent extension of the PHP DateTime class.
+ * This class is an extension of the PHP DateTime class.
  *
  * It extends the PHP DateTime class with more flexible initialization
  * parameters, allowing a date to be created from a timestamp, a string
@@ -21,9 +21,9 @@ use Exception;
  * This class also changes the default PHP behavior for handling
  * invalid date values like '2011-00-00'. PHP would convert that value
  * to '2010-11-30' and report a warning but not an error. This class
- * returns an error in that situation.
+ * treats that as an error, not a warning.
  *
- * As with the base class, we often return a date object even if it has
+ * As with the base class, a date object may be created even if it has
  * errors. It has an errors array attached to it that explains what the
  * errors are. The calling script can decide what to do about any errors
  * reported.
@@ -91,13 +91,6 @@ class DateObject extends DateTime {
   public $errors = array();
 
   /**
-   * A regex string that will extract date and time parts from either
-   * a datetime string or an iso string, with or without missing date
-   * and time values.
-   */
-  public static $regex_loose = '/(\d{4})-?(\d{1,2})-?(\d{1,2})([T\s]?(\d{2}):?(\d{2}):?(\d{2})?(\.\d+)?(Z|[\+\-]\d{2}:?\d{2})?)?/';
-
-  /**
    * Constructs a date object.
    *
    * @param mixed $time
@@ -123,7 +116,7 @@ class DateObject extends DateTime {
 
     $this->format = $format;
 
-    // Handling for Unix timestamps.
+    // Create a date from a Unix timestamps.
     // Create a date object and convert it to the local timezone.
     // Don't try to turn a value like '2010' with a format of 'Y'
     // into a timestamp.
@@ -131,15 +124,14 @@ class DateObject extends DateTime {
       $this->constructFromTimestamp($this->input_adjusted, $this->timezone_object);
     }
 
-    // Handling for arrays of date parts.
+    // Create date from array of date parts.
     // Convert the input value into an ISO date,
     // forcing a full ISO date even if some values are missing.
     elseif (is_array($time)) {
       $this->constructFromArray($this->input_adjusted, $this->timezone_object);
     }
 
-    // The parse function will create a date from a string and an
-    // expected format.
+    // Create a date from a string and an expected format.
     elseif (!empty($this->format)) {
       $this->constructFromFormat($this->format, $this->input_adjusted, $this->timezone_object);
     }
@@ -300,12 +292,13 @@ class DateObject extends DateTime {
 
   /**
    * Prepare the input value before trying to use it.
+   * Can be overridden to handle special cases.
    *
    * @param mixed $time
    *   An input value, which could be a timestamp, a string,
    *   or an array of date parts.
    */
-  protected function prepareInput($time) {
+  public function prepareInput($time) {
     return $time;
   }
 
@@ -315,7 +308,7 @@ class DateObject extends DateTime {
    * @param mixed $timezone
    *   Either a timezone name or a timezone object.
    */
-  protected function prepareTimezone($timezone) {
+  public function prepareTimezone($timezone) {
     // Allow string timezones.
     if (!empty($timezone) && !is_object($timezone)) {
       $timezone = new DateTimeZone($timezone);
@@ -330,8 +323,6 @@ class DateObject extends DateTime {
 
   /**
    * Returns all standard date parts in an array.
-   *
-   * Will return '' for parts in which it lacks granularity.
    *
    * @param object $date
    *   A date object.
@@ -355,15 +346,15 @@ class DateObject extends DateTime {
    *
    * @param array $array
    *   An array of date values keyed by date part.
-   * @param bool $force_valid
+   * @param bool $force_valid_date
    *   (optional) Whether to force a full date by filling in missing
    *   values. Defaults to FALSE.
    *
    * @return string
    *   The date as an ISO string.
    */
-  public function toISO($array, $force_valid = FALSE) {
-    $array = $this->prepareArray($array, $force_valid);
+  public function toISO($array, $force_valid_date = FALSE) {
+    $array = $this->prepareArray($array, $force_valid_date);
     $datetime = '';
     if ($array['year'] !== '') {
       $datetime = self::datePad(intval($array['year']), 4);
@@ -392,15 +383,15 @@ class DateObject extends DateTime {
    *
    * @param array $array
    *   An array of date values keyed by date part.
-   * @param bool $force_valid
+   * @param bool $force_valid_date
    *   (optional) Whether to force a valid date by filling in missing
    *   values with valid values. Defaults to FALSE.
    *
    * @return array
    *   A complete array of date parts.
    */
-  public function prepareArray($array, $force_valid = FALSE) {
-    if ($force_valid) {
+  public function prepareArray($array, $force_valid_date = FALSE) {
+    if ($force_valid_date) {
       $array += array('year' => 0, 'month' => 1, 'day' => 1, 'hour' => 0, 'minute' => 0, 'second' => 0);
     }
     else {

@@ -9,6 +9,7 @@ namespace Drupal\date_api\Tests;
 
 use Drupal\simpletest\WebTestBase;
 use Drupal\date_api\DateObject;
+use Drupal\date_api\DateHelper;
 use DateTimeZone;
 
 class DateAPITest extends WebTestBase {
@@ -92,87 +93,87 @@ class DateAPITest extends WebTestBase {
     // one that starts on Sunday.
     variable_set('date_first_day', 1);
     $expected = array(0 => t('Mon'), 1 => t('Tue'), 2 => t('Wed'), 3 => t('Thu'), 4 => t('Fri'), 5 => t('Sat'), 6 => t('Sun'));
-    $days = date_week_days_ordered(date_week_days_abbr(1));
-    $this->assertEqual($expected, $days, 'Test that date_week_days_ordered() array starts on Monday when the site first day is on Monday.');
+    $days = DateHelper::week_days_ordered(DateHelper::week_days_abbr(1));
+    $this->assertEqual($expected, $days, 'Test that DateHelper::week_days_ordered() array starts on Monday when the site first day is on Monday.');
     variable_set('date_first_day', 0);
     $expected = array(0 => t('Sun'), 1 => t('Mon'), 2 => t('Tue'), 3 => t('Wed'), 4 => t('Thu'), 5 => t('Fri'), 6 => t('Sat'));
-    $days = date_week_days_ordered(date_week_days_abbr(1));
-    $this->assertEqual($expected, $days, 'Test that date_week_days_ordered() array starts on Sunday when the site first day is on Sunday.');
+    $days = DateHelper::week_days_ordered(DateHelper::week_days_abbr(1));
+    $this->assertEqual($expected, $days, 'Test that DateHelper::week_days_ordered() array starts on Sunday when the site first day is on Sunday.');
 
     // Test days in February for a leap year and a non-leap year.
     $expected = 28;
-    $value = date_days_in_month(2005, 2);
-    $this->assertEqual($expected, $value, "Test date_days_in_month(2, 2005): should be $expected, found $value.");
+    $value = DateHelper::days_in_month(2005, 2);
+    $this->assertEqual($expected, $value, "Test DateHelper::days_in_month(2, 2005): should be $expected, found $value.");
     $expected = 29;
-    $value = date_days_in_month(2004, 2);
-    $this->assertEqual($expected, $value, "Test date_days_in_month(2, 2004): should be $expected, found $value.");
+    $value = DateHelper::days_in_month(2004, 2);
+    $this->assertEqual($expected, $value, "Test DateHelper::days_in_month(2, 2004): should be $expected, found $value.");
 
     // Test days in year for a leap year and a non-leap year.
     $expected = 365;
-    $value = date_days_in_year('2005-06-01 00:00:00');
-    $this->assertEqual($expected, $value, "Test date_days_in_year(2005-06-01): should be $expected, found $value.");
+    $value = DateHelper::days_in_year('2005-06-01 00:00:00');
+    $this->assertEqual($expected, $value, "Test DateHelper::days_in_year(2005-06-01): should be $expected, found $value.");
     $expected = 366;
-    $value = date_days_in_year('2004-06-01 00:00:00');
-    $this->assertEqual($expected, $value, "Test date_days_in_year(2004-06-01): should be $expected, found $value.");
+    $value = DateHelper::days_in_year('2004-06-01 00:00:00');
+    $this->assertEqual($expected, $value, "Test DateHelper::days_in_year(2004-06-01): should be $expected, found $value.");
 
     // Test ISO weeks for a leap year and a non-leap year.
     $expected = 52;
-    $value = date_iso_weeks_in_year('2008-06-01 00:00:00');
-    $this->assertEqual($expected, $value, "Test date_iso_weeks_in_year(2008-06-01): should be $expected, found $value.");
+    $value = DateHelper::iso_weeks_in_year('2008-06-01 00:00:00');
+    $this->assertEqual($expected, $value, "Test DateHelper::iso_weeks_in_year(2008-06-01): should be $expected, found $value.");
     $expected = 53;
-    $value = date_iso_weeks_in_year('2009-06-01 00:00:00');
-    $this->assertEqual($expected, $value, "Test date_iso_weeks_in_year(2009-06-01): should be $expected, found $value.");
+    $value = DateHelper::iso_weeks_in_year('2009-06-01 00:00:00');
+    $this->assertEqual($expected, $value, "Test DateHelper::iso_weeks_in_year(2009-06-01): should be $expected, found $value.");
 
     // Test day of week for March 1, the day after leap day.
     $expected = 6;
-    $value = date_day_of_week('2008-03-01 00:00:00');
-    $this->assertEqual($expected, $value, "Test date_day_of_week(2008-03-01): should be $expected, found $value.");
+    $value = DateHelper::day_of_week('2008-03-01 00:00:00');
+    $this->assertEqual($expected, $value, "Test DateHelper::day_of_week(2008-03-01): should be $expected, found $value.");
     $expected = 0;
-    $value = date_day_of_week('2009-03-01 00:00:00');
-    $this->assertEqual($expected, $value, "Test date_day_of_week(2009-03-01): should be $expected, found $value.");
+    $value = DateHelper::day_of_week('2009-03-01 00:00:00');
+    $this->assertEqual($expected, $value, "Test DateHelper::day_of_week(2009-03-01): should be $expected, found $value.");
 
     // Test day of week name for March 1, the day after leap day.
     $expected = 'Sat';
-    $value = date_day_of_week_name('2008-03-01 00:00:00');
-    $this->assertEqual($expected, $value, "Test date_day_of_week_name(2008-03-01): should be $expected, found $value.");
+    $value = DateHelper::day_of_week_name('2008-03-01 00:00:00');
+    $this->assertEqual($expected, $value, "Test DateHelper::day_of_week_name(2008-03-01): should be $expected, found $value.");
     $expected = 'Sun';
-    $value = date_day_of_week_name('2009-03-01 00:00:00');
-    $this->assertEqual($expected, $value, "Test date_day_of_week_name(2009-03-01): should be $expected, found $value.");
+    $value = DateHelper::day_of_week_name('2009-03-01 00:00:00');
+    $this->assertEqual($expected, $value, "Test DateHelper::day_of_week_name(2009-03-01): should be $expected, found $value.");
 
     // Test week range with calendar weeks.
     variable_set('date_first_day', 0);
     $date_api_settings = config('date_api.settings');
     $date_api_settings->set('iso8601', FALSE)->save();
     $expected = '2008-01-27 to 2008-02-03';
-    $result = date_week_range(5, 2008);
+    $result = DateHelper::calendar_week_range(5, 2008);
     $value = $result[0]->format(DATE_FORMAT_DATE) . ' to ' . $result[1]->format(DATE_FORMAT_DATE);
-    $this->assertEqual($expected, $value, "Test calendar date_week_range(5, 2008): should be $expected, found $value.");
+    $this->assertEqual($expected, $value, "Test calendar DateHelper::calendar_week_range(5, 2008): should be $expected, found $value.");
     $expected = '2009-01-25 to 2009-02-01';
-    $result = date_week_range(5, 2009);
+    $result = DateHelper::calendar_week_range(5, 2009);
     $value = $result[0]->format(DATE_FORMAT_DATE) . ' to ' . $result[1]->format(DATE_FORMAT_DATE);
-    $this->assertEqual($expected, $value, "Test calendar date_week_range(5, 2009): should be $expected, found $value.");
+    $this->assertEqual($expected, $value, "Test calendar DateHelper::calendar_week_range(5, 2009): should be $expected, found $value.");
 
     // And now with ISO weeks.
     variable_set('date_first_day', 1);
     $date_api_settings->set('iso8601', TRUE)->save();
     $expected = '2008-01-28 to 2008-02-04';
-    $result = date_week_range(5, 2008);
+    $result = DateHelper::calendar_week_range(5, 2008);
     $value = $result[0]->format(DATE_FORMAT_DATE) . ' to ' . $result[1]->format(DATE_FORMAT_DATE);
-    $this->assertEqual($expected, $value, "Test ISO date_week_range(5, 2008): should be $expected, found $value.");
+    $this->assertEqual($expected, $value, "Test ISO DateHelper::calendar_week_range(5, 2008): should be $expected, found $value.");
     $expected = '2009-01-26 to 2009-02-02';
-    $result = date_week_range(5, 2009);
+    $result = DateHelper::calendar_week_range(5, 2009);
     $value = $result[0]->format(DATE_FORMAT_DATE) . ' to ' . $result[1]->format(DATE_FORMAT_DATE);
-    $this->assertEqual($expected, $value, "Test ISO date_week_range(5, 2009): should be $expected, found $value.");
+    $this->assertEqual($expected, $value, "Test ISO DateHelper::calendar_week_range(5, 2009): should be $expected, found $value.");
     $date_api_settings->set('iso8601', FALSE)->save();
 
     // Find calendar week for a date.
     variable_set('date_first_day', 0);
     $expected = '09';
-    $value = date_week('2008-03-01');
-    $this->assertEqual($expected, $value, "Test date_week(2008-03-01): should be $expected, found $value.");
+    $value = DateHelper::calendar_week('2008-03-01');
+    $this->assertEqual($expected, $value, "Test DateHelper::calendar_week(2008-03-01): should be $expected, found $value.");
     $expected = '10';
-    $value = date_week('2009-03-01');
-    $this->assertEqual($expected, $value, "Test date_week(2009-03-01): should be $expected, found $value.");
+    $value = DateHelper::calendar_week('2009-03-01');
+    $this->assertEqual($expected, $value, "Test DateHelper::calendar_week(2009-03-01): should be $expected, found $value.");
 
     // Test date ranges.
     $valid = array(

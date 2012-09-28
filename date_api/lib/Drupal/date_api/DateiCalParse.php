@@ -8,6 +8,7 @@ namespace Drupal\date_api;
 
 use DateTimezone;
 use Drupal\date_api\DateObject;
+use Drupal\date_api\DateHelper;
 
 /**
  * Return an array of iCalendar information from an iCalendar file.
@@ -437,7 +438,7 @@ class DateiCalParse {
     }
     // If no format is specified, attempt a loose match.
     else {
-      preg_match(DateObject::$regex_loose, $data, $regs);
+      preg_match(DateHelper::$regex_loose, $data, $regs);
       if (!empty($regs) && count($regs) > 2) {
         // Date.
         $datetime = DateObject::datePad($regs[1]) . '-' . DateObject::datePad($regs[2]) . '-' . DateObject::datePad($regs[3]);
