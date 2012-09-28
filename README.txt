@@ -37,7 +37,7 @@ DateHelper::years();
 DateHelper::hours();
 DateHelper::minutes();
 DateHelper::seconds();
-date_timezone_names();
+system_time_zones();
 DateHelper::ampm();
 
 ============================================================================

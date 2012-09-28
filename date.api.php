@@ -350,7 +350,6 @@ function hook_date_combo_process_alter(&$element, &$form_state, $context) {
       '#prev_value2' => isset($item['value2']) ? $item['value2'] : '',
       '#prev_rrule' => isset($item['rrule']) ? $item['rrule'] : '',
       '#date_repeat_widget' => str_replace('_repeat', '', $instance['widget']['type']),
-      '#date_repeat_collapsed' => $instance['widget']['settings']['repeat_collapsed'],
       '#date_flexible' => 0,
       '#weight' => $instance['widget']['weight'] + .4,
     );

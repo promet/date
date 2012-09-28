@@ -516,7 +516,7 @@ function date_parts_element($element, $date, $format) {
   $order = array_flip($granularity);
 
   $hours_format  = strpos(strtolower($element['#date_format']), 'a') ? 'g': 'G';
-  $month_function  = strpos($element['#date_format'], 'F') !== FALSE ? 'DateHelper::month_names' : 'DateHelper::month_names_abbr';
+  $month_function  = strpos($element['#date_format'], 'F') !== FALSE ? 'month_names' : 'month_names_abbr';
   $count = 0;
   $increment = min(intval($element['#date_increment']), 1);
 
@@ -544,13 +544,13 @@ function date_parts_element($element, $date, $format) {
       case 'month':
         $sub_element[$field]['#default_value'] = is_object($date) ? $date->format('n') : '';
         if ($part_type == 'select') {
-          $sub_element[$field]['#options'] = $month_function($part_required);
+          $sub_element[$field]['#options'] = DateHelper::$month_function($part_required);
         }
         break;
       case 'day':
         $sub_element[$field]['#default_value'] = is_object($date) ? $date->format('j') : '';
         if ($part_type == 'select') {
-          $sub_element[$field]['#options'] = drupal_map_assoc(date_days($part_required));
+          $sub_element[$field]['#options'] = drupal_map_assoc(DateHelper::days($part_required));
         }
         break;
       case 'hour':

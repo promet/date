@@ -116,23 +116,28 @@ class DateObject extends DateTime {
 
     $this->format = $format;
 
+    // Did we recieve a date object as $time? If so, just use it.
+    if ($this->input_adjusted instanceOf DateTime) {
+      parent::__construct($this->input_adjusted->format($this->format), $time->getTimezone());
+    }
+
     // Create a date from a Unix timestamps.
     // Create a date object and convert it to the local timezone.
     // Don't try to turn a value like '2010' with a format of 'Y'
     // into a timestamp.
-    if (is_numeric($this->input_adjusted) && (empty($this->format) || $this->format == 'U')) {
+    elseif (is_numeric($this->input_adjusted) && (empty($this->format) || $this->format == 'U')) {
       $this->constructFromTimestamp($this->input_adjusted, $this->timezone_object);
     }
 
     // Create date from array of date parts.
     // Convert the input value into an ISO date,
     // forcing a full ISO date even if some values are missing.
-    elseif (is_array($time)) {
+    elseif (is_array($this->input_adjusted)) {
       $this->constructFromArray($this->input_adjusted, $this->timezone_object);
     }
 
     // Create a date from a string and an expected format.
-    elseif (!empty($this->format)) {
+    elseif (is_string($this->input_adjusted) && !empty($this->format)) {
       $this->constructFromFormat($this->format, $this->input_adjusted, $this->timezone_object);
     }
 
@@ -358,9 +363,9 @@ class DateObject extends DateTime {
     $datetime = '';
     if ($array['year'] !== '') {
       $datetime = self::datePad(intval($array['year']), 4);
-      if ($force_valid || $array['month'] !== '') {
+      if ($force_valid_date || $array['month'] !== '') {
         $datetime .= '-' . self::datePad(intval($array['month']));
-        if ($force_valid || $array['day'] !== '') {
+        if ($force_valid_date || $array['day'] !== '') {
           $datetime .= '-' . self::datePad(intval($array['day']));
         }
       }
@@ -368,9 +373,9 @@ class DateObject extends DateTime {
     if ($array['hour'] !== '') {
       $datetime .= $datetime ? 'T' : '';
       $datetime .= self::datePad(intval($array['hour']));
-      if ($force_valid || $array['minute'] !== '') {
+      if ($force_valid_date || $array['minute'] !== '') {
         $datetime .= ':' . self::datePad(intval($array['minute']));
-        if ($force_valid || $array['second'] !== '') {
+        if ($force_valid_date || $array['second'] !== '') {
           $datetime .= ':' . self::datePad(intval($array['second']));
         }
       }

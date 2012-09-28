@@ -22,6 +22,7 @@
 
 namespace Drupal\date_repeat;
 
+use DateTime;
 use DateInterval;
 use Drupal\date_api\DateObject;
 use Drupal\date_api\DateiCalParse;
@@ -157,19 +158,16 @@ class DateRRuleCalc {
     $this->rrule = DateiCalParse::parse_rrule($rrule);
 
     // Create a date object for the start and end dates, if valid.
-    if (!$start instanceOf DateTime)) {
-      return FALSE;
-    }
     $this->start_date = $start;
+    $this->end_date = $end;
     $this->timezone_name = $this->start_date->getTimezone()->getName();
 
-    // The only valid option for an empty end date is when we have a count.
-    if (!$end instanceOf DateTime) && empty($this->rrule['COUNT'])) {
+    // Make sure we have something we can work with.
+    if (!$this->isValid()) {
       return FALSE;
     }
 
     // If the rule has an UNTIL, see if that is earlier than the end date.
-    $this->end_date = $end;
     if (!empty($this->rrule['UNTIL'])) {
       $until_date = DateiCalParse::ical_date($this->rrule['UNTIL'], $this->timezone_name);
       if (empty($this->end_date) || $until_date < $this->end_date) {
@@ -177,20 +175,40 @@ class DateRRuleCalc {
       }
     }
 
-    $this->max_count = isset($this->rrule['COUNT']) ? $this->rrule['COUNT'] : NULL;
-
-    $this->exceptions = $exceptions;
-    $this->additions = $additions;
-
     // Versions of PHP greater than PHP 5.3.5 require that we set an
     // explicit time when using date_modify() or the time may not match
     // the original value. Adding this modifier gives us the same
     // results in both older and newer versions of PHP.
     $this->time_string = ' ' . $this->start_date->format('g:ia');
 
+    $this->max_count = isset($this->rrule['COUNT']) ? $this->rrule['COUNT'] : NULL;
+
+    $this->exceptions = $exceptions;
+    $this->additions = $additions;
+
+  }
+
+  /**
+   * Basic validation for an RRULE we can do something with.
+   */
+  protected function isValid() {
+    // We alwqys need a start date.
+    if (!$this->start_date instanceOf DateTime) {
+      return FALSE;
+    }
+    // The only valid option for an empty end date is when we have a count.
+    if (!$this->end_date instanceOf DateTime && empty($this->rrule['COUNT'])) {
+      return FALSE;
+    }
+    return TRUE;
   }
 
   public function compute() {
+
+    // Make sure we have something we can work with.
+    if (!$this->isValid()) {
+      return FALSE;
+    }
 
     // These default values indicate there is no RRULE here.
     if ($this->rrule['FREQ'] == 'NONE' || (isset($this->rrule['INTERVAL']) && $this->rrule['INTERVAL'] == 0)) {

@@ -9,6 +9,10 @@ namespace Drupal\date\Plugin\field\widget;
 use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
 use Drupal\field\Plugin\Type\Widget\WidgetBase;
+use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\field\Plugin\PluginSettingsBase;
+use Drupal\field\FieldInstance;
 
 /**
  * Plugin implementation of the 'date' widget.
@@ -336,8 +340,8 @@ class DateTextWidget extends WidgetBase {
   /**
    * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::errorElement().
    */
-  public function errorElement(array $element, array $error, array $form, array &$form_state) {
-    return $element['value'];
-  }
+  //public function errorElement(array $element, array $error, array $form, array &$form_state) {
+  //  return $element['value'];
+  //}
 
 }

@@ -108,12 +108,12 @@ class DateiCalParse {
   /**
    * The start day of the week.
    */
-  public $week_start_day = 'MO';
+  public static $week_start_day = 'MO';
 
   /**
    * The name of the timezone to use in these computations.
    */
-  public $timezone_name = 'UTC';
+  public static $timezone_name = 'UTC';
 
   public function import($filename) {
     // Fetch the iCal data. If file is a URL, use drupal_http_request. fopen
@@ -801,7 +801,7 @@ class DateiCalParse {
       $RRULE .= ';WKST=' . $ical_array['WKST'];
     }
     else {
-      $RRULE .= ';WKST=' . $this->week_start_day;
+      $RRULE .= ';WKST=' . self::$week_start_day;
     }
   
     // Exceptions dates go last, on their own line.

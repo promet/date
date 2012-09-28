@@ -107,7 +107,6 @@ abstract class DateFieldBase extends WebTestBase {
           'input_format_custom' => $input_format_custom,
           'text_parts' => $text_parts,
           'label_position' => 'above',
-          'repeat_collapsed' => 0,
         ),
         'weight' => -4,
       ),

@@ -691,7 +691,6 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     ),
   );
 
-  $element['#date_repeat_collapsed'] = !empty($rrule['INTERVAL']) || !empty($rrule['FREQ']) ? 0 : (!empty($element['#date_repeat_collapsed']) ? $element['#date_repeat_collapsed'] : 0);
   return $element;
 }
 
@@ -947,7 +946,7 @@ function theme_date_repeat_current_additions($rows = array()) {
  */
 function theme_date_repeat_rrule($vars) {
   $element = $vars['element'];
-  $class = $element['#date_repeat_collapsed'] ? array('date-no-float', 'collapsible', 'collapsed') : array('date-no-float', 'collapsible');
+  $class = array('date-no-float', 'collapsible');
   $id = drupal_html_id('repeat-settings-fieldset');
   $parents = $element['#parents'];
   $selector = "{$parents[0]}[{$parents[1]}][{$parents[2]}][show_repeat_settings]";

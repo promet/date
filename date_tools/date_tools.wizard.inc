@@ -223,7 +223,6 @@ function date_tools_wizard_build($form_values) {
         'input_format' => date_default_format($widget_type),
         'text_parts' => array(),
         'label_position' => 'above',
-        'repeat_collapsed' => 0,
       ),
       'weight' => -4,
     ),
