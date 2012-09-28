@@ -33,8 +33,10 @@
 
 use Drupal\date_api\DateObject;
 use Drupal\date_api\DateGranularity;
+use Drupal\date_api\DateHelper;
 use Drupal\date_api\DateiCalParse;
 use Drupal\date_repeat\DateRRuleCalc;
+
 
 /**
  * Generate the repeat setting form.
@@ -303,7 +305,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#title' => t('Bymonth', array(), array('context' => 'Date repeat')),
     '#title_display' => 'invisible',
     '#default_value' => !empty($rrule['BYMONTH']) && $rrule['FREQ'] === 'MONTHLY' && $MONTHLY_day_month_default === 'BYMONTHDAY_BYMONTH' ? $rrule['BYMONTH'] : array(),
-    '#options' => date_month_names_abbr(TRUE),
+    '#options' => DateHelper::month_names_abbr(TRUE),
     '#attributes' => array('class' => array('container-inline')),
     '#multiple' => TRUE,
     '#prefix' => '<div class="date-clear bymonth">',
@@ -349,7 +351,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#title' => t('Bymonth', array(), array('context' => 'Date repeat')),
     '#title_display' => 'invisible',
     '#default_value' => !empty($rrule['BYMONTH']) && $rrule['FREQ'] === 'MONTHLY' && $MONTHLY_day_month_default === 'BYDAY_BYMONTH' ? $rrule['BYMONTH'] : array(),
-    '#options' => date_month_names_abbr(TRUE),
+    '#options' => DateHelper::month_names_abbr(TRUE),
     '#attributes' => array('class' => array('container-inline')),
     '#multiple' => TRUE,
     '#prefix' => '<div class="date-clear bymonth">',
@@ -407,7 +409,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#title' => t('Bymonth', array(), array('context' => 'Date repeat')),
     '#title_display' => 'invisible',
     '#default_value' => !empty($rrule['BYMONTH']) && $rrule['FREQ'] === 'YEARLY' && $YEARLY_day_month_default === 'BYMONTHDAY_BYMONTH' ? $rrule['BYMONTH'] : array(),
-    '#options' => date_month_names_abbr(TRUE),
+    '#options' => DateHelper::month_names_abbr(TRUE),
     '#attributes' => array('class' => array('container-inline')),
     '#multiple' => TRUE,
     '#prefix' => '<div class="date-clear bymonth">',
@@ -453,7 +455,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#title' => t('Bymonth', array(), array('context' => 'Date repeat')),
     '#title_display' => 'invisible',
     '#default_value' => !empty($rrule['BYMONTH']) && $rrule['FREQ'] === 'YEARLY' && $YEARLY_day_month_default === 'BYDAY_BYMONTH' ? $rrule['BYMONTH'] : array(),
-    '#options' => date_month_names_abbr(TRUE),
+    '#options' => DateHelper::month_names_abbr(TRUE),
     '#attributes' => array('class' => array('container-inline')),
     '#multiple' => TRUE,
     '#prefix' => '<div class="date-clear bymonth">',

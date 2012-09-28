@@ -157,13 +157,14 @@ class DateRRuleCalc {
     $this->rrule = DateiCalParse::parse_rrule($rrule);
 
     // Create a date object for the start and end dates, if valid.
-    if (!is_a($start, 'DateTime')) {
+    if (!$start instanceOf DateTime)) {
       return FALSE;
     }
     $this->start_date = $start;
+    $this->timezone_name = $this->start_date->getTimezone()->getName();
 
     // The only valid option for an empty end date is when we have a count.
-    if (!is_a($end, 'DateTime') && empty($this->rrule['COUNT'])) {
+    if (!$end instanceOf DateTime) && empty($this->rrule['COUNT'])) {
       return FALSE;
     }
 
@@ -175,8 +176,6 @@ class DateRRuleCalc {
         $this->end_date = $until_date;
       }
     }
-
-    $this->timezone_name = $this->start_date->getTimezone()->getName();
 
     $this->max_count = isset($this->rrule['COUNT']) ? $this->rrule['COUNT'] : NULL;
 

@@ -11,127 +11,6 @@ use Drupal\date_api\DateObject;
 use Drupal\date_api\DateGranularity;
 
 /**
- * Private implementation of hook_widget().
- *
- * The widget builds out a complex date element in the following way:
- *
- * - A field is pulled out of the database which is comprised of one or
- *   more collections of start/end dates.
- *
- * - The dates in this field are all converted from the UTC values stored
- *   in the database back to the local time. This is done in #process
- *   to avoid making this change to dates that are not being processed,
- *   like those hidden with #access.
- *
- * - If values are empty, the field settings rules are used to determine
- *   if the default_values should be empty, now, the same, or use strtotime.
- *
- * - Each start/end combination is created using the date_combo element type
- *   defined by the date module. If the timezone is date-specific, a
- *   timezone selector is added to the first combo element.
- *
- * - The date combo element creates two individual date elements, one each
- *   for the start and end field, using the appropriate individual Date API
- *   date elements, like selects, textfields, or popups.
- *
- * - In the individual element validation, the data supplied by the user is
- *   used to update the individual date values.
- *
- * - In the combo date validation, the timezone is updated, if necessary,
- *   then the user input date values are used with that timezone to create
- *   date objects, which are used update combo date timezone and offset values.
- *
- * - In the field's submission processing, the new date values, which are in
- *   the local timezone, are converted back to their UTC values and stored.
- *
- */
-function date_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $base) {
-
-  $element = $base;
-  $field_name = $field['field_name'];
-  $entity_type = $instance['entity_type'];
-
-  // If this is a new entity, populate the field with the right default values.
-  // This happens early so even fields later hidden with #access get those values.
-  // We should only add default values to new entities, to avoid over-writing
-  // a value that has already been set. This means we can't just check to see
-  // if $items is empty, because it might have been set that way on purpose.
-  // @see date_field_widget_properties_alter() where we flagged if this is a new entity.
-
-  // We check !isset($items[$delta]['value']) because entity translation may create
-  // a new translation entity for an existing entity and we don't want to clobber
-  // values that were already set in that case.
-  // @see http://drupal.org/node/1478848.
-
-  $is_default = FALSE;
-  if (!empty($instance['widget']['is_new']) && !isset($items[$delta]['value'])) {
-    $items = date_default_value($field, $instance, $langcode);
-    $is_default = TRUE;
-  }
-
-  // @TODO Repeating dates should probably be made into their own field type and completely separated out.
-  // That will have to wait for a new branch since it may break other things, including other modules
-  // that have an expectation of what the date field types are.
-
-  // Since repeating dates cannot use the default Add more button, we have to handle our own behaviors here.
-  // Return only the first multiple value for repeating dates, then clean up the 'Add more' bits in #after_build.
-  // The repeating values will be re-generated when the repeat widget form is validated.
-  // At this point we can't tell if this form element is going to be hidden by #access, and we're going to
-  // lose all but the first value by doing this, so store the original values in case we need to replace them later.
-  if (!empty($field['settings']['repeat'])) {
-    if ($delta == 0) {
-      $form['#after_build'] = array('date_repeat_after_build');
-      $form_state['storage']['repeat_fields'][$field_name] = array_merge($form['#parents'], array($field_name));
-      $form_state['storage']['date_items'][$field_name][$langcode] = $items;
-    }
-    else {
-      return;
-    }
-  }
-
-  module_load_include('inc', 'date_api', 'date_api_elements');
-  $timezone = date_get_timezone($field['settings']['tz_handling'], isset($items[0]['timezone']) ? $items[0]['timezone'] : date_default_timezone());
-
-  // TODO see if there's a way to keep the timezone element from ever being
-  // nested as array('timezone' => 'timezone' => value)). After struggling
-  // with this a while, I can find no way to get it displayed in the form
-  // correctly and get it to use the timezone element without ending up
-  // with nesting.
-  if (is_array($timezone)) {
-    $timezone = $timezone['timezone'];
-  }
-
-  $element += array(
-    '#type' => 'date_combo',
-    '#theme_wrappers' => array('date_combo'),
-    '#weight' => $delta,
-    '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
-    '#date_timezone' => $timezone,
-    '#element_validate' => array('date_combo_validate'),
-    '#date_is_default' => $is_default,
-
-    // Store the original values, for use with disabled and hidden fields.
-    '#date_items' => isset($items[$delta]) ? $items[$delta] : '',
-  );
-
-  $element['#title'] = $instance['label'];
-
-  if ($field['settings']['tz_handling'] == 'date') {
-    $element['timezone'] = array(
-      '#type' => 'date_timezone',
-      '#theme_wrappers' => array('date_timezone'),
-      '#delta' => $delta,
-      '#default_value' => $timezone,
-      '#weight' => $instance['widget']['weight'] + 1,
-      '#attributes' => array('class' => array('date-no-float')),
-      '#date_label_position' => $instance['widget']['settings']['label_position'],
-      );
-  }
-
-  return $element;
-}
-
-/**
  * Create local date object.
  *
  * Create a date object set to local time from the field and
@@ -167,76 +46,6 @@ function date_local_date($item, $timezone, $field, $instance, $part = 'value') {
   }
   date_timezone_set($date, timezone_open($timezone));
 
-  return $date;
-}
-
-/**
- * The callback for setting a default value for an empty date field.
- */
-function date_default_value($field, $instance, $langcode) {
-  $item = array();
-  // @TODO Default handling is not working the same as in D7.
-  return $item;
-  $db_format = date_type_format($field['type']);
-  $date = date_default_value_part($item, $field, $instance, $langcode, 'value');
-  $item[0]['value'] = is_object($date) ? date_format($date, $db_format) : '';
-  if (!empty($field['settings']['todate'])) {
-    $date = date_default_value_part($item, $field, $instance, $langcode, 'value2');
-    $item[0]['value2'] = is_object($date) ? date_format($date, $db_format) : '';
-  }
-
-  // Make sure the default value has the same construct as a loaded field value
-  // to avoid errors if the default value is used on a hidden element.
-  $item[0]['timezone'] = date_get_timezone($field['settings']['tz_handling']);
-  $item[0]['timezone_db'] = date_get_timezone_db($field['settings']['tz_handling']);
-  $item[0]['date_type'] = $field['type'];
-  if (!isset($item[0]['value2'])) {
-    $item[0]['value2'] = $item[0]['value'];
-  }
-  return $item;
-}
-
-/**
- * Helper function for the date default value callback to set
- * either 'value' or 'value2' to its default value.
- */
-function date_default_value_part($item, $field, $instance, $langcode, $part = 'value') {
-  $timezone = date_get_timezone($field['settings']['tz_handling']);
-  $timezone_db = date_get_timezone_db($field['settings']['tz_handling']);
-  $date = NULL;
-  if ($part == 'value') {
-    $default_value = $instance['settings']['default_value'];
-    $default_value_code = $instance['settings']['default_value_code'];
-  }
-  else {
-    $default_value = $instance['settings']['default_value2'];
-    $default_value_code = $instance['settings']['default_value_code2'];
-  }
-  if (empty($default_value) || $default_value == 'blank') {
-    return NULL;
-  }
-  elseif ($default_value == 'strtotime' && !empty($default_value_code)) {
-    $date = new DateObject($default_value_code, date_default_timezone());
-  }
-  elseif ($part == 'value2' && $default_value == 'same') {
-    if ($instance['settings']['default_value'] == 'blank' || empty($item[0]['value'])) {
-      return NULL;
-    }
-    else {
-      // The date stored in 'value' has already been switched to the db timezone.
-      $date = new DateObject($item[0]['value'], $timezone_db, DATE_FORMAT_DATETIME);
-    }
-  }
-  // Special case for 'now' when using dates with no timezone,
-  // make sure 'now' isn't adjusted to UTC value of 'now' .
-  elseif ($field['settings']['tz_handling'] == 'none') {
-    $date = new DateObject();
-  }
-  else {
-    $date = new DateObject('now', $timezone);
-  }
-  // The default value needs to be in the database timezone.
-  date_timezone_set($date, timezone_open($timezone_db));
   return $date;
 }
 
@@ -453,7 +262,9 @@ function date_combo_validate($element, &$form_state) {
   if (empty($form_input[$field_name]) && !$element['#required']) {
     return;
   }
-
+  
+  // @TODO In latest field code there is no $delta in these arrays.
+  // This is only in Date, so it's a problem in this code.
   $item = $form_values[$field_name][$langcode][$delta];
   $posted = $form_input[$field_name][$langcode][$delta];
 

@@ -268,49 +268,6 @@ function date_field_info() {
 }
 
 /**
- * Implements hook_field_widget_info().
- */
-function date_field_widget_info() {
-  $settings = array(
-    'settings' => array(
-      'input_format' => date_default_format('date_select'),
-      'input_format_custom' => '',
-      'increment' => 15,
-      'text_parts' => array(),
-      'year_range' => '-3:+3',
-      'label_position' => 'above',
-    ),
-    'behaviors' => array(
-      'multiple values' => FIELD_BEHAVIOR_DEFAULT,
-      'default value' => FIELD_BEHAVIOR_NONE,
-    ),
-  );
-
-  $info = array(
-    'date_select' => array(
-      'label' =>  t('Select list'),
-      'field types' => array('date', 'datestamp', 'datetime'),
-    ) + $settings,
-    'date_text' => array(
-      'label' =>  t('Text field'),
-      'field types' => array('date', 'datestamp', 'datetime'),
-     ) + $settings,
-  );
-
-  if (module_exists('date_popup')) {
-    $info['date_popup'] = array(
-      'label' =>  t('Pop-up calendar'),
-      'field types' => array('date', 'datestamp', 'datetime'),
-    ) + $settings;
-  }
-
-  // The date text widget should use an increment of 1.
-  $info['date_text']['increment'] = 1;
-
-  return $info;
-}
-
-/**
  * Implements hook_field_load().
  */
 function date_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
@@ -446,14 +403,6 @@ function date_field_update($entity_type, $entity, $field, $instance, $langcode, 
 function date_field_instance_settings_form($field, $instance) {
   module_load_include('inc', 'date', 'date_admin');
   return _date_field_instance_settings_form($field, $instance);
-}
-
-/**
- * Implements hook_field_widget_settings_form().
- */
-function date_field_widget_settings_form($field, $instance) {
-  module_load_include('inc', 'date', 'date_admin');
-  return _date_field_widget_settings_form($field, $instance);
 }
 
 /**

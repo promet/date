@@ -16,6 +16,7 @@
 
 use Drupal\date_api\DateiCalParse;
 use Drupal\date_repeat\DateRRuleCalc;
+use Drupal\date_api\DateHelper;
 
 /**
  * Implements hook_element_info().
@@ -252,7 +253,7 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
   if (!empty($rrule['BYMONTH'])) {
     if (sizeof($rrule['BYMONTH']) < 12) {
       $results = array();
-      $months = date_month_names();
+      $months = DateHelper::month_names();
       foreach ($rrule['BYMONTH'] as $month) {
         $results[] = $months[$month];
       }

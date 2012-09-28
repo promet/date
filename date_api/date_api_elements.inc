@@ -8,6 +8,7 @@
 
 use Drupal\date_api\DateObject;
 use Drupal\date_api\DateGranularity;
+use Drupal\date_api\DateHelper;
 
 /**
  * Implements hook_element_info().
@@ -240,7 +241,7 @@ function date_timezone_element_process($element, &$form_state, $form) {
   $element['timezone'] = array(
     '#type' => 'select',
     '#title' => $element['#date_label_position'] == 'above' ? $label : '',
-    '#options' => date_timezone_names($element['#required']),
+    '#options' => system_time_zones($element['#required']),
     '#value' => $element['#value'],
     '#weight' => $element['#weight'],
     '#required' => $element['#required'],
@@ -515,7 +516,7 @@ function date_parts_element($element, $date, $format) {
   $order = array_flip($granularity);
 
   $hours_format  = strpos(strtolower($element['#date_format']), 'a') ? 'g': 'G';
-  $month_function  = strpos($element['#date_format'], 'F') !== FALSE ? 'date_month_names' : 'date_month_names_abbr';
+  $month_function  = strpos($element['#date_format'], 'F') !== FALSE ? 'DateHelper::month_names' : 'DateHelper::month_names_abbr';
   $count = 0;
   $increment = min(intval($element['#date_increment']), 1);
 
@@ -537,7 +538,7 @@ function date_parts_element($element, $date, $format) {
 
         $sub_element[$field]['#default_value'] = is_object($date) ? $date->format('Y') : '';
         if ($part_type == 'select') {
-          $sub_element[$field]['#options'] = drupal_map_assoc(date_years($min_year, $max_year, $part_required));
+          $sub_element[$field]['#options'] = drupal_map_assoc(DateHelper::years($min_year, $max_year, $part_required));
         }
         break;
       case 'month':
@@ -555,21 +556,21 @@ function date_parts_element($element, $date, $format) {
       case 'hour':
         $sub_element[$field]['#default_value'] = is_object($date) ? $date->format($hours_format) : '';
         if ($part_type == 'select') {
-          $sub_element[$field]['#options'] = drupal_map_assoc(date_hours($hours_format, $part_required));
+          $sub_element[$field]['#options'] = drupal_map_assoc(DateHelper::hours($hours_format, $part_required));
         }
         $sub_element[$field]['#prefix'] = theme('date_part_hour_prefix', $element);
         break;
       case 'minute':
         $sub_element[$field]['#default_value'] = is_object($date) ? $date->format('i') : '';
         if ($part_type == 'select') {
-          $sub_element[$field]['#options'] = drupal_map_assoc(date_minutes('i', $part_required, $element['#date_increment']));
+          $sub_element[$field]['#options'] = drupal_map_assoc(DateHelper::minutes('i', $part_required, $element['#date_increment']));
         }
         $sub_element[$field]['#prefix'] = theme('date_part_minsec_prefix', $element);
         break;
       case 'second':
         $sub_element[$field]['#default_value'] = is_object($date) ? $date->format('s') : '';
         if ($part_type == 'select') {
-          $sub_element[$field]['#options'] = drupal_map_assoc(date_seconds('s', $part_required, $element['#date_increment']));
+          $sub_element[$field]['#options'] = drupal_map_assoc(DateHelper::seconds('s', $part_required, $element['#date_increment']));
         }
         $sub_element[$field]['#prefix'] = theme('date_part_minsec_prefix', $element);
         break;
@@ -621,7 +622,7 @@ function date_parts_element($element, $date, $format) {
       '#type' => 'select',
       '#theme' => 'date_select_element',
       '#default_value' => is_object($date) ? (date_format($date, 'G') >= 12 ? 'pm' : 'am') : '',
-      '#options' => drupal_map_assoc(date_ampm($part_required)),
+      '#options' => drupal_map_assoc(DateHelper::ampm($part_required)),
       '#required' => $part_required,
       '#weight' => 8,
       '#attributes' => array('class' => array('date-ampm')),

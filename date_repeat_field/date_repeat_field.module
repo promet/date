@@ -570,7 +570,8 @@ function date_repeat_field_field_formatter_info_alter(&$info) {
  * This Field API hook lets us add a new setting to the widgets.
  */
 function date_repeat_field_field_widget_info_alter(&$info) {
-
+  // @TODO This got broken in latest code.
+  return;
   $info['date_text']['settings'] += array(
     'repeat_collapsed' => 0,
   );

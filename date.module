@@ -408,6 +408,13 @@ function date_formatter_format($formatter, $settings, $granularity = array(), $l
 }
 
 /**
+ * Implements hook_field_widget_WIDGETTYPE_form_alter().
+ */
+function date_field_widget_date_popup_form_alter($element, $form_state, $context) {
+ 
+}
+
+/**
  * Helper function to get the right format for a format type.
  * Checks for locale-based format first.
  */
@@ -663,20 +670,91 @@ function date_entity_metadata_struct_setter(&$item, $name, $value, $langcode, $t
 }
 
 /**
- * Implements hook_field_widget_properties_alter().
- *
- * Alters the widget properties of a field instance before it gets displayed.
- * Used here to flag new entities so we can later tell if they need default values.
+ * The callback for setting a default value for an empty date field.
  */
-function date_field_widget_properties_alter(&$widget, $context) {
-  if (in_array($widget['type'], array('date_select', 'date_text', 'date_popup'))) {
-    $entity_type = $context['entity_type'];
-    $entity = $context['entity'];
-    $info = entity_get_info($entity_type);
-    $id = $info['entity keys']['id'];
-    $widget['is_new']= FALSE;
-    if (empty($entity->$id)) {
-      $widget['is_new'] = TRUE;
+function date_default_value($entity_type, $entity, $field, $instance, $langcode) {
+  $item = array();
+  $db_format = date_type_format($field['type']);
+  $date = date_default_value_part($item, $field, $instance, $langcode, 'value');
+  $item[0]['value'] = is_object($date) ? date_format($date, $db_format) : '';
+  if (!empty($field['settings']['todate'])) {
+    $date = date_default_value_part($item, $field, $instance, $langcode, 'value2');
+    $item[0]['value2'] = is_object($date) ? date_format($date, $db_format) : '';
+  }
+
+  // Make sure the default value has the same construct as a loaded field value
+  // to avoid errors if the default value is used on a hidden element.
+  $item[0]['timezone'] = date_get_timezone($field['settings']['tz_handling']);
+  $item[0]['timezone_db'] = date_get_timezone_db($field['settings']['tz_handling']);
+  $item[0]['date_type'] = $field['type'];
+  if (!isset($item[0]['value2'])) {
+    $item[0]['value2'] = $item[0]['value'];
+  }
+  return $item;
+}
+
+/**
+ * Helper function for the date default value callback to set
+ * either 'value' or 'value2' to its default value.
+ */
+function date_default_value_part($item, $field, $instance, $langcode, $part = 'value') {
+  $timezone = date_get_timezone($field['settings']['tz_handling']);
+  $timezone_db = date_get_timezone_db($field['settings']['tz_handling']);
+  $date = NULL;
+  if ($part == 'value') {
+    $default_value = $instance['settings']['default_value'];
+    $default_value_code = $instance['settings']['default_value_code'];
+  }
+  else {
+    $default_value = $instance['settings']['default_value2'];
+    $default_value_code = $instance['settings']['default_value_code2'];
+  }
+  if (empty($default_value) || $default_value == 'blank') {
+    return NULL;
+  }
+  elseif ($default_value == 'strtotime' && !empty($default_value_code)) {
+    $date = new DateObject($default_value_code, date_default_timezone());
+  }
+  elseif ($part == 'value2' && $default_value == 'same') {
+    if ($instance['settings']['default_value'] == 'blank' || empty($item[0]['value'])) {
+      return NULL;
     }
+    else {
+      // The date stored in 'value' has already been switched to the db timezone.
+      $date = new DateObject($item[0]['value'], $timezone_db, DATE_FORMAT_DATETIME);
+    }
+  }
+  // Special case for 'now' when using dates with no timezone,
+  // make sure 'now' isn't adjusted to UTC value of 'now' .
+  elseif ($field['settings']['tz_handling'] == 'none') {
+    $date = new DateObject();
+  }
+  else {
+    $date = new DateObject('now', $timezone);
+  }
+  // The default value needs to be in the database timezone.
+  date_timezone_set($date, timezone_open($timezone_db));
+  return $date;
+}
+
+/**
+ * Form validation handler for _date_field_widget_settings_form().
+ */
+function date_field_widget_settings_form_validate(&$form, &$form_state) {
+  // The widget settings are in the wrong place in the form because of #tree on
+  // the top level.
+  $settings = $form_state['values']['instance']['widget']['settings'];
+  $settings = array_merge($settings, $settings['advanced']);
+  unset($settings['advanced']);
+  form_set_value(array('#parents' => array('instance', 'widget', 'settings')), $settings, $form_state);
+
+  $widget = &$form_state['values']['instance']['widget'];
+  // Munge the table display for text parts back into an array of text parts.
+  if (is_array($widget['settings']['text_parts'])) {
+    form_set_value($form['text_parts'], array_keys(array_filter($widget['settings']['text_parts'])), $form_state);
+  }
+
+  if ($widget['settings']['input_format'] === 'custom' && empty($widget['settings']['input_format_custom'])) {
+    form_set_error('instance][widget][settings][input_format_custom', t('Please enter a custom date format, or choose one of the preset formats.'));
   }
 }

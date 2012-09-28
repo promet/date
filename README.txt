@@ -6,29 +6,11 @@ used anywhere by any module.
 The API uses the PHP 5.3 date functions to create and manipulate dates.
 
 A component class is available, new DateObject($string, $timezone, $format), where
-$string is a unixtimestamp, an ISO date, or a string like YYYY-MM-DD HH:MM:SS,
+$string is a unixtimestamp, an ISO date, a string like YYYY-MM-DD HH:MM:SS,
+or an array of date parts like 'year', 'month', 'day', 'hour', 'minute',
 $timezone is the name of the timezone this date is in, and $format is the format
 of date it is (DATE_FORMAT_UNIX, DATE_FORMAT_ISO, or DATE_FORMAT_DATETIME). It
 creates and return a date object set to the right date and timezone.
-
-Example, the following will create a date for the local value in one
-timezone, adjust it to a different timezone, then return the offset in seconds
-in the new timezone for the input date; The offset will be adjusted for both
-the timezone difference and daylight savings time, if necessary:
-
-$date = new DateObject('2007-03-11 02:00:00', 'America/Chicago');
-$chicago_time = date_format($date, 'Y-m-d H:i');
-
-print 'At '. $chicago_time .' in Chicago, the timezone offset in seconds
-  was '. date_offset_get($date);
-
-$date->timezoneSet($date, timezone_open('Europe/Berlin');
-$berlin_time = date_format($date, 'Y-m-d H:i');
-
-print 'It was '. $berlin_time .' in Berlin when it
-  was '. $chicago_time .' in Chicago.';
-print 'At that time in Berlin, the timezone offset in seconds was
-  '. date_offset_get($date);
 
 Simpletest tests for these functions are included in the package.
 
@@ -39,24 +21,24 @@ the files):
 Preconfigured arrays
 ============================================================================
 Both translated and untranslated values are available. The
-date_week_days_ordered() function will shift an array of week day names so it
+DateHelper::week_days_ordered() function will shift an array of week day names so it
 starts with the site's first day of the week, otherwise the weekday names start
 with Sunday as the first value, which is the expected order for many php and sql
 functions.
 
-date_month_names();
-date_month_names_abbr();
-date_month_names_untranslated();
-date_week_days();
-date_week_days_abbr();
-date_week_days_untranslated();
-date_week_days_ordered();
-date_years();
-date_hours();
-date_minutes();
-date_seconds();
+DateHelper::month_names();
+DateHelper::month_names_abbr();
+DateHelper::month_names();
+DateHelper::week_days();
+DateHelper::week_days_abbr();
+DateHelper::week_days();
+DateHelper::week_days_ordered();
+DateHelper::years();
+DateHelper::hours();
+DateHelper::minutes();
+DateHelper::seconds();
 date_timezone_names();
-date_ampm();
+DateHelper::ampm();
 
 ============================================================================
 Miscellaneous date manipulation functions
@@ -72,24 +54,17 @@ DATE_ARRAY
 DATE_OBJECT
 DATE_ICAL
 
-date_convert()
-date_is_valid();
-date_part_is_valid();
-date_part_extract();
-
 ============================================================================
 Date calculation and navigation
 ============================================================================
 date_difference() will find the time difference between any two days, measured
 in seconds, minutes, hours, days, months, weeks, or years.
 
-date_days_in_month();
-date_days_in_year();
-date_weeks_in_year();
-date_last_day_of_month();
-date_day_of_week();
-date_day_of_week_name();
-date_difference();
+DateHelper::days_in_month();
+DateHelper::days_in_year();
+DateHelper::calendar_weeks_in_year();
+DateHelper::day_of_week();
+DateHelper::day_of_week_name();
 
 ============================================================================
 Date regex and format helpers

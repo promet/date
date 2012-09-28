@@ -46,7 +46,7 @@ function date_devel_generate($entity, $field, $instance, $bundle) {
   if ($field['settings']['tz_handling'] == 'date') {
     // Choose a random timezone.
     // Not all keys exist, so we have to check.
-    $timezones = array_keys(date_timezone_names(TRUE));
+    $timezones = array_keys(system_time_zones(TRUE));
     $key = mt_rand(0, count($timezones) - 1);
     if (!array_key_exists($key, $timezones)) {
       $timezone = date_default_timezone();
