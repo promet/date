@@ -10,7 +10,7 @@ namespace Drupal\date_api;
 
 use Drupal\date_api\DateObject;
 
-class self {
+class DateHelper {
 
 
   /**
