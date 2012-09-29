@@ -411,13 +411,28 @@ function date_repeat_after_build(&$element, &$form_state) {
 function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $item) {
 
   $field_name = $field['field_name'];
-
   if (empty($rrule)) {
     $rrule = DateiCalParse::ical_build_rrule($rrule_values);
   }
-  elseif (empty($rrule_values)) {
-    $rrule_values = DateiCalParse::parse_rrule(NULL, $rrule);
+
+  if (empty($rrule_values)) {
+    $rrule_values = DateiCalParse::parse_rrule($rrule);
   }
+
+  // Split the RRULE into RRULE, EXDATE, and RDATE parts.
+  // This assumes the EXDATE and RDATE are on their own lines
+  // below the RRULE, which is the way they will be constructed
+  // by this code.
+
+  // First parse the complete rule to get exceptions and additions.
+  $parts = DateiCalParse::split_rrule($rrule);
+  $parsed_exceptions = (array) $parts[1];
+  $parsed_rdates = (array) $parts[2];
+
+  // Next make sure only the rrule is left from a multi-line entry.
+  // But store the multi-line entry to be saved again.
+  $raw_rrule = $rrule;
+  $rrule = DateiCalParse::extract_rrule_string($rrule);
 
   // By the time we get here, the start and end dates have been
   // adjusted back to UTC, but we want localtime dates to do
@@ -429,10 +444,11 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
     date_timezone_set($start, timezone_open($timezone));
   }
   if (!empty($item['value2']) && $item['value2'] != $item['value']) {
-    $end = new DateObject($item['value2'], date_get_timezone_db($field['settings']['tz_handling']), date_type_format($field['type']));
-    date_timezone_set($end, timezone_open($timezone));
+    if ($end = new DateObject($item['value2'], date_get_timezone_db($field['settings']['tz_handling']), date_type_format($field['type']))) {
+      date_timezone_set($end, timezone_open($timezone));
+    }
   }
-  else {
+  if (empty($end)) {
     $end = $start;
   }
   $interval = $start->diff($end);
@@ -445,21 +461,20 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
     return array();
   }
 
-  // Split the RRULE into RRULE, EXDATE, and RDATE parts.
-  $parts = DateiCalParse::split_rrule($rrule);
-  $parsed_exceptions = (array) $parts[1];
   $exceptions = array();
   foreach ($parsed_exceptions as $exception) {
-    $date = DateiCalParse::ical_date($exception, $timezone);
-    $exceptions[] = date_format($date, 'Y-m-d');
+    if ($date = DateiCalParse::ical_date($exception, $timezone)) {
+      $exceptions[] = date_format($date, 'Y-m-d');
+    }
   }
 
-  $parsed_rdates = (array) $parts[2];
   $additions = array();
   foreach ($parsed_rdates as $rdate) {
-    $date = DateiCalParse::ical_date($rdate, $timezone);
-    $additions[] = date_format($date, 'Y-m-d');
+    if ($date = DateiCalParse::ical_date($rdate, $timezone)) {
+      $additions[] = date_format($date, 'Y-m-d');
+    }
   }
+
   $calc = new DateRRuleCalc($rrule, $start, $end, $exceptions, $additions);
   $dates = $calc->compute();
   $value = array();
@@ -477,7 +492,7 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
       'offset' => date_offset_get($date_start),
       'offset2' => date_offset_get($date_end),
       'timezone' => $timezone,
-      'rrule' => $rrule,
+      'rrule' => $raw_rrule,
       );
   }
   return $value;

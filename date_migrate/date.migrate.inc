@@ -158,7 +158,7 @@ class DateMigrateFieldHandler extends MigrateFieldHandler {
       if (function_exists('date_repeat_build_dates') && !empty($field_info['settings']['repeat']) && $rrule) {
         $item = array('value' => $from, 'value2' => $to, 'timezone' => $timezone);
         // Can be de-uglified when http://drupal.org/node/1159404 is committed.
-        $return[$language] = date_repeat_build_dates(NULL, DateiCalParse::parse_rrule($field_info, $rrule), $field_info, $item);
+        $return[$language] = date_repeat_build_dates(NULL, DateiCalParse::parse_rrule($rrule, $field_info), $field_info, $item);
       }
       else {
         $return[$language][$delta]['value'] = $from;

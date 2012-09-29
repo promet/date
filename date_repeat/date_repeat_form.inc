@@ -66,12 +66,15 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
   // an array of values for the form from the RRULE's contents.
   $element['#value'] = '';
 
+  $raw_rrule = $rrule;
+
   $parts = DateiCalParse::split_rrule($rrule);
   $rrule = $parts[0];
-
   $exceptions = $parts[1];
   $additions = $parts[2];
+
   $timezone = !empty($element['#date_timezone']) ? $element['#date_timezone'] : date_default_timezone();
+
   $merged_values = date_repeat_merge($rrule, $element);
 
   $UNTIL = '';

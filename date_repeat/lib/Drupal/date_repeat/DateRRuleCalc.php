@@ -152,7 +152,7 @@ class DateRRuleCalc {
    *   Optional array of additional dates, each in the standard ISO format
    *   of YYYY-MM-DD.
    */
-  function __construct($rrule, $start, $end = NULL, $exceptions = array(), $additions = array()) {
+  function __construct( string $rrule, DateTime $start, $end = NULL, $exceptions = array(), $additions = array()) {
 
     // Get the parsed array of rule values.
     $this->rrule = DateiCalParse::parse_rrule($rrule);
@@ -210,6 +210,10 @@ class DateRRuleCalc {
       return FALSE;
     }
 
+    if (empty($this->rrule['FREQ'])) {
+      $this->rrule['FREQ'] = 'DAILY';
+    }
+
     // These default values indicate there is no RRULE here.
     if ($this->rrule['FREQ'] == 'NONE' || (isset($this->rrule['INTERVAL']) && $this->rrule['INTERVAL'] == 0)) {
       return array();
@@ -221,10 +225,6 @@ class DateRRuleCalc {
       $this->rrule['INTERVAL'] = 1;
     }
     $interval = max(1, $this->rrule['INTERVAL']);
-
-    if (empty($this->rrule['FREQ'])) {
-      $this->rrule['FREQ'] = 'DAILY';
-    }
 
     // Make sure DAILY frequency isn't used in places it won't work;
     if (!empty($this->rrule['BYMONTHDAY']) && !in_array($this->rrule['FREQ'], array('MONTHLY', 'YEARLY'))) {
@@ -363,7 +363,7 @@ class DateRRuleCalc {
             $this->current_day->modify("first day of this month $time");
             $this->current_day->add($this->jump);
             break;
-        
+
           case 'YEARLY':
             // If it's yearly, break out of the loop at the
             // end of every year.
@@ -377,7 +377,7 @@ class DateRRuleCalc {
             break;
         }
       }
-  
+
       if ($this->rrule['FREQ'] == 'YEARLY') {
         // Back up to first of year and jump to next year.
         $this->current_day->modify("this year January 1");

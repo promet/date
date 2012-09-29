@@ -143,7 +143,7 @@ class DateiCalParse {
     }
     return $this->parse($icaldatafolded);
   }
-  
+
   /**
    * Returns an array of iCalendar information from an iCalendar file.
    *
@@ -157,13 +157,13 @@ class DateiCalParse {
    */
   public function parse($icaldatafolded = array()) {
     $items = array();
-  
+
     // Verify this is iCal data.
     if (trim($icaldatafolded[0]) != 'BEGIN:VCALENDAR') {
       watchdog('date ical', 'Invalid calendar file.');
       return FALSE;
     }
-  
+
     // "Unfold" wrapped lines.
     $icaldata = array();
     foreach ($icaldatafolded as $line) {
@@ -178,7 +178,7 @@ class DateiCalParse {
       $icaldata[] = $line;
     }
     unset($icaldatafolded);
-  
+
     // Parse the iCal information.
     $parents = array();
     $subgroups = array();
@@ -211,13 +211,13 @@ class DateiCalParse {
               $subgroup = end($subgroups);
               $id = $subgroup['TZID'];
               unset($subgroup['TZID']);
-  
+
               // Append this subgroup onto the one above it.
               prev($subgroups);
               $parent = &$subgroups[key($subgroups)];
-  
+
               $parent[$type][$id] = $subgroup;
-  
+
               array_pop($subgroups);
               array_pop($parents);
               break;
@@ -240,7 +240,7 @@ class DateiCalParse {
               // even when you are working with only a portion of the VEVENT
               // array, like in Feed API parsers.
               $subgroup['all_day'] = FALSE;
-  
+
               // iCal spec states 'The "DTEND" property for a "VEVENT" calendar
               // component specifies the non-inclusive end of the event'. Adjust
               // multi-day events to remove the extra day because the Date code
@@ -267,9 +267,9 @@ class DateiCalParse {
               // Add this element to the parent as an array under the
               prev($subgroups);
               $parent = &$subgroups[key($subgroups)];
-  
+
               $parent[$type][] = $subgroup;
-  
+
               array_pop($subgroups);
               array_pop($parents);
               break;
@@ -281,7 +281,7 @@ class DateiCalParse {
         // Grab current subgroup.
         end($subgroups);
         $subgroup = &$subgroups[key($subgroups)];
-  
+
         // Split up the line into nice pieces for PROPERTYNAME,
         // PROPERTYATTRIBUTES, and PROPERTYVALUE.
         preg_match('/([^;:]+)(?:;([^:]*))?:(.+)/', $line, $matches);
@@ -293,7 +293,7 @@ class DateiCalParse {
           // Keep blank lines out of the results.
           case '':
             break;
-  
+
             // Lots of properties have date values that must be parsed out.
           case 'CREATED':
           case 'LAST-MODIFIED':
@@ -305,12 +305,12 @@ class DateiCalParse {
           case 'COMPLETED':
             $parse_result = self::parse_date($data, $field);
             break;
-  
+
           case 'EXDATE':
           case 'RDATE':
             $parse_result = self::parse_exceptions($data, $field);
             break;
-  
+
           case 'TRIGGER':
             // A TRIGGER can either be a date or in the form -PT1H.
             if (!empty($field)) {
@@ -320,28 +320,28 @@ class DateiCalParse {
               $parse_result = array('DATA' => $data);
             }
             break;
-  
+
           case 'DURATION':
             // Can't be sure whether DTSTART is before or after DURATION in
             // the VEVENT, so store the data and parse it at the end.
             $parse_result = array('DATA' => $data);
             break;
-  
+
           case 'RRULE':
           case 'EXRULE':
             $parse_result = self::parse_rrule($data, $field);
             break;
-  
+
           case 'STATUS':
           case 'SUMMARY':
           case 'DESCRIPTION':
             $parse_result = self::parse_text($data, $field);
             break;
-  
+
           case 'LOCATION':
             $parse_result = self::parse_location($data, $field);
             break;
-  
+
             // For all other properties, just store the property and the value.
             // This can be expanded on in the future if other properties should
             // be given special treatment.
@@ -349,14 +349,14 @@ class DateiCalParse {
             $parse_result = $data;
             break;
         }
-  
+
         // Store the result of our parsing.
         $subgroup[$name] = $parse_result;
       }
     }
     return $items;
   }
-  
+
   /**
    * Parses a ical date element.
    *
@@ -393,14 +393,14 @@ class DateiCalParse {
    *   now. It will take more work to figure how to support that.
    */
   public static function parse_date($data, $field = 'DATE:') {
-  
+
     $items = array('datetime' => '', 'all_day' => '', 'tz' => '');
     if (empty($data)) {
       return $items;
     }
     // Make this a little more whitespace independent.
     $data = trim($data);
-  
+
     // Turn the properties into a nice indexed array of
     // array(PROPERTYNAME => PROPERTYVALUE);
     $field_parts = preg_split('/[;:]/', $field);
@@ -411,13 +411,13 @@ class DateiCalParse {
         $properties[$tmp[0]] = $tmp[1];
       }
     }
-  
+
     // Make this a little more whitespace independent.
     $data = trim($data);
-  
+
     // Record if a time has been found.
     $has_time = FALSE;
-  
+
     // If a format is specified, parse it according to that format.
     if (isset($properties['VALUE'])) {
       switch ($properties['VALUE']) {
@@ -451,7 +451,7 @@ class DateiCalParse {
         }
       }
     }
-  
+
     // Use timezone if explicitly declared.
     if (isset($properties['TZID'])) {
       $tz = $properties['TZID'];
@@ -472,13 +472,13 @@ class DateiCalParse {
     else {
       $tz = '';
     }
-  
+
     $items['datetime'] = $datetime;
     $items['all_day'] = $has_time ? FALSE : TRUE;
     $items['tz'] = $tz;
     return $items;
   }
-  
+
   /**
    * Parse exception dates (can be multiple values).
    *
@@ -490,11 +490,11 @@ class DateiCalParse {
     $items = array('DATA' => $data);
     $ex_dates = explode(',', $data);
     foreach ($ex_dates as $ex_date) {
-      $items[] = self::parse_date('', $ex_date);
+      $items[] = self::parse_date($ex_date);
     }
     return $items;
   }
-  
+
   /**
    * Parses the duration of the event.
    *
@@ -526,7 +526,7 @@ class DateiCalParse {
     $duration = date_format($date2, 'U') - date_format($date, 'U');
     $subgroup['DURATION'] = array('DATA' => $data, 'DURATION' => $duration);
   }
-  
+
   /**
    * Parse and clean up ical text elements.
    */
@@ -542,7 +542,7 @@ class DateiCalParse {
     $data = stripslashes($data);
     return $data;
   }
-  
+
   /**
    * Parse location elements.
    *
@@ -567,7 +567,7 @@ class DateiCalParse {
       return $location;
     }
   }
-  
+
   /**
    * Return a date object for the ical date, adjusted to its local timezone.
    *
@@ -580,7 +580,7 @@ class DateiCalParse {
    *   A timezone-adjusted date object.
    */
   public static function ical_date($ical_date, $to_tz = FALSE) {
-  
+
     // If the ical date has no timezone, must assume it is stateless
     // so treat it as a local date.
     if (empty($ical_date['datetime'])) {
@@ -596,13 +596,13 @@ class DateiCalParse {
       $ical_date['datetime'] .= ' 00:00:00';
     }
     $date = new DateObject($ical_date['datetime'], new DateTimeZone($from_tz));
-  
+
     if ($to_tz && $ical_date['tz'] != '' && $to_tz != $ical_date['tz']) {
       date_timezone_set($date, timezone_open($to_tz));
     }
     return $date;
   }
-  
+
   /**
    * Escape #text elements for safe iCal use.
    *
@@ -627,13 +627,33 @@ class DateiCalParse {
     $text = str_replace("\n", "\\n ", $text);
     return trim($text);
   }
-  
+
+  /**
+   * Explode a multiline entry into its lines.
+   */
+  public static function split_multiline_entry($entry) {
+    return explode("\n", str_replace("\r\n", "\n", $entry));
+  }
+
+  /**
+   * Extract the RRULE from a multiline entry.
+   */
+  public static function extract_rrule_string($rrule) {
+  $parts = self::split_multiline_entry($rrule);
+    foreach($parts as $part) {
+      if (strstr($part, 'RRULE')) {
+        $rrule = $part;
+      }
+    }
+    return $rrule;
+  }
+
   /**
    * Parse an iCal rule into a parsed RRULE array, along with EXDATE
    * and RDATE arrays.
    */
   public static function split_rrule($rrule) {
-    $parts = explode("\n", str_replace("\r\n", "\n", $rrule));
+    $parts = self::split_multiline_entry($rrule);
     $rrule = array();
     $exceptions = array();
     $additions = array();
@@ -665,7 +685,7 @@ class DateiCalParse {
    *   PROPERTIES are FREQ, INTERVAL, COUNT, BYDAY, BYMONTH, BYYEAR, UNTIL
    */
   public static function parse_rrule($data, $field = 'RRULE:') {
-    $data = preg_replace("/RRULE.*:/", '', $data);
+
     $items = array('DATA' => $data);
     $rrule = explode(';', $data);
     foreach ($rrule as $key => $value) {
@@ -743,11 +763,11 @@ class DateiCalParse {
     if (empty($ical_array) || !is_array($ical_array)) {
       return $RRULE;
     }
-  
+
     // Grab the RRULE data and put them into iCal RRULE format.
     $RRULE .= 'RRULE:FREQ=' . (!array_key_exists('FREQ', $ical_array) ? 'DAILY' : $ical_array['FREQ']);
     $RRULE .= ';INTERVAL=' . (!array_key_exists('INTERVAL', $ical_array) ? 1 : $ical_array['INTERVAL']);
-  
+
     // Unset the empty 'All' values.
     if (array_key_exists('BYDAY', $ical_array) && is_array($ical_array['BYDAY'])) {
       unset($ical_array['BYDAY']['']);
@@ -758,7 +778,7 @@ class DateiCalParse {
     if (array_key_exists('BYMONTHDAY', $ical_array) && is_array($ical_array['BYMONTHDAY'])) {
       unset($ical_array['BYMONTHDAY']['']);
     }
-  
+
     if (array_key_exists('BYDAY', $ical_array) && is_array($ical_array['BYDAY']) && $BYDAY = implode(",", $ical_array['BYDAY'])) {
       $RRULE .= ';BYDAY=' . $BYDAY;
     }
@@ -794,7 +814,7 @@ class DateiCalParse {
     if (array_key_exists('COUNT', $ical_array)) {
       $RRULE .= ';COUNT=' . $ical_array['COUNT'];
     }
-  
+
     // iCal rules presume the week starts on Monday unless otherwise
     // specified, so we'll specify it.
     if (array_key_exists('WKST', $ical_array)) {
@@ -803,7 +823,7 @@ class DateiCalParse {
     else {
       $RRULE .= ';WKST=' . self::$week_start_day;
     }
-  
+
     // Exceptions dates go last, on their own line.
     // The input date values may already have been converted to a date
     // object on a previous pass, so check for that.
@@ -826,7 +846,7 @@ class DateiCalParse {
     elseif (!empty($ical_array['EXDATE'])) {
       $RRULE .= chr(13) . chr(10) . 'EXDATE:' . $ical_array['EXDATE'];
     }
-  
+
     // Exceptions dates go last, on their own line.
     if (isset($ical_array['RDATE']) && is_array($ical_array['RDATE'])) {
       $ex_dates = array();
@@ -845,7 +865,7 @@ class DateiCalParse {
     elseif (!empty($ical_array['RDATE'])) {
       $RRULE .= chr(13) . chr(10) . 'RDATE:' . $ical_array['RDATE'];
     }
-  
+
     return $RRULE;
   }
 }
