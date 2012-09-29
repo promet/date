@@ -225,8 +225,7 @@ function date_combo_element_process($element, &$form_state, $form) {
   return $element;
 }
 
-function date_element_empty($element, &$form_state) {
-  $item = array();
+function date_element_empty($element, $item, &$form_state) {
   $item['value'] = NULL;
   $item['value2']   = NULL;
   $item['timezone']   = NULL;
@@ -327,7 +326,7 @@ function date_combo_validate($element, &$form_state) {
   }
 
   if ($empty) {
-    $item = date_element_empty($element, $form_state);
+    $item = date_element_empty($element, $item, $form_state);
     if (!$element['#required']) {
       return;
     }
@@ -354,7 +353,7 @@ function date_combo_validate($element, &$form_state) {
     // unless they held values that couldn't be evaluated.
 
     if (!$instance['required'] && (!date_is_date($from_date) || !date_is_date($to_date))) {
-      $item = date_element_empty($element, $form_state);
+      $item = date_element_empty($element, $item, $form_state);
       $errors[] = t('The dates are invalid.');
     }
     elseif (!empty($field['settings']['todate']) && $from_date > $to_date) {
