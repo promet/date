@@ -14,9 +14,10 @@ use Exception;
  * This class is an extension of the PHP DateTime class.
  *
  * It extends the PHP DateTime class with more flexible initialization
- * parameters, allowing a date to be created from a timestamp, a string
- * with an unknown format, a string with a known format, or an array of
- * date parts. It also adds an errors array to the date object.
+ * parameters, allowing a date to be created from an existing date object,
+ * a timestamp, a string with an unknown format, a string with a known
+ * format, or an array of date parts. It also adds an errors array to
+ * the date object.
  *
  * This class also changes the default PHP behavior for handling
  * invalid date values like '2011-00-00'. PHP would convert that value
@@ -94,13 +95,17 @@ class DateObject extends DateTime {
    * Constructs a date object.
    *
    * @param mixed $time
-   *   A date/time string, unix timestamp, or array. Defaults to 'now'.
+   *   A DateTime object, a date/time string, a unix timestamp,
+   *   or an array of date parts, like ('year' => 2014, 'month => 4).
+   *   Defaults to 'now'.
    * @param mixed $timezone_name
-   *   PHP DateTimeZone object, string or NULL allowed. Defaults to NULL.
+   *   PHP DateTimeZone object, string or NULL allowed.
+   *   Defaults to NULL.
    * @param string $format
    *   PHP date() type format for parsing. $format is recommended in order
    *   to use things like negative years, which php's parser fails on, or
    *   any other specialized input with a known format.
+   *   Defaults to NULL.
    *
    * @return
    *   Returns FALSE on failure.
@@ -118,7 +123,7 @@ class DateObject extends DateTime {
 
     // Did we recieve a date object as $time? If so, just use it.
     if ($this->input_adjusted instanceOf DateTime) {
-      parent::__construct($this->input_adjusted->format($this->format), $time->getTimezone());
+      parent::__construct($this->input_adjusted->format($this->format), $this->timezone_object);
     }
 
     // Create a date from a Unix timestamps.
@@ -270,7 +275,9 @@ class DateObject extends DateTime {
   /**
    * Set the default timezone name to use when no other information is
    * available. The system requires that a fallback timezone name be
-   * available.
+   * available. This will try to use a supplied timezone name,
+   * then fall back to the PHP timezone setting, and finally fall back
+   * to UTC.
    */
   public static function setDefaultTimezoneName($timezone_name = NULL) {
     $system_timezone = date_default_timezone_get();
@@ -309,20 +316,35 @@ class DateObject extends DateTime {
 
   /**
    * Prepare the timezone before trying to use it.
+   * Most imporantly, make sure we have a valid timezone
+   * object before moving further.
    *
-   * @param mixed $timezone
+   * @param mixed $input_timezone
    *   Either a timezone name or a timezone object.
    */
-  public function prepareTimezone($timezone) {
-    // Allow string timezones.
-    if (!empty($timezone) && !is_object($timezone)) {
-      $timezone = new DateTimeZone($timezone);
+  public function prepareTimezone($input_timezone) {
+
+    // When the passed-in date is a DateTime object with its own
+    // timezone, try to use the date's timezone.
+    if (empty($input_timezone) && $this->input_original instanceOf DateTime) {
+      $timezone = $this->input_original->getTimezone();
+    }
+
+    // Allow string timezone input, and create a timezone from it.
+    if (!empty($input_timezone) && is_string($input_timezone)) {
+      $timezone = new DateTimeZone($input_timezone);
+    }
+
+    // If the passed in timezone is a valid timezone object, use it.
+    if ($input_timezone instanceOf DateTimezone) {
+      $timezone = $input_timezone;
     }
 
     // Default to the site timezone when not explicitly provided.
-    if (empty($timezone)) {
+    if (empty($timezone) || !$timezone instanceOf DateTimezone) {
       $timezone = new DateTimeZone($this->getDefaultTimezoneName());
     }
+
     return $timezone;
   }
 
