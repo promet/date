@@ -6,6 +6,7 @@
 
 use Drupal\date_api\DateObject;
 use Drupal\date_api\DateGranularity;
+use Drupal\date_api\DateSqlHandler;
 
 class date_views_filter_handler_simple extends views_handler_filter_date {
   var $date_handler = NULL;
@@ -13,7 +14,6 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
 
   function init(&$view, &$options) {
     parent::init($view, $options);
-    module_load_include('inc', 'date_api', 'date_api_sql');
     $this->date_handler = new DateSqlHandler(DATE_UNIX);
     if (!empty($this->definition['field_name'])) {
       $field = field_info_field($this->definition['field_name']);

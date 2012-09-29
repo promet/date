@@ -4,6 +4,10 @@
  * Handling of devel generate functionality for repeating dates.
  */
 
+use Drupal\date_api\DateObject;
+use Drupal\date_api\DateiCalParse;
+use Drupal\date_repeat\DateRRuleCalc;
+
 /**
  * Implements hook_date_field_insert().
  *
@@ -31,8 +35,6 @@ function date_repeat_field_date_field_insert(&$items, $context) {
   }
 
   // Compute repeating date values.
-  module_load_include('inc', 'date_repeat', 'date_repeat_calc');
-  module_load_include('inc', 'date_api', 'date_api_ical');
 
   $increment = $instance['widget']['settings']['increment'];
   $timezone = date_get_timezone($field['settings']['tz_handling'], $item['timezone']);
