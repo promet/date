@@ -685,7 +685,7 @@ class DateiCalParse {
    *   PROPERTIES are FREQ, INTERVAL, COUNT, BYDAY, BYMONTH, BYYEAR, UNTIL
    */
   public static function parse_rrule($data, $field = 'RRULE:') {
-
+    $data = preg_replace("/RRULE.*:/", '', $data);
     $items = array('DATA' => $data);
     $rrule = explode(';', $data);
     foreach ($rrule as $key => $value) {
