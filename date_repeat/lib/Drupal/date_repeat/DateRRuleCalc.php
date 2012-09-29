@@ -152,7 +152,7 @@ class DateRRuleCalc {
    *   Optional array of additional dates, each in the standard ISO format
    *   of YYYY-MM-DD.
    */
-  function __construct( string $rrule, DateTime $start, $end = NULL, $exceptions = array(), $additions = array()) {
+  function __construct($rrule, $start, $end = NULL, $exceptions = array(), $additions = array()) {
 
     // Get the parsed array of rule values.
     $this->rrule = DateiCalParse::parse_rrule($rrule);
