@@ -33,7 +33,7 @@ function date_popup_add() {
   if ($loaded) {
     return;
   }
-  drupal_add_library('system', 'ui.datepicker');
+  drupal_add_library('system', 'jquery.ui.datepicker');
   drupal_add_library('date_popup', 'timeentry');
 
   // Add the wvega-timepicker library if it's available.
