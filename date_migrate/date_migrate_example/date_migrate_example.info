@@ -1,4 +1,4 @@
-core = "8.x"
+core = "x.x"
 dependencies[] = "date"
 dependencies[] = "date_repeat"
 dependencies[] = "date_repeat_field"
@@ -19,4 +19,3 @@ files[] = date_migrate_example.migrate.inc
 name = "Date Migration Example"
 package = "Features"
 project = "date_migrate_example"
-version = "7.x-2.0"

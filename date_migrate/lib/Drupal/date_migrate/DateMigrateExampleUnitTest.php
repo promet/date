@@ -4,7 +4,7 @@
  * @file
  * Test for using date fields with Migrate module.
  */
-namespace Drupal\date_migrate\Tests
+namespace Drupal\date_migrate\Tests;
 
 use Drupal\simpletest\WebTestBase;
 
@@ -25,7 +25,7 @@ class DateMigrateExampleUnitTest extends WebTestBase {
   }
 
   /**
-   * Declars the module dependencies for the test.
+   * Declares the module dependencies for the test.
    */
   public static $modules = array('migrate', 'features', 'date', 'date_repeat', 'date_repeat_field', 'date_migrate_example');
 
