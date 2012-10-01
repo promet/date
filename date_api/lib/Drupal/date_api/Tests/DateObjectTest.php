@@ -13,7 +13,7 @@ use DateTimeZone;
 
 class DateObjectTest extends WebTestBase {
   /**
-   * @todo.
+   * Test information.
    */
   public static function getInfo() {
     return array(
@@ -29,7 +29,7 @@ class DateObjectTest extends WebTestBase {
   public static $modules = array('date_api');
 
   /**
-   * @todo.
+   * Test setup.
    */
   public function setUp() {
     parent::setUp();
@@ -38,9 +38,9 @@ class DateObjectTest extends WebTestBase {
   }
 
   /**
-   * @todo.
+   * Test creating dates from string input.
    */
-  public function testDateAPI() {
+  public function testDateStrings() {
 
     // Create date object from datetime string.
     $input = '2009-03-07 10:30';
@@ -73,6 +73,12 @@ class DateObjectTest extends WebTestBase {
     $value = $date->format('c');
     $expected = '2009-06-07T00:00:00-05:00';
     $this->assertEqual($expected, $value, "Test new dateObject($input, $timezone): should be $expected, found $value.");
+  }
+
+  /**
+   * Test creating dates from arrays of date parts.
+   */
+  function testDateArrays() {
 
     // Create date object from date array, date only.
     $input = array('year' => 2010, 'month' => 2, 'day' => 28);
@@ -90,9 +96,15 @@ class DateObjectTest extends WebTestBase {
     $expected = '2010-02-28T10:00:00-06:00';
     $this->assertEqual($expected, $value, "Test new dateObject(array('year' => 2010, 'month' => 2, 'day' => 28, 'hour' => 10), $timezone): should be $expected, found $value.");
 
-    // 0 = January 1, 1970 00:00:00 (UTC);
-    // 1000000000 = September 9, 2001 01:46:40 (UTC);
-    // Create date object from unix timestamp and convert it to a local date.
+  }
+
+  /**
+   * Test creating dates from timestamps.
+   */
+  function testDateTimestamp() {
+
+    // Create date object from a unix timestamp and display it in
+    // local time.
     $input = 0;
     $timezone = 'UTC';
     $date = new dateObject($input, $timezone);
@@ -120,7 +132,8 @@ class DateObjectTest extends WebTestBase {
     $value = $date->getOffset();
     $this->assertEqual($expected, $value, "The current offset should be $expected, found $value.");
 
-    // Convert the local version of a timestamp to UTC.
+    // Create a date using the timestamp of zero, then display its
+    // value both in UTC and the local timezone.
     $input = 0;
     $timezone = 'America/Los_Angeles';
     $date = new dateObject($input, $timezone);
@@ -148,9 +161,15 @@ class DateObjectTest extends WebTestBase {
     $expected = '0';
     $value = $date->getOffset();
     $this->assertEqual($expected, $value, "The current offset should be $expected, found $value.");
+  }
 
-    // Create date object from datetime string and convert it to a
-    // local date.
+  /**
+   * Test timezone manipulation.
+   */
+  function testTimezoneConversion() {
+
+    // Create date object from datetime string in UTC, and convert
+    // it to a local date.
     $input = '1970-01-01 00:00:00';
     $timezone = 'UTC';
     $date = new dateObject($input, $timezone);
@@ -178,7 +197,7 @@ class DateObjectTest extends WebTestBase {
     $value = $date->getOffset();
     $this->assertEqual($expected, $value, "The current offset should be $expected, found $value.");
 
-    // Convert the local version of a datetime string to UTC.
+    // Convert the local time to UTC using string input.
     $input = '1969-12-31 16:00:00';
     $timezone = 'America/Los_Angeles';
     $date = new dateObject($input, $timezone);
@@ -207,7 +226,14 @@ class DateObjectTest extends WebTestBase {
     $value = $date->getOffset();
     $this->assertEqual($expected, $value, "The current offset should be $expected, found $value.");
 
-     // Create year-only date.
+  }
+
+  /**
+   * Test creating dates from format strings.
+   */
+  function testDateFormat() {
+
+     // Create a year-only date.
     $input = '2009';
     $timezone = NULL;
     $format = 'Y';
@@ -216,7 +242,7 @@ class DateObjectTest extends WebTestBase {
     $expected = '2009';
     $this->assertEqual($expected, $value, "Test new dateObject($input, $timezone, $format): should be $expected, found $value.");
 
-     // Create month and year-only date.
+     // Create a month and year-only date.
     $input = '2009-10';
     $timezone = NULL;
     $format = 'Y-m';
@@ -225,7 +251,7 @@ class DateObjectTest extends WebTestBase {
     $expected = '2009-10';
     $this->assertEqual($expected, $value, "Test new dateObject($input, $timezone, $format): should be $expected, found $value.");
 
-     // Create time-only date.
+     // Create a time-only date.
     $input = '0000-00-00T10:30:00';
     $timezone = NULL;
     $format = 'Y-m-d\TH:i:s';
@@ -234,7 +260,7 @@ class DateObjectTest extends WebTestBase {
     $expected = '10:30:00';
     $this->assertEqual($expected, $value, "Test new dateObject($input, $timezone, $format): should be $expected, found $value.");
 
-     // Create time-only date.
+     // Create a time-only date.
     $input = '10:30:00';
     $timezone = NULL;
     $format = 'H:i:s';
@@ -242,6 +268,13 @@ class DateObjectTest extends WebTestBase {
     $value = $date->format('H:i:s');
     $expected = '10:30:00';
     $this->assertEqual($expected, $value, "Test new dateObject($input, $timezone, $format): should be $expected, found $value.");
+
+  }
+
+  /**
+   * Test invalid date handling.
+   */
+  function testInvalidDates() {
 
     // Test for invalid month names when we are using a short version
     // of the month
@@ -307,7 +340,7 @@ class DateObjectTest extends WebTestBase {
   }
 
   /**
-   * @todo.
+   * Tear down after tests.
    */
   public function tearDown() {
     variable_del('date_first_day');

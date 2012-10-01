@@ -19,19 +19,19 @@ use Exception;
  * format, or an array of date parts. It also adds an errors array to
  * the date object.
  *
- * This class also changes the default PHP behavior for handling
- * invalid date values like '2011-00-00'. PHP would convert that value
- * to '2010-11-30' and report a warning but not an error. This class
- * treats that as an error, not a warning.
+ * This class changes the default PHP behavior for handling date values
+ * like '2011-00-00'. PHP would convert that value to '2010-11-30' and
+ * report a warning but not an error. This class treats that as an error.
  *
  * As with the base class, a date object may be created even if it has
  * errors. It has an errors array attached to it that explains what the
  * errors are. The calling script can decide what to do about any errors
- * reported.
+ * reported. This is less disruptive than allowing datetime exceptions to
+ * abort processing.
  *
  * Translation of error messages is not handled in this class, but
- * should be managed by the scripts that invoke it, which can be done
- * using the values in the $errors array.
+ * should be managed by the scripts that invoke it, using the values
+ * in the $errors array.
  *
  */
 class DateObject extends DateTime {
@@ -39,57 +39,70 @@ class DateObject extends DateTime {
   /**
    * An array of possible date parts.
    */
-  public static $date_parts = array('year', 'month', 'day', 'hour', 'minute', 'second');
+  public static $date_parts = array(
+                               'year',
+                               'month',
+                               'day',
+                               'hour',
+                               'minute',
+                               'second',
+                              );
 
   /**
-   * A default format, used where no other format has been declared.
+   * The input time value.
    */
-  public static $default_format = 'Y-m-d H:i:s';
+  public $time_original = '';
 
   /**
-   * A default timezone name, used when no other timezone name is known.
+   * The prepared time, without timezone, for this date.
    */
-  public static $default_timezone_name = '';
+  public $time = '';
 
   /**
-   * A message that the date is invalid.
+   * The input timezone for this date.
    */
-  public static $invalid_date_message = 'The date is invalid.';
+  public $timezone_original = '';
 
   /**
-   * A message that the date is missing.
+   * The prepared timezone object for this date.
    */
-  public static $missing_date_message = 'No date was input.';
+  public $timezone = '';
 
   /**
-    * The input format, if known.
-    */
+   * The timzone name used by this class.
+   */
+  public $timezone_name = '';
+
+  /**
+   * The input format, if provided.
+   */
+  public $format_original = '';
+
+  /**
+   * The prepared format, if provided.
+   */
   public $format = '';
 
   /**
-    * The input time value, before it is altered.
-    */
-  public $input_original = '';
+   * The default datetime format, used in __toString() and elsewhere.
+   */
+  public $default_format = 'Y-m-d H:i:s';
 
   /**
-    * The time, without timezone, of this date.
-    */
-  public $input_adjusted = '';
-
-  /**
-    * The desired timezone for this date.
-    */
-  public $timezone_name = 'UTC';
-
-  /**
-    * The timezone object for this date.
-    */
-  public $timezone_object = '';
-
-  /**
-    * An array of errors encounted when creating this date.
-    */
+   * An array of errors encountered when creating this date.
+   */
   public $errors = array();
+
+  /**
+   * Implementation of __toString() for dates. The base DateTime
+   * class does not implement this.
+   *
+   * @see https://bugs.php.net/bug.php?id=62911 and
+   * http://www.serverphorums.com/read.php?7,555645
+   */
+  public function __toString() {
+    return $this->format(self::$default_format) . ' ' . $this->getTimeZone()->getName();
+  }
 
   /**
    * Constructs a date object.
@@ -98,7 +111,7 @@ class DateObject extends DateTime {
    *   A DateTime object, a date/time string, a unix timestamp,
    *   or an array of date parts, like ('year' => 2014, 'month => 4).
    *   Defaults to 'now'.
-   * @param mixed $timezone_name
+   * @param mixed $timezone
    *   PHP DateTimeZone object, string or NULL allowed.
    *   Defaults to NULL.
    * @param string $format
@@ -110,61 +123,45 @@ class DateObject extends DateTime {
    * @return
    *   Returns FALSE on failure.
    */
-  public function __construct($time = 'now', $timezone_name = NULL, $format = NULL) {
+  public function __construct($time = 'now', $timezone = NULL, $format = NULL) {
 
-    // Store the raw time input so it is available for validation.
-    $this->input_original = $time;
+    // Store the original input so it is available for validation.
+    $this->time_original = $time;
+    $this->timezone_original = $timezone;
+    $this->format_original = $format;
 
-    $this->input_adjusted = $this->prepareInput($time);
+    // Massage the input values as necessary.
+    $this->prepareTime($time);
+    $this->prepareTimezone($timezone);
+    $this->prepareFormat($format);
 
-    $this->timezone_object = $this->prepareTimezone($timezone_name);
-
-    $this->format = $format;
-
-    // Did we recieve a date object as $time? If so, just use it.
-    if ($this->input_adjusted instanceOf DateTime) {
-      parent::__construct($this->input_adjusted->format($this->format), $this->timezone_object);
-    }
-
-    // Create a date from a Unix timestamps.
-    // Create a date object and convert it to the local timezone.
-    // Don't try to turn a value like '2010' with a format of 'Y'
-    // into a timestamp.
-    elseif (is_numeric($this->input_adjusted) && (empty($this->format) || $this->format == 'U')) {
-      $this->constructFromTimestamp($this->input_adjusted, $this->timezone_object);
+    // Create a date from an input DateTime object.
+    if ($this->inputIsObject()) {
+      $this->constructFromObject();
     }
 
     // Create date from array of date parts.
-    // Convert the input value into an ISO date,
-    // forcing a full ISO date even if some values are missing.
-    elseif (is_array($this->input_adjusted)) {
-      $this->constructFromArray($this->input_adjusted, $this->timezone_object);
+    elseif ($this->inputIsArray()) {
+      $this->constructFromArray();
     }
 
-    // Create a date from a string and an expected format.
-    elseif (is_string($this->input_adjusted) && !empty($this->format)) {
-      $this->constructFromFormat($this->format, $this->input_adjusted, $this->timezone_object);
+    // Create a date from a Unix timestamp.
+    elseif ($this->inputIsTimestamp()) {
+      $this->constructFromTimestamp();
     }
 
-    // If the input was none of the above, let the parent dateTime attempt
-    // to turn this string into a valid date. It might fail and we want to
-    // catch the error messages.
-    elseif (is_string($this->input_adjusted)) {
-      try {
-        @parent::__construct($this->input_adjusted, $this->timezone_object);
-      }
-      catch (Exception $e) {
-        $this->errors[] = $e;
-      }
-      $this->getErrors();
+    // Create a date from a time string and an expected format.
+    elseif ($this->inputIsFormat()) {
+      $this->constructFromFormat();
     }
 
-    // If something else, or nothing, was input, we don't have a date.
+    // Create a date from any other input.
     else {
-      $this->errors[] = self::$missing_date_message;
+      $this->constructFallback();
     }
 
     // Clean up the error messages.
+    $this->getErrors();
     $this->errors = array_unique($this->errors);
 
     if (!empty($this->errors)) {
@@ -175,81 +172,216 @@ class DateObject extends DateTime {
   }
 
   /**
+   * Prepare the input value before trying to use it.
+   * Can be overridden to handle special cases.
+   *
+   * @param mixed $time
+   *   An input value, which could be a timestamp, a string,
+   *   or an array of date parts.
+   */
+  public function prepareTime($time) {
+    $this->time = $time;
+  }
+
+  /**
+   * Prepare the timezone before trying to use it.
+   * Most imporantly, make sure we have a valid timezone
+   * object before moving further.
+   *
+   * @param mixed $tz_input
+   *   Either a timezone name or a timezone object or NULL.
+   */
+  public function prepareTimezone($tz_input) {
+
+    // If the passed in timezone is a valid timezone object, use it.
+    if ($tz_input instanceOf DateTimezone) {
+      $timezone = $tz_input;
+    }
+
+    // When the passed-in time is a DateTime object with its own
+    // timezone, try to use the date's timezone.
+    elseif (empty($tz_input) && $this->time instanceOf DateTime) {
+      $timezone = $this->time->getTimezone();
+    }
+
+    // Allow string timezone input, and create a timezone from it.
+    elseif (!empty($tz_input) && is_string($tz_input)) {
+      $timezone = new DateTimeZone($tz_input);
+    }
+
+    // Default to the system timezone when not explicitly provided.
+    // If the system timezone is missing, use 'UTC'.
+    if (empty($timezone) || !$timezone instanceOf DateTimezone) {
+      $system_timezone = date_default_timezone_get();
+      $timezone_name = !empty($system_timezone) ? $system_timezone: 'UTC';
+      $timezone = new DateTimeZone($timezone_name);
+    }
+
+    // We are finally certain that we have a usable timezone.
+    $this->timezone_name = $timezone->getName();
+    $this->timezone = $timezone;
+  }
+
+  /**
+   * Prepare the format before trying to use it.
+   * Can be overridden to handle special cases.
+   *
+   * @param string $format
+   *   A PHP format string.
+   */
+  public function prepareFormat($format) {
+    $this->format = $format;
+  }
+
+  /**
+   * Check if input is a DateTime object.
+   *
+   * @return boolean
+   *   TRUE if the input time is a DateTime object.
+   */
+  public function inputIsObject() {
+    return $this->time instanceOf DateTime;
+  }
+
+  /**
+   * Create a date object from an input date object.
+   */
+  public function constructFromObject() {
+    try {
+      $this->time = $this->time->format(self::$default_format);
+      parent::__construct($this->time, $this->timezone);
+    }
+    catch (Exception $e) {
+      $this->errors[] = $e;
+    }
+  }
+
+  /**
+   * Check if input time seems to be a timestamp.
+   *
+   * Providing an input format will prevent ISO values without separators
+   * from being mis-interpreted as timestamps. Providing a format can also
+   * avoid interpreting a value like '2010' with a format of 'Y' as a
+   * timestamp. The 'U' format indicates this is a timestamp.
+   *
+   * @return boolean
+   *   TRUE if the input time is a timestamp.
+   */
+  public function inputIsTimestamp() {
+    return is_numeric($this->time) && (empty($this->format) || $this->format == 'U');
+  }
+
+  /**
    * Create a date object from timestamp input.
    *
-   * @param int $time
-   *   A unix timestamp.
-   * @param object $timezone
-   *   A DateTimezone object.
+   * The timezone for timestamps is always UTC. In this case the
+   * timezone we set controls the timezone used when displaying
+   * the value using format().
    */
-  public function constructFromTimestamp($time, DateTimezone $timezone) {
-    parent::__construct('', $timezone);
-    $this->setTimestamp($time);
-    $this->getErrors();
+  public function constructFromTimestamp() {
+    try {
+      parent::__construct('', $this->timezone);
+      $this->setTimestamp($this->time);
+    }
+    catch (Exception $e) {
+      $this->errors[] = $e;
+    }
+  }
+
+  /**
+   * Check if input is an array of date parts.
+   *
+   * @return boolean
+   *   TRUE if the input time is a DateTime object.
+   */
+  public function inputIsArray() {
+    return is_array($this->time);
   }
 
   /**
    * Create a date object from an array of date parts.
    *
-   * @param array $time
-   *   A keyed array of date parts and values.
-   * @param object $timezone
-   *   A DateTimezone object.
+   * Convert the input value into an ISO date, forcing a full ISO
+   * date even if some values are missing.
    */
-  public function constructFromArray($time, DateTimezone $timezone) {
-    parent::__construct('', $timezone);
-
-    $time = $this->prepareArray($time, TRUE);
-    $this->input_adjusted = $this->toISO($time);
-    if ($this->verifyArray($time)) {
-
-      // Even with validation, we can end up with a value that the
-      // parent class won't handle, like a year outside the range
-      // of -9999 to 9999, which will pass checkdate() but
-      // fail to construct a date object.
-      try {
-        parent::__construct($this->input_adjusted, $timezone);
+  public function constructFromArray() {
+    try {
+      parent::__construct('', $this->timezone);
+      $this->time = $this->prepareArray($this->time, TRUE);
+      if ($this->verifyArray($this->time)) {
+        // Even with validation, we can end up with a value that the
+        // parent class won't handle, like a year outside the range
+        // of -9999 to 9999, which will pass checkdate() but
+        // fail to construct a date object.
+        $this->time = $this->toISO($this->time);
+        parent::__construct($this->time, $this->timezone);
       }
-      catch (Exception $e) {
-        $this->errors[] = $e;
+      else {
+        throw new Exception('The array contains invalid values.');
       }
     }
-    else {
-      $this->errors[] = self::$invalid_date_message;
+    catch (Exception $e) {
+      $this->errors[] = $e;
     }
-    $this->getErrors();
+  }
+
+  /**
+   * Check if input is a string with an expected format.
+   *
+   * @return boolean
+   *   TRUE if the input time is a string with an expected format.
+   */
+  public function inputIsFormat() {
+    return is_string($this->time) && !empty($this->format);
   }
 
   /**
    * Create a date object from an input format.
    *
-   * @param string $format
-   *   A date format.
-   * @param string $time
-   *   A date value, in the format described by $format.
-   * @param object $timezone
-   *   A DateTimezone object.
    */
-  public function constructFromFormat($format, $time, DateTimezone $timezone) {
-    parent::__construct('', $timezone);
+  public function constructFromFormat() {
+    // Try to create a date from the format and use it if possible.
+    // A regualr try/catch won't work right here, if the value is
+    // invalid it doesn't return an exception.
+    try {
+      parent::__construct('', $this->timezone);
+      $date = parent::createFromFormat($this->format, $this->time, $this->timezone);
+      if (!$date instanceOf DateTime) {
+        throw new Exception('The date cannot be created from a format.');
+      }
+      else {
+        $this->setTimestamp($date->getTimestamp());
+        $this->setTimezone($date->getTimezone());
 
-    // We try to create a date from the format and use it if we can.
-    // try/catch won't work right here, if the value is invalid
-    // it doesn't return an exception.
-    if ($date = parent::createFromFormat($format, $time, $timezone)) {
-      $this->setTimestamp($date->getTimestamp());
-      $this->setTimezone($date->getTimezone());
-
-      // The createFromFormat function is forgiving, it might
-      // create a date that is not exactly a match for the provided
-      // value, so test for that. For instance, an input value of
-      // '11' using a format of Y (4 digits) gets created as
-      // '0011' instead of '2011'.
-      if ($this->format($format) != $this->input_original) {
-        $this->errors[] = self::$invalid_date_message;
+        // The createFromFormat function is forgiving, it might
+        // create a date that is not exactly a match for the provided
+        // value, so test for that. For instance, an input value of
+        // '11' using a format of Y (4 digits) gets created as
+        // '0011' instead of '2011'.
+        if ($this->format($this->format) != $this->time_original) {
+          throw new Exception('The created date does not match the input value.');
+        }
       }
     }
-    $this->getErrors();
+    catch (Exception $e) {
+      $this->errors[] = $e;
+    }
+  }
+
+  /**
+   * Fallback construction for values that don't match any of the
+   * other patterns.
+   *
+   * Let the parent dateTime attempt to turn this string into a
+   * valid date.
+   */
+  public function constructFallback() {
+    try {
+      @parent::__construct($this->time, $this->timezone);
+    }
+    catch (Exception $e) {
+      $this->errors[] = $e;
+    }
   }
 
   /**
@@ -260,7 +392,7 @@ class DateObject extends DateTime {
    * PHP creates a valid date from invalid data with only a warning,
    * 2011-02-30 becomes 2011-03-03, for instance, but we don't want that.
    *
-   * @see http://us3.php.net/manual/en/datetime.getlasterrors.php
+   * @see http://us3.php.net/manual/en/time.getlasterrors.php
    */
   public function getErrors() {
     $errors = $this->getLastErrors();
@@ -268,84 +400,8 @@ class DateObject extends DateTime {
       $this->errors += $errors['errors'];
     }
     if (!empty($errors['warnings']) && in_array('The parsed date was invalid', $errors['warnings'])) {
-      $this->errors[] = self::$invalid_date_message;
+      $this->errors[] = 'The date is invalid.';
     }
-  }
-
-  /**
-   * Set the default timezone name to use when no other information is
-   * available. The system requires that a fallback timezone name be
-   * available. This will try to use a supplied timezone name,
-   * then fall back to the PHP timezone setting, and finally fall back
-   * to UTC.
-   */
-  public static function setDefaultTimezoneName($timezone_name = NULL) {
-    $system_timezone = date_default_timezone_get();
-    if (!empty($timezone_name)) {
-      self::$default_timezone_name = $timezone_name;
-    }
-    elseif (!empty($system_timezone)) {
-      self::$default_timezone_name = $system_timezone;
-    }
-    else {
-      self::$default_timezone_name = 'UTC';
-    }
-  }
-
-  /**
-   * Get the default timezone name.
-   */
-  public static function getDefaultTimezoneName() {
-    if (empty(self::$default_timezone_name)) {
-      self::setDefaultTimezoneName();
-    }
-    return self::$default_timezone_name;
-  }
-
-  /**
-   * Prepare the input value before trying to use it.
-   * Can be overridden to handle special cases.
-   *
-   * @param mixed $time
-   *   An input value, which could be a timestamp, a string,
-   *   or an array of date parts.
-   */
-  public function prepareInput($time) {
-    return $time;
-  }
-
-  /**
-   * Prepare the timezone before trying to use it.
-   * Most imporantly, make sure we have a valid timezone
-   * object before moving further.
-   *
-   * @param mixed $input_timezone
-   *   Either a timezone name or a timezone object.
-   */
-  public function prepareTimezone($input_timezone) {
-
-    // When the passed-in date is a DateTime object with its own
-    // timezone, try to use the date's timezone.
-    if (empty($input_timezone) && $this->input_original instanceOf DateTime) {
-      $timezone = $this->input_original->getTimezone();
-    }
-
-    // Allow string timezone input, and create a timezone from it.
-    if (!empty($input_timezone) && is_string($input_timezone)) {
-      $timezone = new DateTimeZone($input_timezone);
-    }
-
-    // If the passed in timezone is a valid timezone object, use it.
-    if ($input_timezone instanceOf DateTimezone) {
-      $timezone = $input_timezone;
-    }
-
-    // Default to the site timezone when not explicitly provided.
-    if (empty($timezone) || !$timezone instanceOf DateTimezone) {
-      $timezone = new DateTimeZone($this->getDefaultTimezoneName());
-    }
-
-    return $timezone;
   }
 
   /**
@@ -382,27 +438,27 @@ class DateObject extends DateTime {
    */
   public function toISO($array, $force_valid_date = FALSE) {
     $array = $this->prepareArray($array, $force_valid_date);
-    $datetime = '';
+    $time = '';
     if ($array['year'] !== '') {
-      $datetime = self::datePad(intval($array['year']), 4);
+      $time = self::datePad(intval($array['year']), 4);
       if ($force_valid_date || $array['month'] !== '') {
-        $datetime .= '-' . self::datePad(intval($array['month']));
+        $time .= '-' . self::datePad(intval($array['month']));
         if ($force_valid_date || $array['day'] !== '') {
-          $datetime .= '-' . self::datePad(intval($array['day']));
+          $time .= '-' . self::datePad(intval($array['day']));
         }
       }
     }
     if ($array['hour'] !== '') {
-      $datetime .= $datetime ? 'T' : '';
-      $datetime .= self::datePad(intval($array['hour']));
+      $time .= $time ? 'T' : '';
+      $time .= self::datePad(intval($array['hour']));
       if ($force_valid_date || $array['minute'] !== '') {
-        $datetime .= ':' . self::datePad(intval($array['minute']));
+        $time .= ':' . self::datePad(intval($array['minute']));
         if ($force_valid_date || $array['second'] !== '') {
-          $datetime .= ':' . self::datePad(intval($array['second']));
+          $time .= ':' . self::datePad(intval($array['second']));
         }
       }
     }
-    return $datetime;
+    return $time;
   }
 
   /**
@@ -419,23 +475,38 @@ class DateObject extends DateTime {
    */
   public function prepareArray($array, $force_valid_date = FALSE) {
     if ($force_valid_date) {
-      $array += array('year' => 0, 'month' => 1, 'day' => 1, 'hour' => 0, 'minute' => 0, 'second' => 0);
+      $array += array(
+                 'year'   => 0,
+                 'month'  => 1,
+                 'day'    => 1,
+                 'hour'   => 0,
+                 'minute' => 0,
+                 'second' => 0,
+                );
     }
     else {
-      $array += array('year' => '', 'month' => '', 'day' => '', 'hour' => '', 'minute' => '', 'second' => '');
+      $array += array(
+                 'year'   => '',
+                 'month'  => '',
+                 'day'    => '',
+                 'hour'   => '',
+                 'minute' => '',
+                 'second' => '',
+                );
     }
     return $array;
   }
 
   /**
    * Check that an array of date parts has a year, month, and day,
-   * and that those values create a valid date.
+   * and that those values create a valid date. If time is provided,
+   * verify that the time values are valid.
    *
    * @param array $array
-   *   An array of date values keyed by date part.
+   *   An array of datetime values keyed by date part.
    *
    * @return bool
-   *   TRUE if the date parts contain a valid date, otherwise FALSE.
+   *   TRUE if the datetime parts contain valid values, otherwise FALSE.
    */
   public function verifyArray($array) {
     $valid_date = FALSE;
@@ -487,5 +558,4 @@ class DateObject extends DateTime {
   public static function datePad($value, $size = 2) {
     return sprintf("%0" . $size . "d", $value);
   }
-
 }
