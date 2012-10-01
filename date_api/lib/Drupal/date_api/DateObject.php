@@ -218,7 +218,7 @@ class DateObject extends DateTime {
   }
 
   /**
-   * Prepare the format before trying to use it.
+   * Prepare the input format before trying to use it.
    * Can be overridden to handle special cases.
    *
    * @param string $format
@@ -336,7 +336,7 @@ class DateObject extends DateTime {
    */
   public function constructFromFormat() {
     // Try to create a date from the format and use it if possible.
-    // A regualr try/catch won't work right here, if the value is
+    // A regular try/catch won't work right here, if the value is
     // invalid it doesn't return an exception.
     try {
       parent::__construct('', $this->timezone);
@@ -347,15 +347,6 @@ class DateObject extends DateTime {
       else {
         $this->setTimestamp($date->getTimestamp());
         $this->setTimezone($date->getTimezone());
-
-        // The createFromFormat function is forgiving, it might
-        // create a date that is not exactly a match for the provided
-        // value, so test for that. For instance, an input value of
-        // '11' using a format of Y (4 digits) gets created as
-        // '0011' instead of '2011'.
-        if ($this->format($this->format) != $this->time_original) {
-          throw new Exception('The created date does not match the input value.');
-        }
       }
     }
     catch (Exception $e) {

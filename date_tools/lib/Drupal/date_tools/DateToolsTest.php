@@ -4,7 +4,7 @@
  * @file
  * Tests for Date Tools.
  */
-namespace Drupal\date_tools\Tests
+namespace Drupal\date_tools\Tests;
 
 use Drupal\simpletest\WebTestBase;
 
