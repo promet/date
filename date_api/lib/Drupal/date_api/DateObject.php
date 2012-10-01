@@ -163,12 +163,7 @@ class DateObject extends DateTime {
     // Clean up the error messages.
     $this->getErrors();
     $this->errors = array_unique($this->errors);
-
-    if (!empty($this->errors)) {
-      return FALSE;
-    }
-
-    return TRUE;
+    return FALSE;
   }
 
   /**
@@ -252,7 +247,7 @@ class DateObject extends DateTime {
       parent::__construct($this->time, $this->timezone);
     }
     catch (Exception $e) {
-      $this->errors[] = $e;
+      $this->errors[] = $e->getMessage();
     }
   }
 
@@ -284,7 +279,7 @@ class DateObject extends DateTime {
       $this->setTimestamp($this->time);
     }
     catch (Exception $e) {
-      $this->errors[] = $e;
+      $this->errors[] = $e->getMessage();
     }
   }
 
@@ -321,7 +316,7 @@ class DateObject extends DateTime {
       }
     }
     catch (Exception $e) {
-      $this->errors[] = $e;
+      $this->errors[] = $e->getMessage();
     }
   }
 
@@ -364,7 +359,7 @@ class DateObject extends DateTime {
       }
     }
     catch (Exception $e) {
-      $this->errors[] = $e;
+      $this->errors[] = $e->getMessage();
     }
   }
 
@@ -380,7 +375,7 @@ class DateObject extends DateTime {
       @parent::__construct($this->time, $this->timezone);
     }
     catch (Exception $e) {
-      $this->errors[] = $e;
+      $this->errors[] = $e->getMessage();
     }
   }
 
@@ -402,6 +397,17 @@ class DateObject extends DateTime {
     if (!empty($errors['warnings']) && in_array('The parsed date was invalid', $errors['warnings'])) {
       $this->errors[] = 'The date is invalid.';
     }
+  }
+
+  /**
+   * Detect if there were errors in the processing of this date.
+   */
+  function hasErrors() {
+    if (count($this->errors)) {
+      return TRUE;
+    }
+
+    return FALSE;
   }
 
   /**
