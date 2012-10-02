@@ -60,7 +60,6 @@ class DateToolsTest extends WebTestBase {
   function dateForm($options) {
     $edit = array();
     $edit['title'] = $this->randomName(8);
-    $edit['body[und][0][value]'] = $this->randomName(16);
     if ($options == 'select') {
       $edit['field_test[und][0][value][year]'] = '2010';
       $edit['field_test[und][0][value][month]'] = '10';
@@ -76,7 +75,7 @@ class DateToolsTest extends WebTestBase {
       $edit['field_test[und][0][value][time]'] = '10:30';
     }
     $this->drupalPost('node/add/story', $edit, t('Save'));
-    $this->assertText($edit['body[und][0][value]'], 'Test node has been created');
+    $this->assertText($edit['title'] . ' has been created.', 'Test node has been created');
   }
 
   /**

@@ -301,8 +301,8 @@ function date_tools_wizard_field_types() {
  */
 function date_tools_wizard_widget_types() {
   $widget_types = array();
-  foreach (date_field_widget_info() as $name => $info) {
-    if (!strstr($name, '_repeat')) {
+  foreach (field_info_widget_types() as $name => $info) {
+    if ($info['module'] == 'date') {
       $widget_types[$name] = $info['label'];
     }
   }
@@ -360,34 +360,34 @@ function date_tools_wizard_create_content_type($name, $bundle, $description, $ty
   // Add the body field.
   $trim_length = config('aggregator.settings')->get('items.teaser_length');
 
-  $field = field_info_field('body');
-  $instance = array(
-    'field_name' => 'body',
-    'entity_type' => 'node',
-    'bundle' => $bundle,
-    'label' => t('Description'),
-    'widget' => array(
-      'type' => 'text_textarea_with_summary',
-      'settings' => array(
-        'rows' => 20,
-        'summary_rows' => 5,
+  if ($field = field_info_field('body')) {
+    $instance = array(
+      'field_name' => $field['field_name'],
+      'entity_type' => 'node',
+      'bundle' => $bundle,
+      'label' => t('Description'),
+      'widget' => array(
+        'type' => 'text_textarea_with_summary',
+        'settings' => array(
+          'rows' => 20,
+          'summary_rows' => 5,
+        ),
+        'weight' => -4,
+        'module' => 'text',
       ),
-      'weight' => -4,
-      'module' => 'text',
-    ),
-    'settings' => array('display_summary' => TRUE),
-     'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'type' => 'text_default',
+      'settings' => array('display_summary' => TRUE),
+       'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'text_default',
+        ),
+        'teaser' => array(
+          'label' => 'hidden',
+          'type' => 'text_summary_or_trimmed',
+          'trim_length' => $trim_length,
+        ),
       ),
-      'teaser' => array(
-        'label' => 'hidden',
-        'type' => 'text_summary_or_trimmed',
-        'trim_length' => $trim_length,
-      ),
-    ),
-  );
-  field_create_instance($instance);
-
+    );
+    field_create_instance($instance);
+  }
 }
