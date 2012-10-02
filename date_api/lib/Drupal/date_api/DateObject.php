@@ -168,7 +168,6 @@ class DateObject extends DateTime {
     $this->time_original = $time;
     $this->timezone_original = $timezone;
     $this->format_original = $format;
-    $this->validate_format = $validate_format;
 
     // Massage the input values as necessary.
     $this->prepareTime($time);
@@ -460,7 +459,7 @@ class DateObject extends DateTime {
    * right settings to be able to use it.
    */
   function canUseIntl() {
-    return $this->use_international && class_exists(IntlDateFormatter) && !empty($this->calendar) && !empty($this->locale);
+    return $this->use_international && class_exists('IntlDateFormatter') && !empty($this->calendar) && !empty($this->locale);
   }
 
   /**
