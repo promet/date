@@ -159,9 +159,9 @@ class DateObject extends DateTime {
   public function __construct($time = 'now', $timezone = NULL, $format = NULL, $settings = array()) {
 
     // Unpack settings.
-    $this->validate_format = !empty($settings['validate_format'] ? $settings['validate_format'] : TRUE;
-    $this->locale = !empty($settings['locale'] ? $settings['locale'] : NULL;
-    $this->calendar = !empty($settings['calendar'] ? $settings['calendar'] : NULL;
+    $this->validate_format = !empty($settings['validate_format']) ? $settings['validate_format'] : TRUE;
+    $this->locale = !empty($settings['locale']) ? $settings['locale'] : NULL;
+    $this->calendar = !empty($settings['calendar']) ? $settings['calendar'] : NULL;
     $this->use_international = isset($settings['use_international']) ? $settings['use_international'] : TRUE;
 
     // Store the original input so it is available for validation.
@@ -460,7 +460,7 @@ class DateObject extends DateTime {
    * right settings to be able to use it.
    */
   function canUseIntl() {
-    return $this->use_international && class_exists(IntlDateFormatter) && !empty($this->calendar && !empty($this->locale));
+    return $this->use_international && class_exists(IntlDateFormatter) && !empty($this->calendar) && !empty($this->locale);
   }
 
   /**
