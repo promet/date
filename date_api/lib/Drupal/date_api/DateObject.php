@@ -16,22 +16,26 @@ use Exception;
  * It extends the PHP DateTime class with more flexible initialization
  * parameters, allowing a date to be created from an existing date object,
  * a timestamp, a string with an unknown format, a string with a known
- * format, or an array of date parts. It also adds an errors array to
- * the date object.
+ * format, or an array of date parts. It also adds an errors array and
+ * a __toString() method to the date object. Lastly, the class attempts
+ * to use the IntlDateFormatter in the format() method, if it is
+ * available and locale and calendar information were provided to the
+ * constructor.
  *
- * This class changes the default PHP behavior for handling date values
- * like '2011-00-00'. PHP would convert that value to '2010-11-30' and
- * report a warning but not an error. This class treats that as an error.
+ * This class is less lenient than the parent DateTime class. It changes
+ * the default behavior for handling date values like '2011-00-00'.
+ * The parent class would convert that value to '2010-11-30' and report
+ * a warning but not an error. This extension treats that as an error.
  *
  * As with the base class, a date object may be created even if it has
  * errors. It has an errors array attached to it that explains what the
- * errors are. The calling script can decide what to do about any errors
- * reported. This is less disruptive than allowing datetime exceptions to
- * abort processing.
+ * errors are. This is less disruptive than allowing datetime exceptions
+ * to abort processing. The calling script can decide what to do about
+ * errors by checking the hasErrors() method and using the messages in
+ * the errors array.
  *
- * Translation of error messages is not handled in this class, but
- * should be managed by the scripts that invoke it, using the values
- * in the $errors array.
+ * Translation of error messages is not handled in this class, they are
+ * all in English.
  *
  */
 class DateObject extends DateTime {
@@ -49,7 +53,7 @@ class DateObject extends DateTime {
                               );
 
   /**
-   * The input time value.
+   * The value of the time value passed to the constructor.
    */
   public $time_original = '';
 
@@ -59,7 +63,7 @@ class DateObject extends DateTime {
   public $time = '';
 
   /**
-   * The input timezone for this date.
+   * The value of the timezone passed to the constructor.
    */
   public $timezone_original = '';
 
@@ -74,7 +78,7 @@ class DateObject extends DateTime {
   public $timezone_name = '';
 
   /**
-   * The input format, if provided.
+   * The value of the format passed to the constructor.
    */
   public $format_original = '';
 
@@ -87,6 +91,16 @@ class DateObject extends DateTime {
    * The default datetime format, used in __toString() and elsewhere.
    */
   public $default_format = 'Y-m-d H:i:s';
+
+  /**
+   * The value of the locale setting passed to the constructor.
+   */
+  public $locale = NULL;
+
+  /**
+   * The value of the calendar setting passed to the constructor.
+   */
+  public $calendar = NULL;
 
   /**
    * An array of errors encountered when creating this date.
@@ -117,25 +131,38 @@ class DateObject extends DateTime {
    * @param string $format
    *   PHP date() type format for parsing. $format is recommended in order
    *   to use things like negative years, which php's parser fails on, or
-   *   any other specialized input with a known format. The formats
-   *   allowed for createFromFormat() are a little different than the
-   *   ones used for format(). If we can rely on an input format
-   *   that is limited to values that work in format(), we can add
-   *   a validation step to ensure the class creates the correct
-   *   value. Defaults to NULL.
+   *   any other specialized input with a known format. If provided the
+   *   date will be created using the createFromFormat() method.
    *   @see http://us3.php.net/manual/en/datetime.createfromformat.php
-   * @param boolean $validate_format
-   *   The format used in createFromFormat() allows slightly different
-   *   values than format(). If we use an input format that works in
-   *   both functions we can add a validation step to confirm that the
-   *   date created from a format string exactly matches the input.
-   *   We need to know if this can be relied on to do that validation.
-   *   Defaults to TRUE.
-   *
-   * @return
-   *   Returns FALSE on failure.
+   *   Defaults to NULL.
+   * @params array $settings
+   *   - boolean $validate_format
+   *     The format used in createFromFormat() allows slightly different
+   *     values than format(). If we use an input format that works in
+   *     both functions we can add a validation step to confirm that the
+   *     date created from a format string exactly matches the input.
+   *     We need to know if this can be relied on to do that validation.
+   *     Defaults to TRUE.
+   *   - string $locale
+   *     A locale name, using the format specified by the
+   *     intlDateFormatter class. Used to control the result of the
+   *     format() method if that class is available.
+   *   - string $calendar
+   *     A locale name, using the format specified by the
+   *     intlDateFormatter class. Used to control the result of the
+   *     format() method if that class is available.
+   *   - boolean $use_international
+   *     Whether or not to use the IntlDateFormatter, if available.
+   *     defaults to TRUE, can be set to FALSE to test the alternative
+   *     processing.
    */
-  public function __construct($time = 'now', $timezone = NULL, $format = NULL, $validate_format = TRUE) {
+  public function __construct($time = 'now', $timezone = NULL, $format = NULL, $settings = array()) {
+
+    // Unpack settings.
+    $this->validate_format = !empty($settings['validate_format'] ? $settings['validate_format'] : TRUE;
+    $this->locale = !empty($settings['locale'] ? $settings['locale'] : NULL;
+    $this->calendar = !empty($settings['calendar'] ? $settings['calendar'] : NULL;
+    $this->use_international = isset($settings['use_international']) ? $settings['use_international'] : TRUE;
 
     // Store the original input so it is available for validation.
     $this->time_original = $time;
@@ -315,13 +342,13 @@ class DateObject extends DateTime {
   public function constructFromArray() {
     try {
       parent::__construct('', $this->timezone);
-      $this->time = $this->prepareArray($this->time, TRUE);
-      if ($this->verifyArray($this->time)) {
+      $this->time = self::prepareArray($this->time, TRUE);
+      if (self::checkArray($this->time)) {
         // Even with validation, we can end up with a value that the
         // parent class won't handle, like a year outside the range
         // of -9999 to 9999, which will pass checkdate() but
         // fail to construct a date object.
-        $this->time = $this->toISO($this->time);
+        $this->time = self::toISO($this->time);
         parent::__construct($this->time, $this->timezone);
       }
       else {
@@ -429,6 +456,27 @@ class DateObject extends DateTime {
   }
 
   /**
+   * Test if the IntlDateFormatter is available and we have the
+   * right settings to be able to use it.
+   */
+  function canUseIntl() {
+    return $this->use_international && class_exists(IntlDateFormatter) && !empty($this->calendar && !empty($this->locale));
+  }
+
+  /**
+   * Use the IntlDateFormatter to display the format, if available.
+   */
+  function format($format) {
+    if ($this->canUseIntl()) {
+      $formatter = new IntlDateFormatter($this->locale, IntlDateFormatter::FULL, IntlDateFormatter::FULL, $this->timezone_name, $this->calendar);
+      return $formatter->format($format);
+    }
+    else {
+      return parent::format($format);
+    }
+  }
+
+  /**
    * Returns all standard date parts in an array.
    *
    * @param object $date
@@ -437,7 +485,7 @@ class DateObject extends DateTime {
    * @return array
    *   An array of formatted date part values, keyed by date parts.
    */
-  public function toArray($date) {
+  public static function toArray($date) {
     return array(
             'year'   => $date->format('Y'),
             'month'  => $date->format('n'),
@@ -460,8 +508,8 @@ class DateObject extends DateTime {
    * @return string
    *   The date as an ISO string.
    */
-  public function toISO($array, $force_valid_date = FALSE) {
-    $array = $this->prepareArray($array, $force_valid_date);
+  public static function toISO($array, $force_valid_date = FALSE) {
+    $array = self::prepareArray($array, $force_valid_date);
     $time = '';
     if ($array['year'] !== '') {
       $time = self::datePad(intval($array['year']), 4);
@@ -497,7 +545,7 @@ class DateObject extends DateTime {
    * @return array
    *   A complete array of date parts.
    */
-  public function prepareArray($array, $force_valid_date = FALSE) {
+  public static function prepareArray($array, $force_valid_date = FALSE) {
     if ($force_valid_date) {
       $array += array(
                  'year'   => 0,
@@ -529,10 +577,10 @@ class DateObject extends DateTime {
    * @param array $array
    *   An array of datetime values keyed by date part.
    *
-   * @return bool
+   * @return boolean
    *   TRUE if the datetime parts contain valid values, otherwise FALSE.
    */
-  public function verifyArray($array) {
+  public static function checkArray($array) {
     $valid_date = FALSE;
     $valid_time = TRUE;
     // Check for a valid date using checkdate(). Only values that
