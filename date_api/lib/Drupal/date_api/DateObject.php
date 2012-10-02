@@ -117,18 +117,30 @@ class DateObject extends DateTime {
    * @param string $format
    *   PHP date() type format for parsing. $format is recommended in order
    *   to use things like negative years, which php's parser fails on, or
-   *   any other specialized input with a known format.
-   *   Defaults to NULL.
+   *   any other specialized input with a known format. The formats
+   *   allowed for createFromFormat() are a little different than the
+   *   ones used for format(). If we can rely on an input format
+   *   that is limited to values that work in format(), we can add
+   *   a validation step to ensure the class creates the correct
+   *   value. Defaults to NULL.
+   *   @see http://us3.php.net/manual/en/datetime.createfromformat.php
+   * @param boolean $strict_format
+   *   The format used in createFromFormat() allows slightly different
+   *   values than format(). If we use an input format that works in
+   *   both functions we can add a validation step to confirm that the
+   *   date created from a format string exactly matches the input.
+   *   Defaults to TRUE.
    *
    * @return
    *   Returns FALSE on failure.
    */
-  public function __construct($time = 'now', $timezone = NULL, $format = NULL) {
+  public function __construct($time = 'now', $timezone = NULL, $format = NULL, $strict_format = TRUE) {
 
     // Store the original input so it is available for validation.
     $this->time_original = $time;
     $this->timezone_original = $timezone;
     $this->format_original = $format;
+    $this->strict_format = $strict_format;
 
     // Massage the input values as necessary.
     $this->prepareTime($time);
@@ -347,6 +359,20 @@ class DateObject extends DateTime {
       else {
         $this->setTimestamp($date->getTimestamp());
         $this->setTimezone($date->getTimezone());
+
+        try {
+          // The createFromFormat function is forgiving, it might
+          // create a date that is not exactly a match for the provided
+          // value, so test for that. For instance, an input value of
+          // '11' using a format of Y (4 digits) gets created as
+          // '0011' instead of '2011'.
+          if ($this->strict_format && $this->format($this->format) != $this->time_original) {
+            throw new Exception('The created date does not match the input value.');
+          }
+        }
+        catch (Exception $e) {
+          $this->errors[] = $e->getMessage();
+        }
       }
     }
     catch (Exception $e) {
