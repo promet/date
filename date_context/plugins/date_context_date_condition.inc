@@ -1,6 +1,6 @@
 <?php
 
-use Drupal\date_api\DateObject;
+use Drupal\date_api\DrupalDate;
 
 /**
  * Expose term views/term forms by vocabulary as a context condition.
@@ -81,13 +81,13 @@ class date_context_date_condition extends context_condition_node {
             $timezone_db = date_get_timezone_db($field['settings']['tz_handling']);
             foreach ($items as $delta => $item) {
               $timezone = date_get_timezone($field['settings']['tz_handling'], $item['timezone']);
-              $date = new DateObject($item['value'], $timezone_db);
+              $date = new DrupalDate($item['value'], $timezone_db);
               date_timezone_set($date, timezone_open($timezone));
               $date1 = $date->format(DATE_FORMAT_DATETIME);
               if (empty($item['value2'])) {
                 $item['value2'] = $item['value'];
               }
-              $date = new DateObject($item['value2'], $timezone_db);
+              $date = new DrupalDate($item['value2'], $timezone_db);
               date_timezone_set($date, timezone_open($timezone));
               $date2 = $date->format(DATE_FORMAT_DATETIME);
               str_replace('now', 'today', $options['value']);

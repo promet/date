@@ -6,7 +6,7 @@
  */
 
 use Drupal\Core\Template\Attribute;
-use Drupal\date_api\DateObject;
+use Drupal\date_api\DrupalDate;
 
 /**
  * Returns HTML for a date timezone element.
@@ -206,7 +206,7 @@ function theme_date_time_ago($variables) {
   }
 
   // Time to compare dates to.
-  $now = date_format(new DateObject(), DATE_FORMAT_UNIX);
+  $now = date_format(new DrupalDate(), DATE_FORMAT_UNIX);
   $start = date_format($start_date, DATE_FORMAT_UNIX);
 
   // will be positive for a datetime in the past (ago), and negative for a datetime in the future (hence)

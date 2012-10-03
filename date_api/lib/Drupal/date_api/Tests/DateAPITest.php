@@ -8,7 +8,7 @@
 namespace Drupal\date_api\Tests;
 
 use Drupal\simpletest\WebTestBase;
-use Drupal\date_api\DateObject;
+use Drupal\date_api\DrupalDate;
 use Drupal\date_api\DateHelper;
 use DateTimeZone;
 
@@ -84,8 +84,8 @@ class DateAPITest extends WebTestBase {
       'Z',
     );
     foreach ($formatters as $formatter) {
-      $date_api_format = date_format_date(new DateObject(), 'custom', $formatter);
-      $php_format = date_format(new DateObject(), $formatter);
+      $date_api_format = date_format_date(new DrupalDate(), 'custom', $formatter);
+      $php_format = date_format(new DrupalDate(), $formatter);
       $this->assertEqual($date_api_format, $php_format, 'Test that the "' . $formatter . '" formatter is formatted correctly by date_format_date()');
     }
 

@@ -19,7 +19,7 @@
  *
  */
 
-use Drupal\date_api\DateObject;
+use Drupal\date_api\DrupalDate;
 use Drupal\date_api\DateGranularity;
 use Drupal\Core\Template\Attribute;
 
@@ -326,10 +326,10 @@ function date_popup_process_date_part(&$element) {
   // even though the Date API can handle them, so rework the value
   // we pass to the datepicker to use defaults it can accept (such as +0:+1)
   // date_range_string() adds the necessary +/- signs to the range string.
-  $this_year = date_format(new DateObject(), 'Y');
+  $this_year = date_format(new DrupalDate(), 'Y');
   $date = '';
   if (!empty($element['#value']['date'])) {
-    $date = new DateObject($element['#value']['date'], $element['#date_timezone'], date_popup_date_format($element));
+    $date = new DrupalDate($element['#value']['date'], $element['#date_timezone'], date_popup_date_format($element));
   }
   $range = date_range_years($element['#date_year_range'], $date);
   $year_range = date_range_string($range);
@@ -413,7 +413,7 @@ function date_popup_process_time_part(&$element) {
       // The first value in the dropdown list should be the same as the element
       // default_value, but it needs to be in JS format (i.e. milliseconds since
       // the epoch).
-      $start_time = new DateObject($element['#default_value'], $element['#date_timezone'], DATE_FORMAT_DATETIME);
+      $start_time = new DrupalDate($element['#default_value'], $element['#date_timezone'], DATE_FORMAT_DATETIME);
       date_increment_round($start_time, $element['#date_increment']);
       $start_time = $start_time->format(DATE_FORMAT_UNIX) * 1000;
       $settings = array(
@@ -451,7 +451,7 @@ function date_popup_process_time_part(&$element) {
   $sub_element['#value'] = $sub_element['#default_value'];
 
   // TODO, figure out exactly when we want this description. In many places it is not desired.
-  $example_date = new DateObject();
+  $example_date = new DrupalDate();
   date_increment_round($example_date, $element['#date_increment']);
   $sub_element['#description'] = t('E.g., @date', array('@date' => date_format_date($example_date, 'custom', date_popup_time_format($element))));
 
@@ -541,7 +541,7 @@ function date_popup_input_date($element, $input, $auto_complete = FALSE) {
   $format .= $has_time ? ' ' . date_popup_time_format($element) : '';
   $datetime = $input['date'];
   $datetime .= $has_time ? ' ' . $input['time'] : '';
-  $date = new DateObject($datetime, $element['#date_timezone'], $format);
+  $date = new DrupalDate($datetime, $element['#date_timezone'], $format);
   if (is_object($date)) {
     return $date;
   }

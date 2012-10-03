@@ -4,7 +4,7 @@
  * A standard Views filter for a single date field, using Date API form selectors and sql handling.
  */
 
-use Drupal\date_api\DateObject;
+use Drupal\date_api\DrupalDate;
 use Drupal\date_api\DateGranularity;
 use Drupal\date_api\DateSqlHandler;
 
@@ -128,9 +128,9 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
     }
 
     $min_value = $this->get_filter_value('min', $this->value['min']);
-    $min_comp_date = new DateObject($min_value, date_default_timezone(), $this->format);
+    $min_comp_date = new DrupalDate($min_value, date_default_timezone(), $this->format);
     $max_value = $this->get_filter_value('max', $this->value['max']);
-    $max_comp_date = new DateObject($max_value, date_default_timezone(), $this->format);
+    $max_comp_date = new DrupalDate($max_value, date_default_timezone(), $this->format);
     $field_min = $this->date_handler->sql_field($field, NULL, $min_comp_date);
     $field_min = $this->date_handler->sql_format($this->format, $field_min);
     $field_max = $this->date_handler->sql_field($field, NULL, $max_comp_date);
@@ -158,7 +158,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
     }
 
     $value = $this->get_filter_value('value', $this->value['value']);
-    $comp_date = new DateObject($value, date_default_timezone(), $this->format);
+    $comp_date = new DrupalDate($value, date_default_timezone(), $this->format);
     $field = $this->date_handler->sql_field($field, NULL, $comp_date);
     $field = $this->date_handler->sql_format($this->format, $field);
     $placeholder = $this->placeholder();
@@ -189,7 +189,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
   function year_range() {
     $year_range = explode(':', $this->options['year_range']);
     if (substr($this->options['year_range'], 0, 1) == '-' || $year_range[0] < 0) {
-      $this_year = date_format(new DateObject(), 'Y');
+      $this_year = date_format(new DrupalDate(), 'Y');
       $year_range[0] = $this_year + $year_range[0];
       $year_range[1] = $this_year + $year_range[1];
     }

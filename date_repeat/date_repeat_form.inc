@@ -31,7 +31,7 @@
  *   Seldom used anywhere, so no reason to complicated the code.
  */
 
-use Drupal\date_api\DateObject;
+use Drupal\date_api\DrupalDate;
 use Drupal\date_api\DateGranularity;
 use Drupal\date_api\DateHelper;
 use Drupal\date_api\DateiCalParse;
@@ -79,7 +79,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
 
   $UNTIL = '';
   if (!empty($merged_values['UNTIL']['datetime'])) {
-    $until_date = new DateObject($merged_values['UNTIL']['datetime'], $merged_values['UNTIL']['tz']);
+    $until_date = new DrupalDate($merged_values['UNTIL']['datetime'], $merged_values['UNTIL']['tz']);
     date_timezone_set($until_date, timezone_open($timezone));
     $UNTIL = date_format($until_date, DATE_FORMAT_DATETIME);
   }
@@ -589,7 +589,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
   for ($i = 0; $i < max($form_state['num_exceptions'][$instance], 1) ; $i++) {
     $EXCEPT = '';
     if (!empty($exceptions[$i]['datetime'])) {
-      $ex_date = new DateObject($exceptions[$i]['datetime'], $exceptions[$i]['tz']);
+      $ex_date = new DrupalDate($exceptions[$i]['datetime'], $exceptions[$i]['tz']);
       date_timezone_set($ex_date, timezone_open($timezone));
       $EXCEPT = date_format($ex_date, DATE_FORMAT_DATETIME);
     }
@@ -647,7 +647,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
   for ($i = 0; $i < max($form_state['num_additions'][$instance], 1) ; $i++) {
     $RDATE = '';
     if (!empty($additions[$i]['datetime'])) {
-      $rdate = new DateObject($additions[$i]['datetime'], $additions[$i]['tz']);
+      $rdate = new DrupalDate($additions[$i]['datetime'], $additions[$i]['tz']);
       date_timezone_set($rdate, timezone_open($timezone));
       $RDATE = date_format($rdate, DATE_FORMAT_DATETIME);
     }

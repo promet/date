@@ -4,6 +4,7 @@
  * Date API views argument handler.
  */
 
+use Drupal\date_api\DrupalDate;
 use Drupal\date_api\DateSqlHandler;
 
 /**
@@ -63,7 +64,7 @@ class date_views_argument_handler_simple extends views_handler_argument_date {
     if (!$raw && $this->options['default_argument_type'] == 'date') {
       $granularity = $this->options['granularity'];
       if ($granularity == 'week') {
-        $now = new DateObject();
+        $now = new DrupalDate();
         $week = DateHelper::calendar_week(date_format($now, 'Y-m-d'));
         $value = date_format($now, 'Y') . '-W' . $week;
       }

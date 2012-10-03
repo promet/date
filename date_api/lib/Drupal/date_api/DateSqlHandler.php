@@ -911,7 +911,7 @@ class DateSqlHandler {
       $parts = array();
       if ($arg == '@') {
         $date = new DateObject();
-        $parts['date'] = $date->toArray();
+        $parts['date'] = date_parse($date->format(DATE_FORMAT_DATETIME));
       }
       elseif (preg_match('/(\d{4})?-?(W)?(\d{1,2})?-?(\d{1,2})?[T\s]?(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?/', $arg, $matches)) {
         $date = array();

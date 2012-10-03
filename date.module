@@ -5,7 +5,7 @@
  * Defines date/time field types.
  */
 
-use Drupal\date_api\DateObject;
+use Drupal\date_api\DrupalDate;
 use Drupal\date_api\DateGranularity;
 
 module_load_include('theme', 'date', 'date');
@@ -226,7 +226,7 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
         $date = $item['db'][$processed];
       }
       else {
-        $date = new DateObject($item[$processed], $timezone_db, $db_format);
+        $date = new DrupalDate($item[$processed], $timezone_db, $db_format);
         $date->granularity = $granularity;
       }
 
@@ -601,7 +601,7 @@ function date_entity_metadata_struct_getter($item, array $options, $name, $type,
   }
 
   $timezone_db = !empty($item['timezone_db']) ? $item['timezone_db'] : 'UTC';
-  $date = new DateObject($value, $timezone_db);
+  $date = new DrupalDate($value, $timezone_db);
   return !empty($date) ? date_format_date($date, 'custom', 'U') : NULL;
 }
 
@@ -661,7 +661,7 @@ function date_entity_metadata_struct_setter(&$item, $name, $value, $langcode, $t
     $format = date_type_format($field['type']);
     $timezone_db = date_get_timezone_db($field['settings']['tz_handling']);
 
-    $date = new DateObject($value, 'UTC');
+    $date = new DrupalDate($value, 'UTC');
     if ($timezone_db != 'UTC') {
       date_timezone_set($date, timezone_open($timezone_db));
     }
@@ -713,7 +713,7 @@ function date_default_value_part($item, $field, $instance, $langcode, $part = 'v
     return NULL;
   }
   elseif ($default_value == 'strtotime' && !empty($default_value_code)) {
-    $date = new DateObject($default_value_code, date_default_timezone());
+    $date = new DrupalDate($default_value_code, date_default_timezone());
   }
   elseif ($part == 'value2' && $default_value == 'same') {
     if ($instance['settings']['default_value'] == 'blank' || empty($item[0]['value'])) {
@@ -721,16 +721,16 @@ function date_default_value_part($item, $field, $instance, $langcode, $part = 'v
     }
     else {
       // The date stored in 'value' has already been switched to the db timezone.
-      $date = new DateObject($item[0]['value'], $timezone_db, DATE_FORMAT_DATETIME);
+      $date = new DrupalDate($item[0]['value'], $timezone_db, DATE_FORMAT_DATETIME);
     }
   }
   // Special case for 'now' when using dates with no timezone,
   // make sure 'now' isn't adjusted to UTC value of 'now' .
   elseif ($field['settings']['tz_handling'] == 'none') {
-    $date = new DateObject();
+    $date = new DrupalDate();
   }
   else {
-    $date = new DateObject('now', $timezone);
+    $date = new DrupalDate('now', $timezone);
   }
   // The default value needs to be in the database timezone.
   date_timezone_set($date, timezone_open($timezone_db));
