@@ -8,7 +8,7 @@
  * are not loaded unless other modules specifically include them.
  */
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 use Drupal\date_api\DateHelper;
 
 /**

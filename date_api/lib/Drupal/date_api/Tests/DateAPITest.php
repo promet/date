@@ -8,7 +8,7 @@
 namespace Drupal\date_api\Tests;
 
 use Drupal\simpletest\WebTestBase;
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 use Drupal\date_api\DateHelper;
 use DateTimeZone;
 

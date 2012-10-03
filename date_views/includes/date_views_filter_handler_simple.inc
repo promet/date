@@ -4,7 +4,7 @@
  * A standard Views filter for a single date field, using Date API form selectors and sql handling.
  */
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 use Drupal\date_api\DateGranularity;
 use Drupal\date_api\DateSqlHandler;
 

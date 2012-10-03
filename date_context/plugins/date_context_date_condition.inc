@@ -1,6 +1,6 @@
 <?php
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 
 /**
  * Expose term views/term forms by vocabulary as a context condition.

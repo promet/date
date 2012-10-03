@@ -24,7 +24,7 @@ namespace Drupal\date_repeat;
 
 use DateTime;
 use DateInterval;
-use Drupal\date_api\DateObject;
+use Drupal\Component\Datetime\DateObject;
 use Drupal\date_api\DateiCalParse;
 
 class DateRRuleCalc {

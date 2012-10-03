@@ -6,7 +6,7 @@
  */
 
 use Drupal\Core\Template\Attribute;
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 
 /**
  * Returns HTML for a date timezone element.

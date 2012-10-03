@@ -5,7 +5,7 @@
  * Token module integration.
  */
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 
 /**
  * Implements hook_token_info().

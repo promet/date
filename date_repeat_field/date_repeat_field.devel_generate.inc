@@ -4,7 +4,7 @@
  * Handling of devel generate functionality for repeating dates.
  */
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 use Drupal\date_api\DateiCalParse;
 use Drupal\date_repeat\DateRRuleCalc;
 

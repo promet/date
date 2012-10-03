@@ -7,7 +7,7 @@
 namespace Drupal\date_repeat\Tests;
 
 use Drupal\simpletest\WebTestBase;
-use Drupal\date_api\DateObject;
+use Drupal\Component\Datetime\DateObject;
 use Drupal\date_api\DateiCalParse;
 use Drupal\date_repeat\DateRRuleCalc;
 

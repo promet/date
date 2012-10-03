@@ -5,7 +5,7 @@
  * Date Devel Generate code.
  */
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 
 /**
  * Implements hook_devel_generate().

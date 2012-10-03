@@ -21,7 +21,7 @@
  * number of values to the field. For now, we require the UNTIL date.
  */
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 use Drupal\date_api\DateGranularity;
 use Drupal\date_api\DateiCalParse;
 use Drupal\date_repeat\DateRRuleCalc;

@@ -7,7 +7,7 @@
 namespace Drupal\date_api;
 
 use DateTimezone;
-use Drupal\date_api\DateObject;
+use Drupal\Component\Datetime\DateObject;
 use Drupal\date_api\DateHelper;
 
 /**

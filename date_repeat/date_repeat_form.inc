@@ -31,7 +31,7 @@
  *   Seldom used anywhere, so no reason to complicated the code.
  */
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 use Drupal\date_api\DateGranularity;
 use Drupal\date_api\DateHelper;
 use Drupal\date_api\DateiCalParse;

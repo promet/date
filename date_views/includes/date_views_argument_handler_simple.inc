@@ -4,7 +4,7 @@
  * Date API views argument handler.
  */
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 use Drupal\date_api\DateSqlHandler;
 
 /**

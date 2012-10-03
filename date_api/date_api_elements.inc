@@ -6,7 +6,7 @@
  * This file is only included during the edit process to reduce memory usage.
  */
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 use Drupal\date_api\DateGranularity;
 use Drupal\date_api\DateHelper;
 

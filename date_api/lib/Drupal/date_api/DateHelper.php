@@ -8,7 +8,7 @@
  */
 namespace Drupal\date_api;
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 
 class DateHelper {
 

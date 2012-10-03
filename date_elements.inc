@@ -7,7 +7,7 @@
  * included only during form editing.
  */
 
-use Drupal\date_api\DrupalDate;
+use Drupal\Core\Datetime\DrupalDate;
 use Drupal\date_api\DateGranularity;
 
 /**
