@@ -124,14 +124,20 @@ function date_repeat_field_permission() {
  */
 function date_repeat_field_show($entity_type = 'node', $entity = NULL) {
   $bundle = date_get_entity_bundle($entity_type, $entity);
-  foreach (field_info_fields() as $field_name => $field) {
-    if (in_array($field['type'], array('date', 'datestamp', 'datetime'))
-        && array_key_exists($entity_type, $field['bundles'])
-        && in_array($bundle, $field['bundles'][$entity_type])
-        && date_is_repeat_field($field)) {
-      return user_access('view date repeats');
+  $fields = field_info_field_map();
+  foreach ($fields as $field_name => $value) {
+    if (in_array($value['type'], array('date', 'datestamp', 'datetime'))) {
+      if (array_key_exists($entity_type, $value['bundles'])) {
+        if (in_array($bundle, $value['bundles'][$entity_type])) {
+          $field = field_info_field($field_name);
+          if (date_is_repeat_field($field)) {
+            return user_access('view date repeat');
+          }
+        }
+      }
     }
   }
+
   return FALSE;
 }
 
@@ -146,11 +152,13 @@ function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
   $entity->date_repeat_show_all = TRUE;
   $entity->content = array();
   $output = '';
-  foreach (field_info_fields() as $field_name => $field) {
-    if (in_array($field['type'], array('date', 'datestamp', 'datetime')) && date_is_repeat_field($field)) {
-      foreach ($field['bundles'] as $field_entity_type => $bundles) {
-        foreach ($bundles as $field_bundle) {
-          if ($entity_type == $field_entity_type && $bundle == $field_bundle) {
+  $fields = field_info_field_map();
+  foreach ($fields as $field_name => $value) {
+    if (in_array($value['type'], array('date', 'datestamp', 'datetime'))) {
+      $field = field_info_field($field_name);
+      if (date_is_repeat_field($field)) {
+        foreach ($value['bundles'] as $entity_type => $bundles) {
+          foreach ($bundles as $bundle) {
             $data = field_view_field($entity_type, $entity, $field_name);
             $output .= drupal_render($data);
           }
@@ -158,6 +166,7 @@ function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
       }
     }
   }
+
   return $output;
 }
 
@@ -166,11 +175,15 @@ function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
  */
 function date_repeat_field_bundles() {
   $values = array();
-  foreach (field_info_fields() as $field_name => $field) {
-    if (in_array($field['type'], array('date', 'datestamp', 'datetime')) && $field['settings']['repeat']) {
-      foreach ($field['bundles'] as $entity_type => $bundles) {
-        foreach ($bundles as $bundle) {
-          $values[$entity_type][$bundle][] = $field_name;
+  $fields = field_info_field_map();
+  foreach ($fields as $field_name => $value) {
+    if (in_array($value['type'], array('date', 'datestamp', 'datetime'))) {
+      $field = field_info_field($field_name);
+      if (date_is_repeat_field($field)) {
+        foreach ($value['bundles'] as $entity_type => $bundles) {
+          foreach ($bundles as $bundle) {
+            $values[$entity_type][$bundle][] = $field_name;
+          }
         }
       }
     }

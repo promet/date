@@ -8,9 +8,10 @@ use Drupal\Core\Datetime\DrupalDate;
 class date_context_date_condition extends context_condition_node {
   function condition_values() {
     $values = array();
-    $fields = field_info_fields();
-    foreach ($fields as $field_name => $field) {
-      if (in_array($field['type'], array('date', 'datetime', 'datestamp'))) {
+    $fields = field_info_field_map();
+    foreach ($fields as $field_name => $value) {
+      if (in_array($value['type'], array('date', 'datestamp', 'datetime'))) {
+        $field = field_info_field($field_name);
         $values[$field_name] = $field_name;
       }
     }
