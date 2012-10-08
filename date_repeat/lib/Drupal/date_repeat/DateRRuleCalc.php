@@ -22,9 +22,7 @@
 
 namespace Drupal\date_repeat;
 
-use DateTime;
-use DateInterval;
-use Drupal\Component\Datetime\DateObject;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_api\DateiCalParse;
 
 class DateRRuleCalc {
@@ -193,11 +191,11 @@ class DateRRuleCalc {
    */
   protected function isValid() {
     // We alwqys need a start date.
-    if (!$this->start_date instanceOf DateTime) {
+    if (!$this->start_date instanceOf \DateTime) {
       return FALSE;
     }
     // The only valid option for an empty end date is when we have a count.
-    if (!$this->end_date instanceOf DateTime && empty($this->rrule['COUNT'])) {
+    if (!$this->end_date instanceOf \DateTime && empty($this->rrule['COUNT'])) {
       return FALSE;
     }
     return TRUE;
@@ -249,7 +247,7 @@ class DateRRuleCalc {
        $jump_interval = 'P' . $interval . 'Y';
        break;
     }
-    $this->jump = new DateInterval($jump_interval);
+    $this->jump = new \DateInterval($jump_interval);
 
     // Make sure the rrule array has all the values we expect.
     $this->complete_rrule();
@@ -286,7 +284,7 @@ class DateRRuleCalc {
 
     // Add additional dates, if any.
     foreach ($this->additions as $addition) {
-      $date = new dateObject($addition . ' ' . $this->time_string, $this->timezone_name);
+      $date = new DrupalDateTime($addition . ' ' . $this->time_string, $this->timezone_name);
       $this->result[] = date_format($date, $this->default_format);
     }
 

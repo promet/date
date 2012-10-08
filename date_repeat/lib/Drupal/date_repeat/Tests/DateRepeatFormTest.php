@@ -8,7 +8,7 @@
 namespace Drupal\date_repeat\Tests;
 
 use Drupal\simpletest\WebTestBase;
-use Drupal\Component\Datetime\DateObject;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_repeat\DateRepeatCalc;
 
 class DateRepeatFormTest extends WebTestBase {

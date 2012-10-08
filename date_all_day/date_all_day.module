@@ -380,7 +380,7 @@ function date_all_day_date_combo_validate_date_end_alter(&$date, &$form_state, $
  */
 function date_all_day_field_widget_info_alter(&$info) {
   // @TODO This got broken in latest code.
-  return;
+
   // Add a setting to a widget type.
   $info['date_select']['settings'] += array(
     'display_all_day' => 0,

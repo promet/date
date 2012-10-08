@@ -2,7 +2,7 @@
 
 namespace Drupal\date_api;
 
-use Drupal\Component\Datetime\DateObject;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_api\DateGranularity;
 
 /**
@@ -107,7 +107,7 @@ class DateSqlHandler {
     if (!empty($this->db_timezone) && !empty($this->local_timezone)) {
       if ($this->db_timezone != $this->local_timezone) {
         if (empty($comp_date)) {
-          $comp_date = new DateObject('now', $this->db_timezone);
+          $comp_date = new DrupalDateTime('now', $this->db_timezone);
         }
         $comp_date->setTimezone(timezone_open($this->local_timezone));
         return date_offset_get($comp_date);
@@ -545,7 +545,7 @@ class DateSqlHandler {
       $value = $this->sql_field($value, $adjustment);
     }
     elseif ($type == 'DATE') {
-      $date = new DateObject($value, date_default_timezone(), DATE_FORMAT_DATETIME);
+      $date = new DrupalDateTime($value, date_default_timezone(), DATE_FORMAT_DATETIME);
       if (!empty($adjustment)) {
         date_modify($date, $adjustment . ' seconds');
       }
@@ -910,7 +910,7 @@ class DateSqlHandler {
     foreach ($fromto as $arg) {
       $parts = array();
       if ($arg == '@') {
-        $date = new DateObject();
+        $date = new DrupalDateTime();
         $parts['date'] = date_parse($date->format(DATE_FORMAT_DATETIME));
       }
       elseif (preg_match('/(\d{4})?-?(W)?(\d{1,2})?-?(\d{1,2})?[T\s]?(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?/', $arg, $matches)) {
@@ -1030,7 +1030,7 @@ class DateSqlHandler {
 
     // Build a range from a period-only argument (assumes the min date is now.)
     if (empty($parts[0]['date']) && !empty($parts[0]['period']) && (empty($parts[1]))) {
-      $min_date = new DateObject();
+      $min_date = new DrupalDateTime();
       $max_date = clone($min_date);
       foreach ($parts[0]['period'] as $part => $value) {
         date_modify($max_date, "+$value $part");
@@ -1040,7 +1040,7 @@ class DateSqlHandler {
     }
     // Build a range from a period to period argument.
     if (empty($parts[0]['date']) && !empty($parts[0]['period']) && !empty($parts[1]['period'])) {
-      $min_date = new DateObject();
+      $min_date = new DrupalDateTime();
       $max_date = clone($min_date);
       foreach ($parts[0]['period'] as $part => $value) {
         date_modify($min_date, "+$value $part");
@@ -1054,11 +1054,11 @@ class DateSqlHandler {
     }
     if (!empty($parts[0]['date'])) {
       $value = $this->complete_date($parts[0]['date'], 'min');
-      $min_date = new DateObject($value, date_default_timezone(), DATE_FORMAT_DATETIME);
+      $min_date = new DrupalDateTime($value, date_default_timezone(), DATE_FORMAT_DATETIME);
       // Build a range from a single date-only argument.
       if (empty($parts[1]) || (empty($parts[1]['date']) && empty($parts[1]['period']))) {
         $value = $this->complete_date($parts[0]['date'], 'max');
-        $max_date = new DateObject($value, date_default_timezone(), DATE_FORMAT_DATETIME);
+        $max_date = new DrupalDateTime($value, date_default_timezone(), DATE_FORMAT_DATETIME);
         return array($min_date, $max_date);
       }
       // Build a range from start date + period.
@@ -1074,21 +1074,21 @@ class DateSqlHandler {
     // Build a range from start date and end date.
     if (!empty($parts[1]['date'])) {
       $value = $this->complete_date($parts[1]['date'], 'max');
-      $max_date = new DateObject($value, date_default_timezone(), DATE_FORMAT_DATETIME);
+      $max_date = new DrupalDateTime($value, date_default_timezone(), DATE_FORMAT_DATETIME);
       if (isset($min_date)) {
         return array($min_date, $max_date);
       }
     }
     // Build a range from period + end date.
     if (!empty($parts[0]['period'])) {
-      $min_date = new DateObject();
+      $min_date = new DrupalDateTime();
       foreach ($parts[0]['period'] as $part => $value) {
         date_modify($min_date, "$value $part");
       }
       return array($min_date, $max_date);
     }
      // Intercept invalid info and fall back to the current date.
-    $now = new DateObject();
+    $now = new DrupalDateTime();
     return array($now, $now);
   }
 }

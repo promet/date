@@ -5,7 +5,7 @@ used anywhere by any module.
 
 The API uses the PHP 5.3 date functions to create and manipulate dates.
 
-A component class is available, new DateObject($string, $timezone, $format), where
+A component class is available, new DrupalDateTime($string, $timezone, $format), where
 $string is a unixtimestamp, an ISO date, a string like YYYY-MM-DD HH:MM:SS,
 or an array of date parts like 'year', 'month', 'day', 'hour', 'minute',
 $timezone is the name of the timezone this date is in, and $format is the format
@@ -37,7 +37,6 @@ DateHelper::years();
 DateHelper::hours();
 DateHelper::minutes();
 DateHelper::seconds();
-system_time_zones();
 DateHelper::ampm();
 
 ============================================================================

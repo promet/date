@@ -7,7 +7,7 @@
 namespace Drupal\date_repeat\Tests;
 
 use Drupal\simpletest\WebTestBase;
-use Drupal\Component\Datetime\DateObject;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_api\DateiCalParse;
 use Drupal\date_repeat\DateRRuleCalc;
 
@@ -33,8 +33,8 @@ class DateRRuleCalcTest extends WebTestBase {
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
     $rule = "RRULE:FREQ=NONE;INTERVAL=0;COUNT=10";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     //  should be (1997 9:00 AM EDT)September 2-11
     $shouldbe = '';
@@ -45,8 +45,8 @@ class DateRRuleCalcTest extends WebTestBase {
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
     $rule = "RRULE:FREQ=DAILY;COUNT=10";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     //  should be (1997 9:00 AM EDT)September 2-11
     $shouldbe = '1997-09-02 09:00:00, 1997-09-03 09:00:00, 1997-09-04 09:00:00, 1997-09-05 09:00:00, 1997-09-06 09:00:00, 1997-09-07 09:00:00, 1997-09-08 09:00:00, 1997-09-09 09:00:00, 1997-09-10 09:00:00, 1997-09-11 09:00:00';
@@ -56,8 +56,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Daily until September 24, 1997:
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=DAILY;UNTIL=19970924T000000Z";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     //  should be (1997 9:00 AM EDT)September 2-23
@@ -68,8 +68,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every other day - until September 30:
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=DAILY;INTERVAL=2";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     // should be (1997 9:00 AM EDT)September2,4,6,8...24,26,28,30;
@@ -80,8 +80,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every 10 days, 2 occurrences:
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=DAILY;INTERVAL=10;COUNT=2";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     //  should be (1997 9:00 AM EDT)September 2,12
@@ -92,8 +92,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Weekly for 3 occurrences
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=WEEKLY;COUNT=3";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     //  should be (1997 9:00 AM EDT)September 2,9,16
@@ -104,8 +104,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Weekly until September 24, 1997
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=WEEKLY;UNTIL=19970924T000000Z";
     //  ==> (1997 9:00 AM EDT)September 2,9,16,23
     $dates = new DateRRuleCalc($rule, $start, $end, array());
@@ -116,8 +116,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every other week - forever:
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=WEEKLY;INTERVAL=2;WKST=SU";
     //  should be (1997 9:00 AM EDT)September 2,16,30
     $dates = new DateRRuleCalc($rule, $start, $end, array());
@@ -128,8 +128,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Weekly on Tuesday and Thursday for 4 weeks:
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=WEEKLY;COUNT=8;WKST=SU;BYDAY=TU,TH";
     // should be(1997 9:00 AM EDT)September 2,4,9,11,16,18,23,25
     $dates = new DateRRuleCalc($rule, $start, $end, array());
@@ -140,8 +140,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every other week on Tuesday and Thursday, for 5 occurrences:
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=5;WKST=SU;BYDAY=TU,TH";
     //  should be  (1997 9:00 AM EDT)September 2,4,16,18,30
     $dates = new DateRRuleCalc($rule, $start, $end, array());
@@ -152,8 +152,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every other week on Monday, Wednesday and Friday until September 24, 1997,
     $start = "1997-09-02 09:00:00";
     $end = "1997-09-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19970924T000000Z;WKST=SU;BYDAY=MO,WE,FR";
     // should be (1997 9:00 AM EDT)September 2,3,5,15,17,19
     $dates = new DateRRuleCalc($rule, $start, $end, array());
@@ -164,8 +164,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Monthly on the 1st Friday for 2 occurrences:
     $start = "1997-09-05 09:00:00";
     $end = "1997-10-31 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;COUNT=2;BYDAY=1FR";
     //  should be (1997 9:00 AM EDT)September 5;October 3
     $dates = new DateRRuleCalc($rule, $start, $end, array());
@@ -176,8 +176,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Monthly on the 1st Friday until December 24, 1997:
     $start = "1997-09-05 09:00:00";
     $end = "1998-10-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;UNTIL=19971224T000000Z;BYDAY=1FR";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     $shouldbe = '1997-09-05 09:00:00, 1997-10-03 09:00:00, 1997-11-07 09:00:00, 1997-12-05 09:00:00';
@@ -187,8 +187,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every other month on the 1st and last Sunday of the month for 10 occurrences:
     $start = "1997-09-07 09:00:00";
     $end = "1998-10-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=1SU,-1SU";
     //  ==> (1997 9:00 AM EDT)September 7,28
     //      (1997 9:00 AM EST)November 2,30
@@ -202,8 +202,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Monthly on the second to last Monday of the month for 6 months:
     $start = "1997-09-22 09:00:00";
     $end = "1998-10-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;COUNT=6;BYDAY=-2MO";
     //==> (1997 9:00 AM EDT)September 22;October 20
     //  (1997 9:00 AM EST)November 17;December 22
@@ -216,8 +216,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every Tuesday, every other month:
     $start = "1997-09-02 09:00:00";
     $end = "1998-02-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;INTERVAL=2;BYDAY=TU";
     //  ==> (1997 9:00 AM EDT)September 2,9,16,23,30
     //      (1997 9:00 AM EST)November 4,11,18,25
@@ -230,8 +230,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Yearly in June and July for 10 occurrences:
     $start = "1997-06-10 09:00:00";
     $end = "2002-01-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=YEARLY;COUNT=10;BYMONTH=6,7";
     //  ==> (1997 9:00 AM EDT)June 10;July 10
     //      (1998 9:00 AM EDT)June 10;July 10
@@ -248,8 +248,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every other year on January, February, and March for 10 occurrences:
     $start = "1997-03-10 09:00:00";
     $end = "2004-01-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=YEARLY;INTERVAL=2;COUNT=10;BYMONTH=1,2,3";
     //  ==> (1997 9:00 AM EST)March 10
     //      (1999 9:00 AM EST)January 10;February 10;March 10
@@ -263,8 +263,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //An example where the days generated makes a difference because of WKST:
     $start = "1997-08-05 09:00:00";
     $end = "2004-01-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=4;BYDAY=TU,SU;WKST=MO";
     //  ==> (1997 EDT)Aug 5,10,19,24
     $dates = new DateRRuleCalc($rule, $start, $end, array());
@@ -275,8 +275,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //changing only WKST from MO to SU, yields different results...
     $start = "1997-08-05 09:00:00";
     $end = "2004-01-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=4;BYDAY=TU,SU;WKST=SU";
     // Result: 1997 EDT August 5,17,19,31;
     $dates = new DateRRuleCalc($rule, $start, $end, array());
@@ -287,8 +287,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every 18 months on the 10th thru 15th of the month for 10 occurrences:
     $start = "1997-09-10 09:00:00";
     $end = "2004-01-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;INTERVAL=18;COUNT=10;BYMONTHDAY=10,11,12,13,14,15";
     //  ==> (1997 9:00 AM EDT)September 10,11,12,13,14,15
     //      (1999 9:00 AM EST)March 10,11,12,13
@@ -300,8 +300,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Monthly on the third to the last day of the month, forever:
     $start = "1997-09-28 09:00:00";
     $end = "1998-03-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;BYMONTHDAY=-3";
     //  ==> (1997 9:00 AM EDT)September 28
     //      (1997 9:00 AM EST)October 29;November 28;December 29
@@ -317,8 +317,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //      (1999 9:00 AM EST)March 4,11,18,25
     $start = "1997-03-13 09:00:00";
     $end = "1999-03-31 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=TH";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     $shouldbe = '1997-03-13 09:00:00, 1997-03-20 09:00:00, 1997-03-27 09:00:00, 1998-03-05 09:00:00, 1998-03-12 09:00:00, 1998-03-19 09:00:00, 1998-03-26 09:00:00, 1999-03-04 09:00:00, 1999-03-11 09:00:00, 1999-03-18 09:00:00, 1999-03-25 09:00:00';
@@ -331,8 +331,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //      (1999 9:00 AM EDT)June 3,10,17,24;July 1,8,15,22,29;August 5,12,19,26
     $start = "1997-06-05 09:00:00";
     $end = "1999-08-31 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=YEARLY;BYDAY=TH;BYMONTH=6,7,8";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     $shouldbe = '1997-06-05 09:00:00, 1997-06-12 09:00:00, 1997-06-19 09:00:00, 1997-06-26 09:00:00, 1997-07-03 09:00:00, 1997-07-10 09:00:00, 1997-07-17 09:00:00, 1997-07-24 09:00:00, 1997-07-31 09:00:00, 1997-08-07 09:00:00, 1997-08-14 09:00:00, 1997-08-21 09:00:00, 1997-08-28 09:00:00, 1998-06-04 09:00:00, 1998-06-11 09:00:00, 1998-06-18 09:00:00, 1998-06-25 09:00:00, 1998-07-02 09:00:00, 1998-07-09 09:00:00, 1998-07-16 09:00:00, 1998-07-23 09:00:00, 1998-07-30 09:00:00, 1998-08-06 09:00:00, 1998-08-13 09:00:00, 1998-08-20 09:00:00, 1998-08-27 09:00:00, 1999-06-03 09:00:00, 1999-06-10 09:00:00, 1999-06-17 09:00:00, 1999-06-24 09:00:00, 1999-07-01 09:00:00, 1999-07-08 09:00:00, 1999-07-15 09:00:00, 1999-07-22 09:00:00, 1999-07-29 09:00:00, 1999-08-05 09:00:00, 1999-08-12 09:00:00, 1999-08-19 09:00:00, 1999-08-26 09:00:00';
@@ -345,8 +345,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //      (1998 9:00 AM EST)January 2,15
     $start = "1997-09-02 09:00:00";
     $end = "1998-01-31 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;COUNT=10;BYMONTHDAY=2,15";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     $shouldbe = '1997-09-02 09:00:00, 1997-09-15 09:00:00, 1997-10-02 09:00:00, 1997-10-15 09:00:00, 1997-11-02 09:00:00, 1997-11-15 09:00:00, 1997-12-02 09:00:00, 1997-12-15 09:00:00, 1998-01-02 09:00:00, 1998-01-15 09:00:00';
@@ -359,8 +359,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //      (1998 9:00 AM EST)January 1,31;February 1
     $start = "1997-09-30 09:00:00";
     $end = "1998-03-31 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;COUNT=10;BYMONTHDAY=1,-1";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     $shouldbe = '1997-09-30 09:00:00, 1997-10-01 09:00:00, 1997-10-31 09:00:00, 1997-11-01 09:00:00, 1997-11-30 09:00:00, 1997-12-01 09:00:00, 1997-12-31 09:00:00, 1998-01-01 09:00:00, 1998-01-31 09:00:00, 1998-02-01 09:00:00';
@@ -374,8 +374,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //      (2000 9:00 AM EDT)October 13
     $start = "1997-09-02 09:00:00";
     $end = "2000-12-31 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;BYDAY=FR;BYMONTHDAY=13";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     $shouldbe = '1997-09-02 09:00:00, 1998-02-13 09:00:00, 1998-03-13 09:00:00, 1998-11-13 09:00:00, 1999-08-13 09:00:00, 2000-10-13 09:00:00';
@@ -389,8 +389,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //      (1998 9:00 AM EDT)April 11;May 9;June 13...
     $start = "1997-09-13 09:00:00";
     $end = "1998-06-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=MONTHLY;BYDAY=SA;BYMONTHDAY=7,8,9,10,11,12,13";
     $dates = new DateRRuleCalc($rule, $start, $end, array());
     $shouldbe = '1997-09-13 09:00:00, 1997-10-11 09:00:00, 1997-11-08 09:00:00, 1997-12-13 09:00:00, 1998-01-10 09:00:00, 1998-02-07 09:00:00, 1998-03-07 09:00:00, 1998-04-11 09:00:00, 1998-05-09 09:00:00, 1998-06-13 09:00:00';
@@ -404,8 +404,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //      (2004 9:00 AM EST)November 2
     $start = "1996-11-05 09:00:00";
     $end = "2004-11-30 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=YEARLY;INTERVAL=4;BYMONTH=11;BYDAY=TU;BYMONTHDAY=2,3,4,5,6,7,8";
     $shouldbe = '1996-11-05 09:00:00, 2000-11-07 09:00:00, 2004-11-02 09:00:00';
     $dates = new DateRRuleCalc($rule, $start, $end, array());
@@ -415,8 +415,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every 20th Monday of the year, forever:
     $start = "1997-05-19 09:00:00";
     $end = "2000-01-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = "RRULE:FREQ=YEARLY;BYDAY=20MO";
     //  ==> (1997 9:00 AM EDT)May 19
     //      (1998 9:00 AM EDT)May 18
@@ -429,8 +429,8 @@ class DateRRuleCalcTest extends WebTestBase {
     //Every Sunday in January, every other year, forever:
     $start = "1997-01-05 09:00:00";
     $end = "2001-02-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = 'RRULE:FREQ=YEARLY;INTERVAL=2;BYMONTH=1;BYDAY=SU';
     //  ==> (1997 9:00 AM EDT)January 5,12,19,26
     //      (1999 9:00 AM EDT)January 3,10,17,24,31
@@ -445,8 +445,8 @@ return;
     //Every Thanksgiving, forever:
     $start = "1997-01-01 09:00:00";
     $end = "2001-02-01 09:00:00";
-    $start = new DateObject($start);
-    $end = new DateObject($end);
+    $start = new DrupalDateTime($start);
+    $end = new DrupalDateTime($end);
     $rule = 'RRULE:FREQ=YEARLY;INTERVAL=1;BYMONTH=11;BYDAY=4TH';
     //  ==> (1997 9:00 AM EDT)Nov
     //      (1999 9:00 AM EDT)Nov

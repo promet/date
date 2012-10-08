@@ -7,7 +7,7 @@
 namespace Drupal\date_api;
 
 use DateTimezone;
-use Drupal\Component\Datetime\DateObject;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_api\DateHelper;
 
 /**
@@ -247,7 +247,7 @@ class DateiCalParse {
               // assumes the end date is inclusive.
               if (!empty($subgroup['DTEND']) && (!empty($subgroup['DTEND']['all_day']))) {
                 // Make the end date one day earlier.
-                $date = new DateObject ($subgroup['DTEND']['datetime'] . ' 00:00:00', $subgroup['DTEND']['tz']);
+                $date = new DrupalDateTime ($subgroup['DTEND']['datetime'] . ' 00:00:00', $subgroup['DTEND']['tz']);
                 date_modify($date, '-1 day');
                 $subgroup['DTEND']['datetime'] = date_format($date,  'Y-m-d');
               }
@@ -424,14 +424,14 @@ class DateiCalParse {
         case 'DATE':
           preg_match(self::$regex_ical_date, $data, $regs);
           // Date.
-          $datetime = DateObject::datePad($regs[1]) . '-' . DateObject::datePad($regs[2]) . '-' . DateObject::datePad($regs[3]);
+          $datetime = DrupalDateTime::datePad($regs[1]) . '-' . DrupalDateTime::datePad($regs[2]) . '-' . DrupalDateTime::datePad($regs[3]);
           break;
         case 'DATE-TIME':
           preg_match(self::$regex_ical_datetime, $data, $regs);
           // Date.
-          $datetime = DateObject::datePad($regs[1]) . '-' . DateObject::datePad($regs[2]) . '-' . DateObject::datePad($regs[3]);
+          $datetime = DrupalDateTime::datePad($regs[1]) . '-' . DrupalDateTime::datePad($regs[2]) . '-' . DrupalDateTime::datePad($regs[3]);
           // Time.
-          $datetime .= ' ' . DateObject::datePad($regs[4]) . ':' . DateObject::datePad($regs[5]) . ':' . DateObject::datePad($regs[6]);
+          $datetime .= ' ' . DrupalDateTime::datePad($regs[4]) . ':' . DrupalDateTime::datePad($regs[5]) . ':' . DrupalDateTime::datePad($regs[6]);
           $has_time = TRUE;
           break;
       }
@@ -441,13 +441,13 @@ class DateiCalParse {
       preg_match(DateHelper::$regex_loose, $data, $regs);
       if (!empty($regs) && count($regs) > 2) {
         // Date.
-        $datetime = DateObject::datePad($regs[1]) . '-' . DateObject::datePad($regs[2]) . '-' . DateObject::datePad($regs[3]);
+        $datetime = DrupalDateTime::datePad($regs[1]) . '-' . DrupalDateTime::datePad($regs[2]) . '-' . DrupalDateTime::datePad($regs[3]);
         if (isset($regs[4])) {
           $has_time = TRUE;
           // Time.
-          $datetime .= ' ' . (!empty($regs[5]) ? DateObject::datePad($regs[5]) : '00') .
-           ':' . (!empty($regs[6]) ? DateObject::datePad($regs[6]) : '00') .
-           ':' . (!empty($regs[7]) ? DateObject::datePad($regs[7]) : '00');
+          $datetime .= ' ' . (!empty($regs[5]) ? DrupalDateTime::datePad($regs[5]) : '00') .
+           ':' . (!empty($regs[6]) ? DrupalDateTime::datePad($regs[6]) : '00') .
+           ':' . (!empty($regs[7]) ? DrupalDateTime::datePad($regs[7]) : '00');
         }
       }
     }
@@ -509,12 +509,12 @@ class DateiCalParse {
     $items = $subgroup[$field];
     $data  = $items['DATA'];
     $interval = new DateInterval($data);
-    $start_date = array_key_exists('DTSTART', $subgroup) ? $subgroup['DTSTART']['datetime'] : date_format(new DateObject(), DATE_FORMAT_ISO);
+    $start_date = array_key_exists('DTSTART', $subgroup) ? $subgroup['DTSTART']['datetime'] : date_format(new DrupalDateTime(), DATE_FORMAT_ISO);
     $timezone = array_key_exists('DTSTART', $subgroup) ? $subgroup['DTSTART']['tz'] : $this->timezone_name;
     if (empty($timezone)) {
       $timezone = 'UTC';
     }
-    $date = new DateObject($start_date, $timezone);
+    $date = new DrupalDateTime($start_date, $timezone);
     $date2 = clone($date);
     $date2->add($interval);
     $format = isset($subgroup['DTSTART']['type']) && $subgroup['DTSTART']['type'] == 'DATE' ? 'Y-m-d' : 'Y-m-d H:i:s';
@@ -595,7 +595,7 @@ class DateiCalParse {
     if (strlen($ical_date['datetime']) < 11) {
       $ical_date['datetime'] .= ' 00:00:00';
     }
-    $date = new DateObject($ical_date['datetime'], new DateTimeZone($from_tz));
+    $date = new DrupalDateTime($ical_date['datetime'], new DateTimeZone($from_tz));
 
     if ($to_tz && $ical_date['tz'] != '' && $to_tz != $ical_date['tz']) {
       date_timezone_set($date, timezone_open($to_tz));
