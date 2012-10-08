@@ -5,7 +5,7 @@
  * Date Devel Generate code.
  */
 
-use Drupal\Core\Datetime\DrupalDate;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 /**
  * Implements hook_devel_generate().
@@ -26,8 +26,8 @@ function date_devel_generate($entity, $field, $instance, $bundle) {
   }
   // Pick a random year within the time range,
   // and a random second within that year.
-  $year = date_format(new DrupalDate(), 'Y') - $back + mt_rand(0, ($forward + $back));
-  $start = new DrupalDate($year . '-01-01 00:00:00', date_get_timezone_db($field['settings']['tz_handling']));
+  $year = date_format(new DrupalDateTime(), 'Y') - $back + mt_rand(0, ($forward + $back));
+  $start = new DrupalDateTime($year . '-01-01 00:00:00', date_get_timezone_db($field['settings']['tz_handling']));
   $leap = date_format($start, 'L');
   $max_days = $leap ? 366 : 365;
   $seconds = mt_rand(0, ($max_days * 86400));

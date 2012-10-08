@@ -4,7 +4,7 @@
  * Handling of devel generate functionality for repeating dates.
  */
 
-use Drupal\Core\Datetime\DrupalDate;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_api\DateiCalParse;
 use Drupal\date_repeat\DateRRuleCalc;
 
@@ -52,8 +52,8 @@ function date_repeat_field_date_field_insert(&$items, $context) {
       break;
   }
 
-  $start = new DrupalDate($item['value'], $timezone_db, $format);
-  $start2 = new DrupalDate($item['value2'], $timezone_db, $format);
+  $start = new DrupalDateTime($item['value'], $timezone_db, $format);
+  $start2 = new DrupalDateTime($item['value2'], $timezone_db, $format);
 
   // Create a repeating date rule.
   $form_values = array();

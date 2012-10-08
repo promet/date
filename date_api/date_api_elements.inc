@@ -6,7 +6,7 @@
  * This file is only included during the edit process to reduce memory usage.
  */
 
-use Drupal\Core\Datetime\DrupalDate;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_api\DateGranularity;
 use Drupal\date_api\DateHelper;
 
@@ -134,7 +134,7 @@ function date_default_date($element) {
         break;
     }
   }
-  $date = new DrupalDate($default_value, $element['#date_timezone'], $format);
+  $date = new DrupalDateTime($default_value, $element['#date_timezone'], $format);
   if (is_object($date)) {
     date_increment_round($date, $element['#date_increment']);
     return $date;
@@ -403,7 +403,7 @@ function date_text_input_date($element, $input) {
     return NULL;
   }
   $granularity = DateGranularity::formatOrder($element['#date_format']);
-  $date = new DrupalDate($input['date'], $element['#date_timezone'], $element['#date_format']);
+  $date = new DrupalDateTime($input['date'], $element['#date_timezone'], $element['#date_format']);
   if (is_object($date)) {
     $date->granularity = $granularity;
     return $date;
@@ -736,7 +736,7 @@ function date_select_input_date($element, $input) {
     unset($input[$part]);
   }
 
-  $date = new DrupalDate($input, $element['#date_timezone']);
+  $date = new DrupalDateTime($input, $element['#date_timezone']);
   if (is_object($date)) {
     $date->granularity = $granularity;
     return $date;

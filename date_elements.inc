@@ -7,7 +7,7 @@
  * included only during form editing.
  */
 
-use Drupal\Core\Datetime\DrupalDate;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_api\DateGranularity;
 
 /**
@@ -40,7 +40,7 @@ function date_local_date($item, $timezone, $field, $instance, $part = 'value') {
   }
   */
 
-  $date = new DrupalDate($value, date_get_timezone_db($field['settings']['tz_handling']));
+  $date = new DrupalDateTime($value, date_get_timezone_db($field['settings']['tz_handling']));
   if (empty($date)) {
     return NULL;
   }

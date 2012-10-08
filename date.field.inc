@@ -5,7 +5,7 @@
  * Field hooks to implement a date field.
  */
 
-use Drupal\Core\Datetime\DrupalDate;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 /**
  * Implements hook_field_formatter_info().
@@ -313,12 +313,12 @@ function date_field_validate($entity_type, $entity, $field, $instance, $langcode
     foreach ($items as $delta => $item) {
       if (is_array($item) && isset($item['value'])) {
         $process = date_process_values($field, $instance);
-        $date1 = new DrupalDate($item['value'], $item['timezone'], date_type_format($field['type']));
+        $date1 = new DrupalDateTime($item['value'], $item['timezone'], date_type_format($field['type']));
         if (count($process) == 1 || (empty($item['value2']) && $item['value2'] !== 0)) {
           $date2 = clone($date1);
         }
         else {
-          $date2 = new DrupalDate($item['value2'], $item['timezone'], date_type_format($field['type']));
+          $date2 = new DrupalDateTime($item['value2'], $item['timezone'], date_type_format($field['type']));
         }
 /*
         $valid1 = $date1->validGranularity($field['settings']['granularity'], $flexible);

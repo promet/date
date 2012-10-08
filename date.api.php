@@ -6,6 +6,7 @@
  */
 
 use Drupal\date_api\DateGranularity;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 /**
  * Alter the default value for a date argument.
@@ -18,7 +19,7 @@ use Drupal\date_api\DateGranularity;
 function hook_date_default_argument_alter(&$argument, &$value) {
   $style_options = $style_options = $argument->view->display_handler->get_option('style_options');
   if (!empty($style_options['track_date'])) {
-    $default_date = new DrupalDate();
+    $default_date = new DrupalDateTime();
     $value = $default_date->format($argument->arg_format);
   }
 }

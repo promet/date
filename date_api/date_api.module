@@ -8,7 +8,7 @@
  * are not loaded unless other modules specifically include them.
  */
 
-use Drupal\Core\Datetime\DrupalDate;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_api\DateHelper;
 
 /**
@@ -546,7 +546,7 @@ function date_range_valid($string) {
  *   A numerically indexed array, containing a minimum and maximum year.
  */
 function date_range_years($string, $date = NULL) {
-  $this_year = date_format(new DrupalDate(), 'Y');
+  $this_year = date_format(new DrupalDateTime(), 'Y');
   list($min_year, $max_year) = explode(':', $string);
 
   // Valid patterns would be -5:+5, 0:+1, 2008:2010.
@@ -594,7 +594,7 @@ function date_range_years($string, $date = NULL) {
  *   A min and max year string like '-3:+1'.
  */
 function date_range_string($years) {
-  $this_year = date_format(new DrupalDate(), 'Y');
+  $this_year = date_format(new DrupalDateTime(), 'Y');
 
   if ($years[0] < $this_year) {
     $min = '-' . ($this_year - $years[0]);
@@ -678,7 +678,7 @@ function date_format_type_options() {
  * This ensures a clear difference between month and day, and 12 and 24 hours.
  */
 function date_example_date() {
-  $now = new DrupalDate();
+  $now = new DrupalDateTime();
   if (date_format($now, 'M') == date_format($now, 'F')) {
     date_modify($now, '+1 month');
   }

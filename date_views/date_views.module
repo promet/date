@@ -1,6 +1,6 @@
 <?php
 
-use Drupal\Core\Datetime\DrupalDate;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_api\DateGranularity;
 
 /**
@@ -189,16 +189,16 @@ function date_pager_url($view, $date_type = NULL, $date_arg = NULL, $force_view_
   if (!empty($date_type)) {
     switch ($date_type) {
       case 'year':
-        $args[$pos] = DrupalDate::datePad($view->date_info->year, 4);
+        $args[$pos] = DrupalDateTime::datePad($view->date_info->year, 4);
         break;
       case 'week':
-        $args[$pos] = DrupalDate::datePad($view->date_info->year, 4) . '-W' . DrupalDate::datePad($view->date_info->week);
+        $args[$pos] = DrupalDateTime::datePad($view->date_info->year, 4) . '-W' . DrupalDateTime::datePad($view->date_info->week);
         break;
       case 'day':
-        $args[$pos] = DrupalDate::datePad($view->date_info->year, 4) . '-' . DrupalDate::datePad($view->date_info->month) . '-' . DrupalDate::datePad($view->date_info->day);
+        $args[$pos] = DrupalDateTime::datePad($view->date_info->year, 4) . '-' . DrupalDateTime::datePad($view->date_info->month) . '-' . DrupalDateTime::datePad($view->date_info->day);
         break;
       default:
-        $args[$pos] = DrupalDate::datePad($view->date_info->year, 4) . '-' . DrupalDate::datePad($view->date_info->month);
+        $args[$pos] = DrupalDateTime::datePad($view->date_info->year, 4) . '-' . DrupalDateTime::datePad($view->date_info->month);
         break;
     }
   }

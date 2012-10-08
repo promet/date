@@ -8,7 +8,7 @@
  */
 namespace Drupal\date_api;
 
-use Drupal\Core\Datetime\DrupalDate;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 class DateHelper {
 
@@ -234,7 +234,7 @@ class DateHelper {
   public static function days($required = FALSE, $month = NULL, $year = NULL) {
     // If we have a month and year, find the right last day of the month.
     if (!empty($month) && !empty($year)) {
-      $date = new DrupalDate($year . '-' . $month . '-01 00:00:00', 'UTC');
+      $date = new DrupalDateTime($year . '-' . $month . '-01 00:00:00', 'UTC');
       $max = $date->format('t');
     }
     // If there is no month and year given, default to 31.
@@ -348,8 +348,8 @@ class DateHelper {
    */
   public static function days_in_month($year, $month) {
     // Pick a day in the middle of the month to avoid timezone shifts.
-    $datetime = DrupalDate::datePad($year, 4) . '-' . DrupalDate::datePad($month) . '-15 00:00:00';
-    $date = new DrupalDate($datetime);
+    $datetime = DrupalDateTime::datePad($year, 4) . '-' . DrupalDateTime::datePad($month) . '-15 00:00:00';
+    $date = new DrupalDateTime($datetime);
     return $date->format('t');
   }
   
@@ -364,10 +364,10 @@ class DateHelper {
    */
   public static function days_in_year($date = NULL) {
     if (empty($date)) {
-      $date = new DrupalDate();
+      $date = new DrupalDateTime();
     }
     elseif (!is_object($date)) {
-      $date = new DrupalDate($date);
+      $date = new DrupalDateTime($date);
     }
     if (is_object($date)) {
       if ($date->format('L')) {
@@ -393,10 +393,10 @@ class DateHelper {
    */
   public static function iso_weeks_in_year($date = NULL) {
     if (empty($date)) {
-      $date = new DrupalDate();
+      $date = new DrupalDateTime();
     }
     elseif (!is_object($date)) {
-      $date = new DrupalDate($date);
+      $date = new DrupalDateTime($date);
     }
   
     if (is_object($date)) {
@@ -417,10 +417,10 @@ class DateHelper {
    */
   public static function day_of_week($date = NULL) {
     if (empty($date)) {
-      $date = new DrupalDate();
+      $date = new DrupalDateTime();
     }
     elseif (!is_object($date)) {
-      $date = new DrupalDate($date);
+      $date = new DrupalDateTime($date);
     }
   
     if (is_object($date)) {
@@ -443,7 +443,7 @@ class DateHelper {
    */
   public static function day_of_week_name($date = NULL, $abbr = TRUE) {
     if (!is_object($date)) {
-      $date = new DrupalDate($date);
+      $date = new DrupalDateTime($date);
     }
     $dow = self::day_of_week($date);
     $days = $abbr ? self::week_days_abbr() : self::week_days();
@@ -467,7 +467,7 @@ class DateHelper {
     if (config('date_api.settings')->get('iso8601')) {
       return DateHelper::iso_week_range($week, $year);
     }
-    $min_date = new DrupalDate($year . '-01-01 00:00:00');
+    $min_date = new DrupalDateTime($year . '-01-01 00:00:00');
     $min_date->setTimezone(date_default_timezone_object());
   
     // Move to the right week.
@@ -483,7 +483,7 @@ class DateHelper {
     date_modify($max_date, '+7 days');
   
     if (date_format($min_date, 'Y') != $year) {
-      $min_date = new DrupalDate($year . '-01-01 00:00:00');
+      $min_date = new DrupalDateTime($year . '-01-01 00:00:00');
     }
     return array($min_date, $max_date);
   }
@@ -501,7 +501,7 @@ class DateHelper {
    */
   public static function iso_week_range($week, $year) {
     // Get to the last ISO week of the previous year.
-    $min_date = new DrupalDate(($year - 1) . '-12-28 00:00:00');
+    $min_date = new DrupalDateTime(($year - 1) . '-12-28 00:00:00');
     date_timezone_set($min_date, date_default_timezone_object());
   
     // Find the first day of the first ISO week in the year.
@@ -530,7 +530,7 @@ class DateHelper {
    *   Number of calendar weeks in selected year.
    */
   public static function weeks_in_year($year) {
-    $date = new DrupalDate(($year + 1) . '-01-01 12:00:00', 'UTC');
+    $date = new DrupalDateTime(($year + 1) . '-01-01 12:00:00', 'UTC');
     date_modify($date, '-1 day');
     return DateHelper::calendar_week($date->format('Y-m-d'));
   }
@@ -550,14 +550,14 @@ class DateHelper {
     $date = substr($date, 0, 10);
     $parts = explode('-', $date);
   
-    $date = new DrupalDate($date . ' 12:00:00', 'UTC');
+    $date = new DrupalDateTime($date . ' 12:00:00', 'UTC');
   
     // If we are using ISO weeks, this is easy.
     if (config('date_api.settings')->get('iso8601')) {
       return intval($date->format('W'));
     }
   
-    $year_date = new DrupalDate($parts[0] . '-01-01 12:00:00', 'UTC');
+    $year_date = new DrupalDateTime($parts[0] . '-01-01 12:00:00', 'UTC');
     $week = intval($date->format('W'));
     $year_week = intval(date_format($year_date, 'W'));
     $date_year = intval($date->format('o'));

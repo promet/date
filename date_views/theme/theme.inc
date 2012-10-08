@@ -1,6 +1,6 @@
 <?php
 
-use Drupal\Core\Datetime\DrupalDate;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 /**
  * @file
@@ -77,8 +77,8 @@ function template_preprocess_date_views_pager(&$vars) {
       case 'week':
         $next_week = DateHelper::calendar_week(date_format($next_date, 'Y-m-d'));
         $prev_week = DateHelper::calendar_week(date_format($prev_date, 'Y-m-d'));
-        $next_arg = date_format($next_date, 'Y-\W') . DrupalDate::datePad($next_week);
-        $prev_arg = date_format($prev_date, 'Y-\W') . DrupalDate::datePad($prev_week);
+        $next_arg = date_format($next_date, 'Y-\W') . DrupalDateTime::datePad($next_week);
+        $prev_arg = date_format($prev_date, 'Y-\W') . DrupalDateTime::datePad($prev_week);
         break;
       default:
         $next_arg = date_format($next_date, $format[$granularity]);
@@ -175,17 +175,17 @@ function theme_date_nav_title($params) {
     case 'month':
       $format = !empty($format) ? $format : (empty($date_info->mini) ? 'F Y' : 'F');
       $title = date_format_date($date_info->min_date, 'custom', $format);
-      $date_arg = $date_info->year . '-' . DrupalDate::datePad($date_info->month);
+      $date_arg = $date_info->year . '-' . DrupalDateTime::datePad($date_info->month);
       break;
     case 'day':
       $format = !empty($format) ? $format : (empty($date_info->mini) ? 'l, F j, Y' : 'l, F j');
       $title = date_format_date($date_info->min_date, 'custom', $format);
-      $date_arg = $date_info->year . '-' . DrupalDate::datePad($date_info->month) . '-' . DrupalDate::datePad($date_info->day);
+      $date_arg = $date_info->year . '-' . DrupalDateTime::datePad($date_info->month) . '-' . DrupalDateTime::datePad($date_info->day);
       break;
     case 'week':
       $format = !empty($format) ? $format : (empty($date_info->mini) ? 'F j, Y' : 'F j');
       $title = t('Week of @date', array('@date' => date_format_date($date_info->min_date, 'custom', $format)));
-      $date_arg = $date_info->year . '-W' . DrupalDate::datePad($date_info->week);
+      $date_arg = $date_info->year . '-W' . DrupalDateTime::datePad($date_info->week);
       break;
   }
   if (!empty($date_info->mini) || $link) {
