@@ -6,7 +6,6 @@
  */
 namespace Drupal\date_api;
 
-use DateTimezone;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\date_api\DateHelper;
 
@@ -104,6 +103,13 @@ class DateiCalParse {
    * A regex string that will extract date and time parts from an ical datetime.
    */
   public static $regex_ical_datetime = '/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z)?/';
+
+  /**
+   * A regex string that will extract date and time parts from either
+   * a datetime string or an iso string, with or without missing date
+   * and time values.
+   */
+  public static $regex_loose = '/(\d{4})-?(\d{1,2})-?(\d{1,2})([T\s]?(\d{2}):?(\d{2}):?(\d{2})?(\.\d+)?(Z|[\+\-]\d{2}:?\d{2})?)?/';
 
   /**
    * The start day of the week.
@@ -438,7 +444,7 @@ class DateiCalParse {
     }
     // If no format is specified, attempt a loose match.
     else {
-      preg_match(DateHelper::$regex_loose, $data, $regs);
+      preg_match(self::$regex_loose, $data, $regs);
       if (!empty($regs) && count($regs) > 2) {
         // Date.
         $datetime = DrupalDateTime::datePad($regs[1]) . '-' . DrupalDateTime::datePad($regs[2]) . '-' . DrupalDateTime::datePad($regs[3]);
@@ -508,7 +514,7 @@ class DateiCalParse {
   public static function parse_duration(&$subgroup, $field = 'DURATION') {
     $items = $subgroup[$field];
     $data  = $items['DATA'];
-    $interval = new DateInterval($data);
+    $interval = new \DateInterval($data);
     $start_date = array_key_exists('DTSTART', $subgroup) ? $subgroup['DTSTART']['datetime'] : date_format(new DrupalDateTime(), DATE_FORMAT_ISO);
     $timezone = array_key_exists('DTSTART', $subgroup) ? $subgroup['DTSTART']['tz'] : $this->timezone_name;
     if (empty($timezone)) {
@@ -595,7 +601,7 @@ class DateiCalParse {
     if (strlen($ical_date['datetime']) < 11) {
       $ical_date['datetime'] .= ' 00:00:00';
     }
-    $date = new DrupalDateTime($ical_date['datetime'], new DateTimeZone($from_tz));
+    $date = new DrupalDateTime($ical_date['datetime'], new \DateTimeZone($from_tz));
 
     if ($to_tz && $ical_date['tz'] != '' && $to_tz != $ical_date['tz']) {
       date_timezone_set($date, timezone_open($to_tz));

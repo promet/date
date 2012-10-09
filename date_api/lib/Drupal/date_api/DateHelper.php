@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Definition of self.
+ * Definition of DateHelper.
  *
  * Lots of helpful functions for use in massaging dates.
  * @TODO remove t() and use IntlDateFormatter instead.
@@ -11,14 +11,6 @@ namespace Drupal\date_api;
 use Drupal\Core\Datetime\DrupalDateTime;
 
 class DateHelper {
-
-
-  /**
-   * A regex string that will extract date and time parts from either
-   * a datetime string or an iso string, with or without missing date
-   * and time values.
-   */
-  public static $regex_loose = '/(\d{4})-?(\d{1,2})-?(\d{1,2})([T\s]?(\d{2}):?(\d{2}):?(\d{2})?(\.\d+)?(Z|[\+\-]\d{2}:?\d{2})?)?/';
 
   /**
    * Constructs an untranslated array of month names.
