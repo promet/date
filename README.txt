@@ -21,23 +21,24 @@ the files):
 Preconfigured arrays
 ============================================================================
 Both translated and untranslated values are available. The
-DateHelper::week_days_ordered() function will shift an array of week day names so it
+$calendar->week_days_ordered() function will shift an array of week day names so it
 starts with the site's first day of the week, otherwise the weekday names start
 with Sunday as the first value, which is the expected order for many php and sql
 functions.
 
-DateHelper::month_names();
-DateHelper::month_names_abbr();
-DateHelper::month_names();
-DateHelper::week_days();
-DateHelper::week_days_abbr();
-DateHelper::week_days();
-DateHelper::week_days_ordered();
-DateHelper::years();
-DateHelper::hours();
-DateHelper::minutes();
-DateHelper::seconds();
-DateHelper::ampm();
+$calendar = system_calendar();
+$calendar->month_names();
+$calendar->month_names_abbr();
+$calendar->month_names();
+$calendar->week_days();
+$calendar->week_days_abbr();
+$calendar->week_days();
+$calendar->week_days_ordered();
+$calendar->years();
+$calendar->hours();
+$calendar->minutes();
+$calendar->seconds();
+$calendar->ampm();
 
 ============================================================================
 Miscellaneous date manipulation functions
@@ -59,11 +60,11 @@ Date calculation and navigation
 date_difference() will find the time difference between any two days, measured
 in seconds, minutes, hours, days, months, weeks, or years.
 
-DateHelper::days_in_month();
-DateHelper::days_in_year();
-DateHelper::calendar_weeks_in_year();
-DateHelper::day_of_week();
-DateHelper::day_of_week_name();
+$calendar->days_in_month();
+$calendar->days_in_year();
+date_calendar_weeks_in_year();
+$calendar->day_of_week();
+$calendar->day_of_week_name();
 
 ============================================================================
 Date regex and format helpers

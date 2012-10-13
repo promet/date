@@ -7,7 +7,6 @@
 namespace Drupal\date_api;
 
 use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\date_api\DateHelper;
 
 /**
  * Return an array of iCalendar information from an iCalendar file.

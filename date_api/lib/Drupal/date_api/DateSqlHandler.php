@@ -734,12 +734,18 @@ class DateSqlHandler {
    * and the current values if type = 'now' .
    */
   function complete_date($selected, $type = 'now') {
+    $calendar = system_calendar();
     if (empty($selected)) {
       return '';
     }
     // Special case for weeks.
     if (array_key_exists('week', $selected)) {
-      $dates = DateHelper::calendar_week_range($selected['week'], $selected['year']);
+      if (config('date_api.settings')->get('iso8601')) {
+        $dates = date_iso_week_range($selected['week'], $selected['year']);
+      }
+      else {
+        $dates = date_calendar_week_range($selected['week'], $selected['year']);
+      }
       switch ($type) {
         case 'empty_now':
         case 'empty_min':
@@ -757,7 +763,7 @@ class DateSqlHandler {
     // If this is a max date, make sure the last day of
     // the month is the right one for this date.
     if ($type == 'max') {
-      $compare['day'] = DateHelper::days_in_month($compare['year'], $compare['month']);
+      $compare['day'] = $calendar->days_in_month($compare['year'], $compare['month']);
     }
     $value = '';
     $separators = $this->part_info('sep');

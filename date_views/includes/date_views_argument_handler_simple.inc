@@ -60,12 +60,12 @@ class date_views_argument_handler_simple extends views_handler_argument_date {
    */
   function get_default_argument($raw = FALSE) {
     $is_default = FALSE;
-
+    $calendar = system_calendar();
     if (!$raw && $this->options['default_argument_type'] == 'date') {
       $granularity = $this->options['granularity'];
       if ($granularity == 'week') {
         $now = new DrupalDateTime();
-        $week = DateHelper::calendar_week(date_format($now, 'Y-m-d'));
+        $week = date_calendar_week(date_format($now, 'Y-m-d'));
         $value = date_format($now, 'Y') . '-W' . $week;
       }
       else {

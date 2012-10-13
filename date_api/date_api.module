@@ -9,7 +9,6 @@
  */
 
 use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\date_api\DateHelper;
 
 /**
  * Set up some constants.
@@ -34,10 +33,6 @@ const DATE_FORMAT_DATETIME = "Y-m-d H:i:s";
 const DATE_FORMAT_ICAL = "Ymd\THis";
 const DATE_FORMAT_ICAL_DATE = "Ymd";
 const DATE_FORMAT_DATE = 'Y-m-d';
-
-/**
- * Core DateTime extension module used for as many date operations as possible.
- */
 
 /**
  * Implements hook_help().
@@ -735,9 +730,10 @@ function date_is_all_day($string1, $string2, $granularity = 'second', $increment
     return FALSE;
   }
 
-  $tmp = DateHelper::seconds('s', TRUE, $increment);
+  $calendar = system_calendar();
+  $tmp = $calendar->seconds('s', TRUE, $increment);
   $max_seconds = intval(array_pop($tmp));
-  $tmp = DateHelper::minutes('i', TRUE, $increment);
+  $tmp = $calendar->minutes('i', TRUE, $increment);
   $max_minutes = intval(array_pop($tmp));
 
   // See if minutes and seconds are the maximum allowed for an increment or the
@@ -921,3 +917,168 @@ function date_sql_pad($str, $size = 2, $pad = '0', $side = 'l') {
       return "LPAD($str, $size, '$pad')";
   }
 }
+
+/**
+   * Calculates the start and end dates for a calendar week.
+   *
+   * The dates are adjusted to use the chosen first day of week
+   * for this site.
+   *
+   * @param int $week
+   *   The week value.
+   * @param int $year
+   *   The year value.
+   *
+   * @return array
+   *   An array containing the start and end dates of a week.
+   */
+function date_calendar_week_range($week, $year) {
+  $min_date = new DrupalDateTime($year . '-01-01 00:00:00');
+  $min_date->setTimezone(date_default_timezone_object());
+
+  // Move to the right week.
+  date_modify($min_date, '+' . strval(7 * ($week - 1)) . ' days');
+
+  // Move backwards to the first day of the week.
+  $first_day = variable_get('date_first_day', 0);
+  $day_wday = date_format($min_date, 'w');
+  date_modify($min_date, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
+
+  // Move forwards to the last day of the week.
+  $max_date = clone($min_date);
+  date_modify($max_date, '+7 days');
+
+  if (date_format($min_date, 'Y') != $year) {
+    $min_date = new DrupalDateTime($year . '-01-01 00:00:00');
+  }
+  return array($min_date, $max_date);
+}
+
+/**
+ * Calculates the start and end dates for an ISO week.
+ *
+ * @param int $week
+ *   The week value.
+ * @param int $year
+ *   The year value.
+ *
+ * @return array
+ *   An array containing the start and end dates of an
+ *   ISO week.
+ */
+function date_iso_week_range($week, $year) {
+  // Get to the last ISO week of the previous year.
+  $min_date = new DrupalDateTime(($year - 1) . '-12-28 00:00:00');
+  date_timezone_set($min_date, date_default_timezone_object());
+
+  // Find the first day of the first ISO week in the year.
+  date_modify($min_date, '+1 Monday');
+
+  // Jump ahead to the desired week for the beginning of the week range.
+  if ($week > 1) {
+    date_modify($min_date, '+ ' . ($week - 1) . ' weeks');
+  }
+
+  // Move forwards to the last day of the week.
+  $max_date = clone($min_date);
+  date_modify($max_date, '+7 days');
+  return array($min_date, $max_date);
+}
+
+/**
+ * The number of calendar weeks in a year.
+ *
+ * PHP week functions return the ISO week, not the calendar week.
+ *
+ * @param int $year
+ *   A year value.
+ *
+ * @return int
+ *   Number of calendar weeks in selected year.
+ */
+function date_weeks_in_year($year) {
+  $date = new DrupalDateTime(($year + 1) . '-01-01 12:00:00', 'UTC');
+  date_modify($date, '-1 day');
+  return self::calendar_week($date->format('Y-m-d'));
+}
+
+ /**
+ * Identifies the number of ISO weeks in a year for a date.
+ *
+ * December 28 is always in the last ISO week of the year.
+ *
+ * @param mixed $date
+ *   (optional) A date object, timestamp, or a date string.
+ *   Defaults to current date.
+ *
+ * @return integer
+ *   The number of ISO weeks in a year.
+ */
+function date_iso_weeks_in_year($date = NULL) {
+  if (!$date instanceOf DrupalDateTime) {
+    $date = new DrupalDateTime($date);
+  }
+  if (!$date->hasErrors()) {
+    date_date_set($date, $date->format('Y'), 12, 28);
+    return $date->format('W');
+  }
+  return NULL;
+}
+
+/**
+ * The calendar week number for a date.
+ *
+ * PHP week functions return the ISO week, not the calendar week.
+ *
+ * @param string $date
+ *   A date string in the format Y-m-d.
+ *
+ * @return int
+ *   The calendar week number.
+ */
+function date_calendar_week($date) {
+  $date = substr($date, 0, 10);
+  $parts = explode('-', $date);
+
+  $date = new DrupalDateTime($date . ' 12:00:00', 'UTC');
+
+  // If we are using ISO weeks, this is easy.
+  if (config('date_api.settings')->get('iso8601')) {
+    return intval($date->format('W'));
+  }
+
+  $year_date = new DrupalDateTime($parts[0] . '-01-01 12:00:00', 'UTC');
+  $week = intval($date->format('W'));
+  $year_week = intval(date_format($year_date, 'W'));
+  $date_year = intval($date->format('o'));
+
+  // Remove the leap week if it's present.
+  if ($date_year > intval($parts[0])) {
+    $last_date = clone($date);
+    date_modify($last_date, '-7 days');
+    $week = date_format($last_date, 'W') + 1;
+  }
+  elseif ($date_year < intval($parts[0])) {
+    $week = 0;
+  }
+
+  if ($year_week != 1) {
+    $week++;
+  }
+
+  // Convert to ISO-8601 day number, to match weeks calculated above.
+  $iso_first_day = 1 + (variable_get('date_first_day', 0) + 6) % 7;
+
+  // If it's before the starting day, it's the previous week.
+  if (intval($date->format('N')) < $iso_first_day) {
+    $week--;
+  }
+
+  // If the year starts before, it's an extra week at the beginning.
+  if (intval(date_format($year_date, 'N')) < $iso_first_day) {
+    $week++;
+  }
+
+  return $week;
+}
+

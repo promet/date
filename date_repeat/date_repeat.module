@@ -196,6 +196,8 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
     return;
   }
 
+  $calendar = system_calendar();
+
   $parts = DateiCalParse::split_rrule($rrule);
   $additions = $parts[2];
   $exceptions = $parts[1];
@@ -253,7 +255,7 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
   if (!empty($rrule['BYMONTH'])) {
     if (sizeof($rrule['BYMONTH']) < 12) {
       $results = array();
-      $months = DateHelper::month_names();
+      $months = $calendar->month_names();
       foreach ($rrule['BYMONTH'] as $month) {
         $results[] = $months[$month];
       }

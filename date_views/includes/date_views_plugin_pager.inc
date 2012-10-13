@@ -122,6 +122,8 @@ class date_views_plugin_pager extends views_plugin_pager {
    */
   function query() {
 
+    $calendar = system_calendar();
+
     // By fetching our data from the exposed input, it is possible to
     // feed pager data through some method other than $_GET.
     $input = $this->view->get_exposed_input();
@@ -174,7 +176,7 @@ class date_views_plugin_pager extends views_plugin_pager {
         $this->view->date_info->year = date_format($argument->min_date, 'Y');
         $this->view->date_info->month = date_format($argument->min_date, 'n');;
         $this->view->date_info->day = date_format($argument->min_date, 'j');
-        $this->view->date_info->week = DateHelper::calendar_week(date_format($argument->min_date, DATE_FORMAT_DATE));
+        $this->view->date_info->week = date_calendar_week(date_format($argument->min_date, DATE_FORMAT_DATE));
         $this->view->date_info->date_range = $argument->date_range;
         $this->view->date_info->min_date = $argument->min_date;
         $this->view->date_info->max_date = $argument->max_date;

@@ -51,6 +51,8 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     return $element;
   }
 
+  $calendar = system_calendar();
+
   if (empty($element['#date_repeat_widget'])) {
     $element['#date_repeat_widget'] = module_exists('date_popup') ? 'date_popup' : 'date_select';
   }
@@ -307,7 +309,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#title' => t('Bymonth', array(), array('context' => 'Date repeat')),
     '#title_display' => 'invisible',
     '#default_value' => !empty($rrule['BYMONTH']) && $rrule['FREQ'] === 'MONTHLY' && $MONTHLY_day_month_default === 'BYMONTHDAY_BYMONTH' ? $rrule['BYMONTH'] : array(),
-    '#options' => DateHelper::month_names_abbr(TRUE),
+    '#options' => $calendar->month_names_abbr(TRUE),
     '#attributes' => array('class' => array('container-inline')),
     '#multiple' => TRUE,
     '#prefix' => '<div class="date-clear bymonth">',
@@ -353,7 +355,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#title' => t('Bymonth', array(), array('context' => 'Date repeat')),
     '#title_display' => 'invisible',
     '#default_value' => !empty($rrule['BYMONTH']) && $rrule['FREQ'] === 'MONTHLY' && $MONTHLY_day_month_default === 'BYDAY_BYMONTH' ? $rrule['BYMONTH'] : array(),
-    '#options' => DateHelper::month_names_abbr(TRUE),
+    '#options' => $calendar->month_names_abbr(TRUE),
     '#attributes' => array('class' => array('container-inline')),
     '#multiple' => TRUE,
     '#prefix' => '<div class="date-clear bymonth">',
@@ -411,7 +413,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#title' => t('Bymonth', array(), array('context' => 'Date repeat')),
     '#title_display' => 'invisible',
     '#default_value' => !empty($rrule['BYMONTH']) && $rrule['FREQ'] === 'YEARLY' && $YEARLY_day_month_default === 'BYMONTHDAY_BYMONTH' ? $rrule['BYMONTH'] : array(),
-    '#options' => DateHelper::month_names_abbr(TRUE),
+    '#options' => $calendar->month_names_abbr(TRUE),
     '#attributes' => array('class' => array('container-inline')),
     '#multiple' => TRUE,
     '#prefix' => '<div class="date-clear bymonth">',
@@ -457,7 +459,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#title' => t('Bymonth', array(), array('context' => 'Date repeat')),
     '#title_display' => 'invisible',
     '#default_value' => !empty($rrule['BYMONTH']) && $rrule['FREQ'] === 'YEARLY' && $YEARLY_day_month_default === 'BYDAY_BYMONTH' ? $rrule['BYMONTH'] : array(),
-    '#options' => DateHelper::month_names_abbr(TRUE),
+    '#options' => $calendar->month_names_abbr(TRUE),
     '#attributes' => array('class' => array('container-inline')),
     '#multiple' => TRUE,
     '#prefix' => '<div class="date-clear bymonth">',
