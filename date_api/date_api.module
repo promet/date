@@ -913,7 +913,7 @@ function date_iso_weeks_in_year($date = NULL) {
   if (!$date instanceOf DrupalDateTime) {
     $date = new DrupalDateTime($date);
   }
-  if (!$date->hasErrors()) {
+  if ($date instanceOf DrupalDateTime && !$date->hasErrors()) {
     date_date_set($date, $date->format('Y'), 12, 28);
     return $date->format('W');
   }

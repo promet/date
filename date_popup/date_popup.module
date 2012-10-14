@@ -263,7 +263,7 @@ function date_popup_element_value_callback($element, $input = FALSE, &$form_stat
     $date = date_default_date($element);
   }
   // Date with errors won't re-display.
-  if (!$date->hasErrors()) {
+  if ($date instanceOf DrupalDateTime && !$date->hasErrors()) {
     $return['date'] = !$time_only ? $date->format(date_popup_date_format($element)) : '';
     $return['time'] = $has_time ? $date->format(date_popup_time_format($element)) : '';
   }
