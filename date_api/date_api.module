@@ -139,29 +139,6 @@ function date_granularity_names() {
 }
 
 /**
- * Returns an array of system-allowed timezone abbreviations.
- *
- * Cache an array of just the abbreviation names because the whole
- * timezone_abbreviations_list() is huge, so we don't want to retrieve it more
- * than necessary.
- *
- * @param bool $refresh
- *   (optional) Whether to refresh the list. Defaults to TRUE.
- *
- * @return array
- *   An array of allowed timezone abbreviations.
- */
-function date_timezone_abbr($refresh = FALSE) {
-  $cached = cache_get('date_timezone_abbreviations');
-  $data = isset($cached->data) ? $cached->data : array();
-  if (empty($data) || $refresh) {
-    $data = array_keys(timezone_abbreviations_list());
-    cache_set('date_timezone_abbreviations', $data);
-  }
-  return $data;
-}
-
-/**
  * Formats a time interval with granularity, including past and future context.
  *
  * @param object $date
