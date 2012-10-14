@@ -5,6 +5,8 @@
  * Date administration code.
  */
 
+use Drupal\date_api\DateGranularity;
+
 /**
  * Settings for the default formatter.
  */
@@ -280,7 +282,7 @@ function _date_field_settings_form($field, $instance, $has_data) {
   $tz_handling = $settings['tz_handling'];
 
   $description = t('Select the date attributes to collect and store.');
-  $options = date_granularity_names();
+  $options = DateGranularity::granularityNames();
   $checkbox_year = array(
     '#type' => 'checkbox',
     '#title' => check_plain($options['year']),

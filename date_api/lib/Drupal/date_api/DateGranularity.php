@@ -53,6 +53,24 @@ class DateGranularity {
   }
 
   /**
+   * Constructs an array of granularity options and their labels.
+   *
+   * @return array
+   *   An array of translated date parts, keyed by their machine name.
+   */
+  function granularityNames() {
+    return array(
+      'year' => t('Year', array(), array('context' => 'datetime')),
+      'month' => t('Month', array(), array('context' => 'datetime')),
+      'day' => t('Day', array(), array('context' => 'datetime')),
+      'hour' => t('Hour', array(), array('context' => 'datetime')),
+      'minute' => t('Minute', array(), array('context' => 'datetime')),
+      'second' => t('Second', array(), array('context' => 'datetime')),
+    );
+  }
+
+
+  /**
    * Adds a granularity entry to the array.
    *
    * @param string $part

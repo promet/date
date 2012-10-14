@@ -13,6 +13,7 @@ use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\field\Plugin\PluginSettingsBase;
 use Drupal\field\FieldInstance;
+use Drupal\date_api\DateGranularity;
 
 /**
  * Plugin implementation of the 'date' widget.
@@ -189,7 +190,7 @@ class DateTextWidget extends WidgetBase {
       '#theme' => $widget['type'] == 'date_select' ? 'date_text_parts' : '',
     );
     $text_parts = (array) $settings['text_parts'];
-    foreach (date_granularity_names() as $key => $value) {
+    foreach (DateGranularity::granularityNames() as $key => $value) {
       if ($widget['type'] == 'date_select') {
         $element['advanced']['text_parts'][$key] = array(
           '#type' => 'radios',

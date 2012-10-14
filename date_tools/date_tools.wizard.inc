@@ -87,7 +87,7 @@ function date_tools_wizard_form() {
   );
   $form['field']['advanced']['granularity'] = array(
     '#type' => 'select',
-    '#options' => date_granularity_names(),
+    '#options' => DateGranularity::granularityNames(),
     '#default_value' => array('month', 'day', 'year', 'hour', 'minute'),
     '#title' => t('Granularity'),
     '#multiple' => TRUE,

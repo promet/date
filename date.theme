@@ -337,7 +337,7 @@ function theme_date_combo($variables) {
 function theme_date_text_parts($variables) {
   $element = $variables['element'];
   $rows = array();
-  foreach (date_granularity_names() as $key => $part) {
+  foreach (DateGranularity::granularityNames() as $key => $part) {
     if ($element[$key]['#type'] == 'hidden') {
       $rows[] = drupal_render($element[$key]);
     }

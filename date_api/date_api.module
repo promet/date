@@ -122,23 +122,6 @@ function date_type_format($type) {
 }
 
 /**
- * Constructs an array of granularity options and their labels.
- *
- * @return array
- *   An array of translated date parts, keyed by their machine name.
- */
-function date_granularity_names() {
-  return array(
-    'year' => t('Year', array(), array('context' => 'datetime')),
-    'month' => t('Month', array(), array('context' => 'datetime')),
-    'day' => t('Day', array(), array('context' => 'datetime')),
-    'hour' => t('Hour', array(), array('context' => 'datetime')),
-    'minute' => t('Minute', array(), array('context' => 'datetime')),
-    'second' => t('Second', array(), array('context' => 'datetime')),
-  );
-}
-
-/**
  * Formats a time interval with granularity, including past and future context.
  *
  * @param object $date
