@@ -168,23 +168,6 @@ function date_format_interval($date, $granularity = 2, $display_ago = TRUE) {
 }
 
 /**
- * Determines if a timezone string is valid.
- *
- * @param string $timezone
- *   A potentially invalid timezone string.
- *
- * @return bool
- *   TRUE if the timezone is valid, FALSE otherwise.
- */
-function date_timezone_is_valid($timezone) {
-  static $timezone_names;
-  if (empty($timezone_names)) {
-    $timezone_names = array_keys(system_time_zones(TRUE));
-  }
-  return in_array($timezone, $timezone_names);
-}
-
-/**
  * Returns a timezone name to use as a default.
  *
  * @param bool $check_user

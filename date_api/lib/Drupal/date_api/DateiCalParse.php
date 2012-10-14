@@ -465,7 +465,7 @@ class DateiCalParse {
       // Unset invalid timezone names.
       module_load_include('inc', 'date_api', 'date_api.admin');
       $tz = _date_timezone_replacement($tz);
-      if (!date_timezone_is_valid($tz)) {
+      if (!in_array($tz, array_keys(system_time_zones(TRUE)))) {
         $tz = '';
       }
     }
