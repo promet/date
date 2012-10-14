@@ -183,9 +183,9 @@ function theme_date_calendar_day($variables) {
   $date = $variables['date'];
   if (!empty($date)) {
     $output .= '<div class="date-calendar-day">';
-    $output .= '<span class="month">' . date_format_date($date, 'custom', 'M') . '</span>';
-    $output .= '<span class="day">' . date_format_date($date, 'custom', 'j') . '</span>';
-    $output .= '<span class="year">' . date_format_date($date, 'custom', 'Y') . '</span>';
+    $output .= '<span class="month">' . $date->format('M') . '</span>';
+    $output .= '<span class="day">' . $date->format('j') . '</span>';
+    $output .= '<span class="year">' . $date->format('Y') . '</span>';
     $output .= '</div>';
   }
   return $output;

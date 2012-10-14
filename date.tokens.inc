@@ -50,7 +50,7 @@ function date_tokens($type, $tokens, array $data = array(), array $options = arr
       if (!empty($date) && $item['timezone_db'] != $item['timezone']) {
         date_timezone_set($date, timezone_open($item['timezone']));
       }
-      $timestamp = !empty($date) ? date_format_date($date, 'custom', 'U') : '';
+      $timestamp = !empty($date) ? $date->format('U') : '';
       // Generate the token replacements, using the date token type provided
       // by system.module.
       $replacements += token_generate('date', $date_tokens, array('date' => $timestamp), $options);
@@ -63,7 +63,7 @@ function date_tokens($type, $tokens, array $data = array(), array $options = arr
       if (!empty($date) && $item['timezone_db'] != $item['timezone']) {
         date_timezone_set($date, timezone_open($item['timezone']));
       }
-      $timestamp = !empty($date) ? date_format_date($date, 'custom', 'U') : '';
+      $timestamp = !empty($date) ? $date->format('U') : '';
       // Generate the token replacements, using the date token type provided
       // by system.module.
       $replacements += token_generate('date', $date_tokens, array('date' => $timestamp), $options);

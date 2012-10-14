@@ -176,17 +176,17 @@ function theme_date_nav_title($params) {
       break;
     case 'month':
       $format = !empty($format) ? $format : (empty($date_info->mini) ? 'F Y' : 'F');
-      $title = date_format_date($date_info->min_date, 'custom', $format);
+      $title = $date_info->min_date->format($format);
       $date_arg = $date_info->year . '-' . DrupalDateTime::datePad($date_info->month);
       break;
     case 'day':
       $format = !empty($format) ? $format : (empty($date_info->mini) ? 'l, F j, Y' : 'l, F j');
-      $title = date_format_date($date_info->min_date, 'custom', $format);
+      $title = $date_info->min_date->format($format);
       $date_arg = $date_info->year . '-' . DrupalDateTime::datePad($date_info->month) . '-' . DrupalDateTime::datePad($date_info->day);
       break;
     case 'week':
       $format = !empty($format) ? $format : (empty($date_info->mini) ? 'F j, Y' : 'F j');
-      $title = t('Week of @date', array('@date' => date_format_date($date_info->min_date, 'custom', $format)));
+      $title = t('Week of @date', array('@date' => $date_info->min_date->format($format)));
       $date_arg = $date_info->year . '-W' . DrupalDateTime::datePad($date_info->week);
       break;
   }

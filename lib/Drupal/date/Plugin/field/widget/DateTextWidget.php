@@ -85,9 +85,9 @@ class DateTextWidget extends WidgetBase {
       $formats = str_replace('i', 'i:s', array_keys(system_get_date_formats('short')));
       $formats = drupal_map_assoc($formats);
     }
-    $now = date_example_date();
+    $example_date = date_example_date();
     foreach ($formats as $f) {
-      $options[$f] = date_format_date($now, 'custom', $f);
+      $options[$f] = $example_date->format($f);
     }
     $element['input_format'] = array(
       '#type' => 'select',

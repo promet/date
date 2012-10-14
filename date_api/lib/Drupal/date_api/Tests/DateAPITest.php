@@ -41,52 +41,6 @@ class DateAPITest extends WebTestBase {
    * @todo.
    */
   public function testDateAPI() {
-    // Test date_format_date().
-    $formatters = array(
-      'a',
-      'A',
-      'B',
-      'c',
-      'd',
-      'D',
-      'e',
-      'F',
-      'g',
-      'G',
-      'h',
-      'H',
-      'i',
-      'I',
-      'j',
-      'l',
-      'L',
-      'm',
-      'M',
-      'n',
-      'N',
-      'o',
-      'O',
-      'P',
-      'r',
-      'R',
-      's',
-      'S',
-      't',
-      'T',
-      'u',
-      'U',
-      'w',
-      'W',
-      'y',
-      'Y',
-      'z',
-      'Z',
-    );
-    foreach ($formatters as $formatter) {
-      $date_api_format = date_format_date(new DrupalDateTime(), 'custom', $formatter);
-      $php_format = date_format(new DrupalDateTime(), $formatter);
-      $this->assertEqual($date_api_format, $php_format, 'Test that the "' . $formatter . '" formatter is formatted correctly by date_format_date()');
-    }
 
     $calendar = system_calendar();
 

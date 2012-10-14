@@ -100,14 +100,15 @@ class date_views_argument_handler_simple extends views_handler_argument_date {
    */
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
+    $example_date = date_example_date();
 
     // Add an option to control the format of the summary.
     $options = array(
       '' => t('Default format'),
       'custom' => t('Custom format'),
     );
-    $example_month = date_format_date(date_example_date(), 'custom', $this->date_handler->views_formats('month', 'display'));
-    $example_day = date_format_date(date_example_date(), 'custom', $this->date_handler->views_formats('day', 'display'));
+    $example_month = $example_date->format($this->date_handler->views_formats('month', 'display'));
+    $example_day = $example_date->format($this->date_handler->views_formats('day', 'display'));
 
     $form['title_format'] = array(
       '#type' => 'select',
@@ -201,7 +202,7 @@ class date_views_argument_handler_simple extends views_handler_argument_date {
     }
     $format = !empty($this->options['title_format_custom']) && !empty($this->options['title_format_custom']) ? $this->options['title_format_custom'] : $this->date_handler->views_formats($this->options['granularity'], 'display');
     $range = $this->date_handler->arg_range($value);
-    return date_format_date($range[0], 'custom', $format);
+    return range[0]->format($format);
   }
 
   /**
@@ -210,7 +211,7 @@ class date_views_argument_handler_simple extends views_handler_argument_date {
   function title() {
     $format = !empty($this->options['title_format_custom']) && !empty($this->options['title_format_custom']) ? $this->options['title_format_custom'] : $this->date_handler->views_formats($this->options['granularity'], 'display');
     $range = $this->date_handler->arg_range($this->argument);
-    return date_format_date($range[0], 'custom', $format);
+    return $range[0]->format($format);
  }
 
   /**
@@ -228,7 +229,7 @@ class date_views_argument_handler_simple extends views_handler_argument_date {
       return $this->options['exception']['value'];
     }
     $range = $this->date_handler->arg_range($value);
-    return date_format_date($range[0], 'custom', $format);
+    return $range[0]->format($format);
   }
 
   /**

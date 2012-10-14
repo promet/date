@@ -76,9 +76,6 @@ DATE_REGEX_LOOSE is a very loose regex that will pull date parts out
 of an ISO date with or without separators, using either 'T' or a space
 to separate date and time, and with or without time.
 
-date_format_date() is similar to format_date(), except it takes a
-date object instead of a timestamp as the first parameter.
-
 DATE_FORMAT_ISO
 DATE_FORMAT_DATETIME
 DATE_FORMAT_UNIX
@@ -88,7 +85,6 @@ DATE_REGEX_ISO
 DATE_REGEX_DATETIME
 DATE_REGEX_LOOSE
 
-date_format_date();
 date_short_formats();
 date_medium_formats();
 date_long_formats();

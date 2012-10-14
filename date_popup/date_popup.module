@@ -264,8 +264,8 @@ function date_popup_element_value_callback($element, $input = FALSE, &$form_stat
   }
   // Date with errors won't re-display.
   if (date_is_date($date)) {
-    $return['date'] = !$time_only ? date_format_date($date, 'custom', date_popup_date_format($element)) : '';
-    $return['time'] = $has_time ? date_format_date($date, 'custom', date_popup_time_format($element)) : '';
+    $return['date'] = !$time_only ? $date->format(date_popup_date_format($element)) : '';
+    $return['time'] = $has_time ? $date->format(date_popup_time_format($element)) : '';
   }
   elseif (!empty($input)) {
     $return = $input;
@@ -321,6 +321,7 @@ function date_popup_process_date_part(&$element) {
   $granularity = DateGranularity::formatOrder($element['#date_format']);
   $granularity_instance = date_popup_date_granularity($element);
   if (empty($granularity_instance)) return array();
+  $example_date = date_example_date();
 
   // The datepicker can't handle zero or negative values like 0:+1
   // even though the Date API can handle them, so rework the value
@@ -372,7 +373,7 @@ function date_popup_process_date_part(&$element) {
   );
   $sub_element['#value'] = $sub_element['#default_value'];
   // TODO, figure out exactly when we want this description. In many places it is not desired.
-  $sub_element['#description'] = ' '. t('E.g., @date', array('@date' => date_format_date(date_example_date(), 'custom', date_popup_date_format($element))));
+  $sub_element['#description'] = ' '. t('E.g., @date', array('@date' => $example_date->format(date_popup_date_format($element))));
 
   return $sub_element;
 }
@@ -453,7 +454,7 @@ function date_popup_process_time_part(&$element) {
   // TODO, figure out exactly when we want this description. In many places it is not desired.
   $example_date = new DrupalDateTime();
   date_increment_round($example_date, $element['#date_increment']);
-  $sub_element['#description'] = t('E.g., @date', array('@date' => date_format_date($example_date, 'custom', date_popup_time_format($element))));
+  $sub_element['#description'] = t('E.g., @date', array('@date' => $example_date->format(date_popup_time_format($element))));
 
   return ($sub_element);
 }

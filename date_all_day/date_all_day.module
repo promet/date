@@ -138,7 +138,7 @@ function theme_date_all_day($vars) {
     }
   }
 
-  return trim(date_format_date($$which, 'custom', $format) . $suffix);
+  return trim($which->format($format) . $suffix);
 
 }
 

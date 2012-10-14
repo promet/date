@@ -294,7 +294,7 @@ function date_text_element_value_callback($element, $input = FALSE, &$form_state
     $date = date_default_date($element);
   }
   if (date_is_date($date)) {
-    $return['date'] = date_format_date($date, 'custom', $element['#date_format']);
+    $return['date'] = $date->format($element['#date_format']);
   }
   return $return;
 }
@@ -313,14 +313,14 @@ function date_text_element_process($element, &$form_state, $form) {
     return $element;
   }
 
+  $example_date = date_example_date();
   $element['#tree'] = TRUE;
   $element['#theme_wrappers'] = array('date_text');
   $element['date']['#value'] = $element['#value']['date'];
   $element['date']['#type'] = 'textfield';
   $element['date']['#weight'] = !empty($element['date']['#weight']) ? $element['date']['#weight'] : $element['#weight'];
   $element['date']['#attributes'] = array('class' => isset($element['#attributes']['class']) ? $element['#attributes']['class'] += array('date-date') : array('date-date'));
-  $now = date_example_date();
-  $element['date']['#description'] = ' ' . t('Format: @date', array('@date' => date_format_date(date_example_date(), 'custom', $element['#date_format'])));
+  $element['date']['#description'] = ' ' . t('Format: @date', array('@date' => $example_date->format($element['#date_format'])));
   $element['date']['#ajax'] = !empty($element['#ajax']) ? $element['#ajax'] : FALSE;
 
   // Keep the system from creating an error message for the sub-element.

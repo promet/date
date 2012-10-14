@@ -215,96 +215,6 @@ function date_timezone_abbr($refresh = FALSE) {
 }
 
 /**
- * Formats a date, using a date type or a custom date format string.
- *
- * Reworked from Drupal's format_date function to handle pre-1970 and
- * post-2038 dates and accept a date object instead of a timestamp as input.
- * Translates formatted date results, unlike PHP function date_format().
- * Should only be used for display, not input, because it can't be parsed.
- *
- * @param object $date
- *   A date object.
- * @param string $type
- *   (optional) The date format to use. Can be 'small', 'medium' or 'large' for
- *   the preconfigured date formats. If 'custom' is specified, then $format is
- *   required as well. Defaults to 'medium'.
- * @param string $format
- *   (optional) A PHP date format string as required by date(). A backslash
- *   should be used before a character to avoid interpreting the character as
- *   part of a date format. Defaults to an empty string.
- * @param string $langcode
- *   (optional) Language code to translate to. Defaults to NULL.
- *
- * @return string
- *   A translated date string in the requested format.
- *
- * @see format_date()
- */
-function date_format_date($date, $type = 'medium', $format = '', $langcode = NULL) {
-  if (empty($date)) {
-    return '';
-  }
-  if ($type != 'custom') {
-    $format = variable_get('date_format_' . $type);
-  }
-  if ($type != 'custom' && empty($format)) {
-    $format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
-  }
-  $max = strlen($format);
-  $datestring = '';
-  for ($i = 0; $i < $max; $i++) {
-    $c = $format[$i];
-    switch ($c) {
-      case 'l':
-        $datestring .= t($date->format('l'), array(), array('context' => '', 'langcode' => $langcode));
-        break;
-      case 'D':
-        $datestring .= t($date->format('D'), array(), array('context' => '', 'langcode' => $langcode));
-        break;
-      case 'F':
-        $datestring .= t($date->format('F'), array(), array('context' => 'Long month name', 'langcode' => $langcode));
-        break;
-      case 'M':
-        $datestring .= t($date->format('M'), array(), array('langcode' => $langcode));
-        break;
-      case 'A':
-      case 'a':
-        $datestring .= t($date->format($c), array(), array('context' => 'ampm', 'langcode' => $langcode));
-        break;
-      // The timezone name translations can use t().
-      case 'e':
-      case 'T':
-        $datestring .= t($date->format($c));
-        break;
-      // Remaining date parts need no translation.
-      case 'O':
-        $datestring .= sprintf('%s%02d%02d', (date_offset_get($date) < 0 ? '-' : '+'), abs(date_offset_get($date) / 3600), abs(date_offset_get($date) % 3600) / 60);
-        break;
-      case 'P':
-        $datestring .= sprintf('%s%02d:%02d', (date_offset_get($date) < 0 ? '-' : '+'), abs(date_offset_get($date) / 3600), abs(date_offset_get($date) % 3600) / 60);
-        break;
-      case 'Z':
-        $datestring .= date_offset_get($date);
-        break;
-      case '\\':
-        $datestring .= $format[++$i];
-        break;
-      case 'r':
-        $datestring .= date_format_date($date, 'custom', 'D, d M Y H:i:s O', $langcode);
-        break;
-      default:
-        if (strpos('BdcgGhHiIjLmnNosStTuUwWYyz', $c) !== FALSE) {
-          $datestring .= $date->format($c);
-        }
-        else {
-          $datestring .= $c;
-        }
-    }
-  }
-  return $datestring;
-}
-
-/**
  * Formats a time interval with granularity, including past and future context.
  *
  * @param object $date
@@ -658,10 +568,11 @@ function date_api_form_system_settings_submit($form, &$form_state) {
  */
 function date_format_type_options() {
   $options = array();
+  $time = date_example_date();
   $format_types = system_get_date_types();
   if (!empty($format_types)) {
     foreach ($format_types as $type => $type_info) {
-      $options[$type] = $type_info['title'] . ' (' . date_format_date(date_example_date(), $type) . ')';
+      $options[$type] = $type_info['title'] . ' (' . format_date($time->format('U'), $type) . ')';
     }
   }
   return $options;

@@ -242,7 +242,7 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
       // Format the date, special casing the 'interval' format which doesn't
       // need to be processed.
       $dates[$processed]['formatted'] = '';
-      $dates[$processed]['formatted_iso'] = date_format_date($date, 'custom', 'c');
+      $dates[$processed]['formatted_iso'] = $date->format('c');
       if (is_object($date)) {
         if ($format == 'format_interval') {
            $dates[$processed]['interval'] = date_format_interval($date);
@@ -251,16 +251,16 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
            $dates[$processed]['calendar_day'] = date_format_calendar_day($date);
         }
         elseif ($format == 'U') {
-          $dates[$processed]['formatted'] = date_format_date($date, 'custom', $format);
-          $dates[$processed]['formatted_date'] = date_format_date($date, 'custom', $format);
+          $dates[$processed]['formatted'] = $date->format($format);
+          $dates[$processed]['formatted_date'] = $date->format($format);
           $dates[$processed]['formatted_time'] = '';
           $dates[$processed]['formatted_timezone'] = '';
         }
         elseif (!empty($format)) {
-          $dates[$processed]['formatted'] = date_format_date($date, 'custom', $format);
-          $dates[$processed]['formatted_date'] = date_format_date($date, 'custom', DateGranularity::limitFormat($format, DateGranularity::$date_parts));
-          $dates[$processed]['formatted_time'] = date_format_date($date, 'custom', DateGranularity::limitFormat($format, DateGranularity::$time_parts));
-          $dates[$processed]['formatted_timezone'] = date_format_date($date, 'custom', DateGranularity::limitFormat($format, array('timezone')));
+          $dates[$processed]['formatted'] = $date->format($format);
+          $dates[$processed]['formatted_date'] = $date->format(DateGranularity::limitFormat($format, DateGranularity::$date_parts));
+          $dates[$processed]['formatted_time'] = $date->format(DateGranularity::limitFormat($format, DateGranularity::$time_parts));
+          $dates[$processed]['formatted_timezone'] = $date->format(DateGranularity::limitFormat($format, array('timezone')));
         }
       }
     }
@@ -602,7 +602,7 @@ function date_entity_metadata_struct_getter($item, array $options, $name, $type,
 
   $timezone_db = !empty($item['timezone_db']) ? $item['timezone_db'] : 'UTC';
   $date = new DrupalDateTime($value, $timezone_db);
-  return !empty($date) ? date_format_date($date, 'custom', 'U') : NULL;
+  return !empty($date) ? $date->format('U') : NULL;
 }
 
 /**
