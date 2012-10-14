@@ -243,7 +243,7 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
       // need to be processed.
       $dates[$processed]['formatted'] = '';
       $dates[$processed]['formatted_iso'] = $date->format('c');
-      if (is_object($date)) {
+      if ($date instanceOf DrupalDateTime) {
         if ($format == 'format_interval') {
            $dates[$processed]['interval'] = date_format_interval($date);
         }
@@ -676,10 +676,10 @@ function date_default_value($entity_type, $entity, $field, $instance, $langcode)
   $item = array();
   $db_format = date_type_format($field['type']);
   $date = date_default_value_part($item, $field, $instance, $langcode, 'value');
-  $item[0]['value'] = is_object($date) ? date_format($date, $db_format) : '';
+  $item[0]['value'] = $date instanceOf DrupalDateTime ? date_format($date, $db_format) : '';
   if (!empty($field['settings']['todate'])) {
     $date = date_default_value_part($item, $field, $instance, $langcode, 'value2');
-    $item[0]['value2'] = is_object($date) ? date_format($date, $db_format) : '';
+    $item[0]['value2'] = $date instanceOf DrupalDateTime ? date_format($date, $db_format) : '';
   }
 
   // Make sure the default value has the same construct as a loaded field value

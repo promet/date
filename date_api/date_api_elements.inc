@@ -134,7 +134,7 @@ function date_default_date($element) {
     }
   }
   $date = new DrupalDateTime($default_value, $element['#date_timezone'], $format);
-  if (is_object($date)) {
+  if ($date instanceOf DrupalDateTime) {
     date_increment_round($date, $element['#date_increment']);
     return $date;
   }
@@ -374,7 +374,7 @@ function date_text_validate($element, &$form_state) {
   // If the field is empty and required, set error message and return.
   $error_field = implode('][', $element['#parents']);
   if (empty($date) || !empty($date->errors)) {
-    if (is_object($date) && !empty($date->errors)) {
+    if ($date instanceOf DrupalDateTime && !empty($date->errors)) {
       $message = t('The value input for field %field is invalid:', array('%field' => $label));
       form_set_error($error_field, $message);
       return;
@@ -403,7 +403,7 @@ function date_text_input_date($element, $input) {
   }
   $granularity = DateGranularity::formatOrder($element['#date_format']);
   $date = new DrupalDateTime($input['date'], $element['#date_timezone'], $element['#date_format']);
-  if (is_object($date)) {
+  if ($date instanceOf DrupalDateTime) {
     $date->granularity = $granularity;
     return $date;
   }
@@ -521,7 +521,7 @@ function date_parts_element($element, $date, $format) {
   $increment = min(intval($element['#date_increment']), 1);
 
   // Allow empty value as option if date is not required or there is no date.
-  $part_required = (bool) $element['#required'] && is_object($date);
+  $part_required = (bool) $element['#required'] && $date instanceOf DrupalDateTime;
   foreach ($granularity as $field) {
     $part_type = in_array($field, $element['#date_text_parts']) ? 'textfield' : 'select';
     $sub_element[$field] = array(
@@ -536,39 +536,39 @@ function date_parts_element($element, $date, $format) {
         $min_year = $range[0];
         $max_year = $range[1];
 
-        $sub_element[$field]['#default_value'] = is_object($date) ? $date->format('Y') : '';
+        $sub_element[$field]['#default_value'] = $date instanceOf DrupalDateTime ? $date->format('Y') : '';
         if ($part_type == 'select') {
           $sub_element[$field]['#options'] = drupal_map_assoc($calendar->years($min_year, $max_year, $part_required));
         }
         break;
       case 'month':
-        $sub_element[$field]['#default_value'] = is_object($date) ? $date->format('n') : '';
+        $sub_element[$field]['#default_value'] = $date instanceOf DrupalDateTime ? $date->format('n') : '';
         if ($part_type == 'select') {
           $sub_element[$field]['#options'] = $calendar->$month_function($part_required);
         }
         break;
       case 'day':
-        $sub_element[$field]['#default_value'] = is_object($date) ? $date->format('j') : '';
+        $sub_element[$field]['#default_value'] = $date instanceOf DrupalDateTime ? $date->format('j') : '';
         if ($part_type == 'select') {
           $sub_element[$field]['#options'] = drupal_map_assoc($calendar->days($part_required));
         }
         break;
       case 'hour':
-        $sub_element[$field]['#default_value'] = is_object($date) ? $date->format($hours_format) : '';
+        $sub_element[$field]['#default_value'] = $date instanceOf DrupalDateTime ? $date->format($hours_format) : '';
         if ($part_type == 'select') {
           $sub_element[$field]['#options'] = drupal_map_assoc($calendar->hours($hours_format, $part_required));
         }
         $sub_element[$field]['#prefix'] = theme('date_part_hour_prefix', $element);
         break;
       case 'minute':
-        $sub_element[$field]['#default_value'] = is_object($date) ? $date->format('i') : '';
+        $sub_element[$field]['#default_value'] = $date instanceOf DrupalDateTime ? $date->format('i') : '';
         if ($part_type == 'select') {
           $sub_element[$field]['#options'] = drupal_map_assoc($calendar->minutes('i', $part_required, $element['#date_increment']));
         }
         $sub_element[$field]['#prefix'] = theme('date_part_minsec_prefix', $element);
         break;
       case 'second':
-        $sub_element[$field]['#default_value'] = is_object($date) ? $date->format('s') : '';
+        $sub_element[$field]['#default_value'] = $date instanceOf DrupalDateTime ? $date->format('s') : '';
         if ($part_type == 'select') {
           $sub_element[$field]['#options'] = drupal_map_assoc($calendar->seconds('s', $part_required, $element['#date_increment']));
         }
@@ -621,7 +621,7 @@ function date_parts_element($element, $date, $format) {
     $sub_element['ampm'] = array(
       '#type' => 'select',
       '#theme' => 'date_select_element',
-      '#default_value' => is_object($date) ? (date_format($date, 'G') >= 12 ? 'pm' : 'am') : '',
+      '#default_value' => $date instanceOf DrupalDateTime ? (date_format($date, 'G') >= 12 ? 'pm' : 'am') : '',
       '#options' => drupal_map_assoc($calendar->ampm($part_required)),
       '#required' => $part_required,
       '#weight' => 8,
@@ -683,7 +683,7 @@ function date_select_validate($element, &$form_state) {
   $entered = array_values(array_filter($input));
   if (empty($date) || !empty($date->errors)) {
     // The input created a date but it has errors.
-    if (is_object($date) && !empty($date->errors)) {
+    if ($date instanceOf DrupalDateTime && !empty($date->errors)) {
       $message = t('The value input for field %field is invalid:', array('%field' => $label));
       form_set_error($error_field, $message);
       return;
@@ -737,7 +737,7 @@ function date_select_input_date($element, $input) {
   }
 
   $date = new DrupalDateTime($input, $element['#date_timezone']);
-  if (is_object($date)) {
+  if ($date instanceOf DrupalDateTime) {
     $date->granularity = $granularity;
     return $date;
   }

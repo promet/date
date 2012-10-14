@@ -852,7 +852,7 @@ function date_repeat_merge($form_values, $element) {
     $until_element = $element;
     $until_element['#date_format'] = !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d';
     $date = $function($until_element, $form_values['UNTIL']['datetime']);
-    $form_values['UNTIL']['datetime'] = is_object($date) ? $date->format(DATE_FORMAT_DATETIME) : '';
+    $form_values['UNTIL']['datetime'] = $date instanceOf DrupalDateTime ? $date->format(DATE_FORMAT_DATETIME) : '';
   }
   if (array_key_exists('show_exceptions', $form_values) && $form_values['show_exceptions'] === 0) {
     unset($form_values['EXDATE']);
@@ -864,7 +864,7 @@ function date_repeat_merge($form_values, $element) {
       if (is_array($value['datetime'])) {
         $exdate_element['#date_format'] = !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d';
         $date = $function($exdate_element, $form_values['EXDATE'][$delta]['datetime']);
-        $form_values['EXDATE'][$delta]['datetime'] = is_object($date) ? $date->format(DATE_FORMAT_DATETIME) : '';
+        $form_values['EXDATE'][$delta]['datetime'] = $date instanceOf DrupalDateTime ? $date->format(DATE_FORMAT_DATETIME) : '';
       }
     }
   }
@@ -879,7 +879,7 @@ function date_repeat_merge($form_values, $element) {
       if (is_array($value['datetime'])) {
         $rdate_element['#date_format'] = !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d';
         $date = $function($rdate_element, $form_values['RDATE'][$delta]['datetime']);
-        $form_values['RDATE'][$delta]['datetime'] = is_object($date) ? $date->format(DATE_FORMAT_DATETIME) : '';
+        $form_values['RDATE'][$delta]['datetime'] = $date instanceOf DrupalDateTime ? $date->format(DATE_FORMAT_DATETIME) : '';
       }
     }
   }

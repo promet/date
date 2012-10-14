@@ -102,7 +102,7 @@ function date_combo_element_process($element, &$form_state, $form) {
       $element['#default_value'][$processed] = '';
     }
     $date = date_local_date($element['#default_value'], $element['#date_timezone'], $field, $instance, $processed);
-    $element['#default_value'][$processed] = is_object($date) ? date_format($date, DATE_FORMAT_DATETIME) : '';
+    $element['#default_value'][$processed] = $date instanceOf DrupalDateTime ? date_format($date, DATE_FORMAT_DATETIME) : '';
   }
 
   // Blank out the end date for optional end dates that match the start date,

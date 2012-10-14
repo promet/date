@@ -481,7 +481,7 @@ function date_range_years($string, $date = NULL) {
     $min_year = $temp;
   }
   // If there is a current value, stretch the range to include it.
-  $value_year = is_object($date) ? $date->format('Y') : '';
+  $value_year = $date instanceOf DrupalDateTime ? $date->format('Y') : '';
   if (!empty($value_year)) {
     $min_year = min($value_year, $min_year);
     $max_year = max($value_year, $max_year);
@@ -688,7 +688,7 @@ function date_is_all_day($string1, $string2, $granularity = 'second', $increment
  */
 function date_increment_round(&$date, $increment) {
   // Round minutes and seconds, if necessary.
-  if (is_object($date) && $increment > 1) {
+  if ($date instanceOf DrupalDateTime && $increment > 1) {
     $day = intval(date_format($date, 'j'));
     $hour = intval(date_format($date, 'H'));
     $second = intval(round(intval(date_format($date, 's')) / $increment) * $increment);

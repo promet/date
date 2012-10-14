@@ -800,7 +800,7 @@ class DateiCalParse {
       // We only collect a date for UNTIL, but we need it to be
       // inclusive, so force it to a full datetime element at the
       // last second of the day.
-      if (!is_object($ical_array['UNTIL']['datetime'])) {
+      if (!$ical_array['UNTIL']['datetime'] instanceOf DrupalDateTime) {
         // If this is a date without time, give it time.
         if (strlen($ical_array['UNTIL']['datetime']) < 11) {
           $ical_array['UNTIL']['datetime'] .= ' 23:59:59';
@@ -836,7 +836,7 @@ class DateiCalParse {
       $ex_dates = array();
       foreach ($ical_array['EXDATE'] as $value) {
         if (!empty($value['datetime'])) {
-          $date = !is_object($value['datetime']) ? self::ical_date($value, 'UTC') : $value['datetime'];
+          $date = !$value['datetime'] instanceOf DrupalDateTime ? self::ical_date($value, 'UTC') : $value['datetime'];
           $ex_date = !empty($date) ? date_format($date, DATE_FORMAT_ICAL) . 'Z': '';
           if (!empty($ex_date)) {
             $ex_dates[] = $ex_date;
@@ -856,7 +856,7 @@ class DateiCalParse {
     if (isset($ical_array['RDATE']) && is_array($ical_array['RDATE'])) {
       $ex_dates = array();
       foreach ($ical_array['RDATE'] as $value) {
-        $date = !is_object($value['datetime']) ? self::ical_date($value, 'UTC') : $value['datetime'];
+        $date = !$value['datetime'] instanceOf DrupalDateTime ? self::ical_date($value, 'UTC') : $value['datetime'];
         $ex_date = !empty($date) ? date_format($date, DATE_FORMAT_ICAL) . 'Z': '';
         if (!empty($ex_date)) {
           $ex_dates[] = $ex_date;

@@ -114,7 +114,7 @@ function theme_date_all_day($vars) {
 
   $granularity = $field['settings']['granularity'];
 
-  if (empty($date1) || !is_object($date1) || $format == 'format_interval') {
+  if (empty($date1) || !$date1 instanceOf DrupalDateTime || $format == 'format_interval') {
     return;
   }
   if (empty($date2)) {
@@ -158,7 +158,7 @@ function theme_date_all_day_label() {
  * @return TRUE or FALSE.
  */
 function date_all_day_field($field, $instance, $date1, $date2 = NULL) {
-  if (empty($date1) || !is_object($date1)) {
+  if (empty($date1) || !$date1 instanceOf DrupalDateTime) {
     return FALSE;
   }
   elseif (!DateGranularity::hasTime($field['settings']['granularity'])) {
