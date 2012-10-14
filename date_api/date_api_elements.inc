@@ -293,7 +293,7 @@ function date_text_element_value_callback($element, $input = FALSE, &$form_state
   elseif (!empty($element['#default_value'])) {
     $date = date_default_date($element);
   }
-  if (date_is_date($date)) {
+  if (!$date->hasErrors()) {
     $return['date'] = $date->format($element['#date_format']);
   }
   return $return;
@@ -427,7 +427,7 @@ function date_select_element_value_callback($element, $input = FALSE, &$form_sta
   $formats = array('year' => 'Y', 'month' => 'n', 'day' => 'j', 'hour' => 'H', 'minute' => 'i', 'second' => 's');
   foreach ($granularity as $field) {
     if ($field != 'timezone') {
-      $return[$field] = date_is_date($date) ? $date->format($formats[$field]) : '';
+      $return[$field] = !$date->hasErrors() ? $date->format($formats[$field]) : '';
     }
   }
   return $return;

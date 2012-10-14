@@ -352,7 +352,7 @@ function date_combo_validate($element, &$form_state) {
     // Neither the start date nor the end date should be empty at this point
     // unless they held values that couldn't be evaluated.
 
-    if (!$instance['required'] && (!date_is_date($from_date) || !date_is_date($to_date))) {
+    if (!$instance['required'] && ($from_date->hasErrors() || $to_date->hasErrors())) {
       $item = date_element_empty($element, $item, $form_state);
       $errors[] = t('The dates are invalid.');
     }
