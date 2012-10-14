@@ -203,7 +203,7 @@ function date_popup_element_info() {
   $type['date_popup'] = array(
     '#input' => TRUE,
     '#tree' => TRUE,
-    '#date_timezone' => date_default_timezone(),
+    '#date_timezone' => drupal_get_user_timezone(),
     '#date_flexible' => 0,
     '#date_format' => variable_get('date_format_short', 'm/d/Y - H:i'),
     '#datepicker_options' => array(),

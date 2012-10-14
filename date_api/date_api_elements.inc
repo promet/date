@@ -69,7 +69,7 @@ use Drupal\date_api\DateGranularity;
 function _date_api_element_info() {
   $date_base = array(
     '#input' => TRUE, '#tree' => TRUE,
-    '#date_timezone' => date_default_timezone(),
+    '#date_timezone' => drupal_get_user_timezone(),
     '#date_flexible' => 0,
     '#date_format' => variable_get('date_format_short', 'm/d/Y - H:i'),
     '#date_text_parts' => array(),

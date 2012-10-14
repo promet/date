@@ -297,7 +297,7 @@ class DateTextWidget extends WidgetBase {
     }
   
     module_load_include('inc', 'date_api', 'date_api_elements');
-    $timezone = date_get_timezone($field['settings']['tz_handling'], isset($items[0]['timezone']) ? $items[0]['timezone'] : date_default_timezone());
+    $timezone = date_get_timezone($field['settings']['tz_handling'], isset($items[0]['timezone']) ? $items[0]['timezone'] : drupal_get_user_timezone());
   
     // TODO see if there's a way to keep the timezone element from ever being
     // nested as array('timezone' => 'timezone' => value)). After struggling

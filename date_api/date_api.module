@@ -151,27 +151,6 @@ function date_format_interval($date, $granularity = 2, $display_ago = TRUE) {
 }
 
 /**
- * Returns a timezone name to use as a default.
- *
- * @param bool $check_user
- *   (optional) Whether or not to check for a user-configured timezone.
- *   Defaults to TRUE.
- *
- * @return string
- *   The default timezone for a user, if available, otherwise the site.
- */
-function date_default_timezone($check_user = TRUE) {
-  global $user;
-  if ($check_user && variable_get('configurable_timezones', 1) && !empty($user->timezone)) {
-    return $user->timezone;
-  }
-  else {
-    $default = variable_get('date_default_timezone', '');
-    return empty($default) ? 'UTC' : $default;
-  }
-}
-
-/**
  * Returns a timezone object for the default timezone.
  *
  * @param bool $check_user
@@ -182,7 +161,7 @@ function date_default_timezone($check_user = TRUE) {
  *   The default timezone for a user, if available, otherwise the site.
  */
 function date_default_timezone_object($check_user = TRUE) {
-  return timezone_open(date_default_timezone($check_user));
+  return timezone_open(drupal_get_user_timezone());
 }
 
 
@@ -241,15 +220,15 @@ function date_api_theme($existing, $type, $theme, $path) {
 function date_get_timezone($handling, $timezone = '') {
   switch ($handling) {
     case 'date':
-      $timezone = !empty($timezone) ? $timezone : date_default_timezone();
+      $timezone = !empty($timezone) ? $timezone : drupal_get_user_timezone();
       break;
     case 'utc':
       $timezone = 'UTC';
       break;
     default:
-      $timezone = date_default_timezone();
+      $timezone = drupal_get_user_timezone();
   }
-  return $timezone > '' ? $timezone : date_default_timezone();
+  return $timezone > '' ? $timezone : drupal_get_user_timezone();
 }
 
 /**
@@ -266,7 +245,7 @@ function date_get_timezone($handling, $timezone = '') {
 function date_get_timezone_db($handling, $timezone = '') {
   switch ($handling) {
     case 'none':
-      $timezone = date_default_timezone();
+      $timezone = drupal_get_user_timezone();
       break;
     default:
       $timezone = 'UTC';

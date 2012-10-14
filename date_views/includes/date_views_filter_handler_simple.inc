@@ -128,9 +128,9 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
     }
 
     $min_value = $this->get_filter_value('min', $this->value['min']);
-    $min_comp_date = new DrupalDateTime($min_value, date_default_timezone(), $this->format);
+    $min_comp_date = new DrupalDateTime($min_value, drupal_get_user_timezone(), $this->format);
     $max_value = $this->get_filter_value('max', $this->value['max']);
-    $max_comp_date = new DrupalDateTime($max_value, date_default_timezone(), $this->format);
+    $max_comp_date = new DrupalDateTime($max_value, drupal_get_user_timezone(), $this->format);
     $field_min = $this->date_handler->sql_field($field, NULL, $min_comp_date);
     $field_min = $this->date_handler->sql_format($this->format, $field_min);
     $field_max = $this->date_handler->sql_field($field, NULL, $max_comp_date);
@@ -158,7 +158,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
     }
 
     $value = $this->get_filter_value('value', $this->value['value']);
-    $comp_date = new DrupalDateTime($value, date_default_timezone(), $this->format);
+    $comp_date = new DrupalDateTime($value, drupal_get_user_timezone(), $this->format);
     $field = $this->date_handler->sql_field($field, NULL, $comp_date);
     $field = $this->date_handler->sql_format($this->format, $field);
     $placeholder = $this->placeholder();

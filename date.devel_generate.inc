@@ -49,7 +49,7 @@ function date_devel_generate($entity, $field, $instance, $bundle) {
     $timezones = array_keys(system_time_zones(TRUE));
     $key = mt_rand(0, count($timezones) - 1);
     if (!array_key_exists($key, $timezones)) {
-      $timezone = date_default_timezone();
+      $timezone = drupal_get_user_timezone();
     }
     else {
       $timezone = $timezones[$key];

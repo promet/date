@@ -199,7 +199,7 @@ function date_element_info() {
  */
 function date_formatter_process($formatter, $entity_type, $entity, $field, $instance, $langcode, $item, $display) {
   $dates = array();
-  $timezone = date_default_timezone();
+  $timezone = drupal_get_user_timezone();
   if (empty($timezone)) {
     return $dates;
   }
@@ -569,7 +569,7 @@ function date_default_value_part($item, $field, $instance, $langcode, $part = 'v
     return NULL;
   }
   elseif ($default_value == 'strtotime' && !empty($default_value_code)) {
-    $date = new DrupalDateTime($default_value_code, date_default_timezone());
+    $date = new DrupalDateTime($default_value_code, drupal_get_user_timezone());
   }
   elseif ($part == 'value2' && $default_value == 'same') {
     if ($instance['settings']['default_value'] == 'blank' || empty($item[0]['value'])) {

@@ -75,7 +75,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
   $exceptions = $parts[1];
   $additions = $parts[2];
 
-  $timezone = !empty($element['#date_timezone']) ? $element['#date_timezone'] : date_default_timezone();
+  $timezone = !empty($element['#date_timezone']) ? $element['#date_timezone'] : drupal_get_user_timezone();
 
   $merged_values = date_repeat_merge($rrule, $element);
 
@@ -601,7 +601,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
         '#name' => 'exceptions|' . $instance,
         '#type' => $element['#date_repeat_widget'],
         '#default_value' => $EXCEPT,
-        '#date_timezone' => !empty($element['#date_timezone']) ? $element['#date_timezone'] : date_default_timezone(),
+        '#date_timezone' => !empty($element['#date_timezone']) ? $element['#date_timezone'] : drupal_get_user_timezone(),
         '#date_format' => !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d',
         '#date_text_parts'  => !empty($element['#date_text_parts']) ? $element['#date_text_parts'] : array(),
         '#date_year_range'  => !empty($element['#date_year_range']) ? $element['#date_year_range'] : '-3:+3',
@@ -659,7 +659,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
         '#type' => $element['#date_repeat_widget'],
         '#name' => 'additions|' . $instance,
         '#default_value' => $RDATE,
-        '#date_timezone' => !empty($element['#date_timezone']) ? $element['#date_timezone'] : date_default_timezone(),
+        '#date_timezone' => !empty($element['#date_timezone']) ? $element['#date_timezone'] : drupal_get_user_timezone(),
         '#date_format' => !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d',
         '#date_text_parts'  => !empty($element['#date_text_parts']) ? $element['#date_text_parts'] : array(),
         '#date_year_range'  => !empty($element['#date_year_range']) ? $element['#date_year_range'] : '-3:+3',

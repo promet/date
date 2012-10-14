@@ -592,7 +592,7 @@ class DateiCalParse {
       return NULL;
     }
     elseif (empty($ical_date['tz'])) {
-      $from_tz = date_default_timezone();
+      $from_tz = drupal_get_user_timezone();
     }
     else {
       $from_tz = $ical_date['tz'];
