@@ -197,7 +197,7 @@ function date_element_info() {
  *       )
  *     )
  */
-function date_formatter_process($formatter, $entity_type, $entity, $field, $instance, $langcode, $item, $display) {
+function date_formatter_process($formatter, $entity, $field, $instance, $langcode, $item, $settings) {
   $dates = array();
   $timezone = drupal_get_user_timezone();
   if (empty($timezone)) {
@@ -205,7 +205,6 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
   }
 
   $granularity = date_granularity($field);
-  $settings = $display['settings'];
   $field_name = $field['field_name'];
   $format = date_formatter_format($formatter, $settings, $granularity, $langcode);
   $timezone = isset($item['timezone']) ? $item['timezone'] : '';
@@ -275,11 +274,10 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
     'field' => $field,
     'instance' => $instance,
     'format' => $format,
-    'entity_type' => $entity_type,
     'entity' => $entity,
     'langcode' => $langcode,
     'item' => $item,
-    'display' => $display,
+    'settings' => $settings,
   );
   drupal_alter('date_formatter_dates', $dates, $context);
 

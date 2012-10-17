@@ -480,8 +480,8 @@ function hook_date_field_formatter_settings_form_alter(&$form, &$form_state, $co
   $field = $context['field'];
   $instance = $context['instance'];
   $view_mode = $context['view_mode'];
-  $display = $instance['display'][$view_mode];
-  $formatter = $display['type'];
+  $settings = $context['settings'];
+  $formatter = $context['formatter'];
   if ($formatter == 'date_default') {
     $form['show_repeat_rule'] = array(
       '#title' => t('Repeat rule:'),
@@ -514,9 +514,8 @@ function hook_date_field_formatter_settings_summary_alter(&$summary, $context) {
   $field = $context['field'];
   $instance = $context['instance'];
   $view_mode = $context['view_mode'];
-  $display = $instance['display'][$view_mode];
-  $formatter = $display['type'];
-  $settings = $display['settings'];
+  $formatter = $context['formatter'];
+  $settings = $context['settings'];
   if (isset($settings['show_repeat_rule']) && !empty($field['settings']['repeat'])) {
     if ($settings['show_repeat_rule'] == 'show') {
       $summary[] = t('Show repeat rule');

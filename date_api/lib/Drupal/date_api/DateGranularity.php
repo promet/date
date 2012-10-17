@@ -58,7 +58,7 @@ class DateGranularity {
    * @return array
    *   An array of translated date parts, keyed by their machine name.
    */
-  function granularityNames() {
+  public static function granularityNames() {
     return array(
       'year' => t('Year', array(), array('context' => 'datetime')),
       'month' => t('Month', array(), array('context' => 'datetime')),

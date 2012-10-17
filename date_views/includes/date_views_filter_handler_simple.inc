@@ -65,7 +65,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
     $default_option = $prefix == 'max' ? $options['default_to_date'] : $options['default_date'];
     if (!empty($default_option)) {
       str_replace('now', 'today', $default_option);
-      $date = date_create($default_option, date_default_timezone_object());
+      $date = new DrupalDateTime($default_option);
       $default_date = !empty($date) ? $date->format($this->format) : '';
 
       // The format for our filter is in ISO format, but the widget will need it in datetime format.

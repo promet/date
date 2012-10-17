@@ -8,202 +8,6 @@
 use Drupal\Core\Datetime\DrupalDateTime;
 
 /**
- * Implements hook_field_formatter_info().
- */
-function date_field_formatter_info() {
-  $formatters = array(
-    'date_default' => array(
-      'label' => t('Date and time'),
-      'field types' => array('date', 'datestamp', 'datetime'),
-      'settings' => array(
-        'format_type' => 'long',
-        'multiple_number' => '',
-        'multiple_from' => '',
-        'multiple_to' => '',
-        'fromto' => 'both',
-      ),
-    ),
-    'format_interval' => array(
-      'label' => t('Time ago'),
-      'field types' => array('date', 'datestamp', 'datetime'),
-      'settings' => array(
-        'interval' => 2,
-        'interval_display' => 'time ago',
-      ),
-    ),
-    'date_plain' => array(
-      'label' => t('Plain'),
-      'field types' => array('date', 'datestamp', 'datetime'),
-    ),
-  );
-  return $formatters;
-}
-
-/**
- * Implements hook_field_formatter_settings_form().
- */
-function date_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
-  $display = $instance['display'][$view_mode];
-  $formatter = $display['type'];
-  module_load_include('inc', 'date', 'date_admin');
-  switch ($formatter) {
-    case 'format_interval':
-      $form = date_interval_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
-      break;
-    default:
-      $form = date_default_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
-      break;
-  }
-  $context = array(
-    'field' => $field,
-    'instance' => $instance,
-    'view_mode' => $view_mode,
-  );
-  drupal_alter('date_field_formatter_settings_form', $form, $form_state, $context);
-  return $form;
-}
-
-/**
- * Implements hook_field_formatter_settings_summary().
- */
-function date_field_formatter_settings_summary($field, $instance, $view_mode) {
-  $display = $instance['display'][$view_mode];
-  $formatter = $display['type'];
-  module_load_include('inc', 'date', 'date_admin');
-  switch ($formatter) {
-    case 'format_interval':
-      $summary = date_interval_formatter_settings_summary($field, $instance, $view_mode);
-      break;
-    default:
-      $summary = date_default_formatter_settings_summary($field, $instance, $view_mode);
-      break;
-  }
-  $context = array(
-    'field' => $field,
-    'instance' => $instance,
-    'view_mode' => $view_mode,
-  );
-  drupal_alter('date_field_formatter_settings_summary', $summary, $context);
-
-  return implode('<br />', $summary);
-}
-
-/**
- * Implements hook_field_formatter_view().
- *
- * Useful values:
- *
- *   $entity->date_id
- *     If set, this will show only an individual date on a field with
- *     multiple dates. The value should be a string that contains
- *     the following values, separated with periods:
- *     - module name of the module adding the item
- *     - node nid
- *     - field name
- *     - delta value of the field to be displayed
- *     - other information the module's custom theme might need
- *
- *     Used by the calendar module and available for other uses.
- *     example: 'date:217:field_date:3:test'
- *
- *   $entity->date_repeat_show
- *     If true, tells the theme to show all the computed values
- *     of a repeating date. If not true or not set, only the
- *     start date and the repeat rule will be displayed.
- */
-function date_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
-  $settings = $display['settings'];
-  $formatter = $display['type'];
-  $variables = array(
-    'entity' => $entity,
-    'entity_type' => $entity_type,
-    'field' => $field,
-    'instance' => $instance,
-    'langcode' => $langcode,
-    'items' => $items,
-    'display' => $display,
-    'dates' => array(),
-    'attributes' => array(),
-    'rdf_mapping' => array(),
-    'add_rdf' => module_exists('rdf'),
-  );
-
-  // If there is an RDf mapping for this date field, pass it down to the theme.
-  $rdf_mapping = array();
-  if (!empty($entity->rdf_mapping) && function_exists('rdf_rdfa_attributes')) {
-    if (!empty($entity->rdf_mapping[$field['field_name']])) {
-      $variables['rdf_mapping'] = $rdf_mapping = $entity->rdf_mapping[$field['field_name']];
-    }
-  }
-
-  // Give other modules a chance to prepare the entity before formatting it.
-  drupal_alter('date_formatter_pre_view', $entity, $variables);
-
-  // See if we are only supposed to display a selected
-  // item from multiple value date fields.
-  $selected_deltas = array();
-  if (!empty($entity->date_id)) {
-    foreach ((array) $entity->date_id as $key => $id) {
-      list($module, $nid, $field_name, $selected_delta, $other) = explode('.', $id . '.');
-      if ($field_name == $field['field_name']) {
-        $selected_deltas[] = $selected_delta;
-      }
-    }
-  }
-
-  switch ($display['type']) {
-    case 'date_plain':
-      foreach ($items as $delta => $item) {
-        if (!empty($entity->date_id) && !in_array($delta, $selected_deltas)) {
-          continue;
-        }
-        else {
-          if (empty($item['value2']) || $item['value'] == $item['value2']) {
-            $element[$delta] = array('#markup' => $item['value']);
-          }
-          else {
-            $element[$delta] = array('#markup' => t('!start-date to !end-date', array('!start-date' => $item['value'], '!end-date' => $item['value2'])));
-          }
-        }
-      }
-      break;
-    case 'format_interval':
-      foreach ($items as $delta => $item) {
-        if (!empty($entity->date_id) && !in_array($delta, $selected_deltas)) {
-          continue;
-        }
-        else {
-          $variables['delta'] = $delta;
-          $variables['item'] = $item;
-          $variables['dates'] = date_formatter_process($formatter, $entity_type, $entity, $field, $instance, $langcode, $item, $display);
-          $variables['attributes'] = !empty($rdf_mapping) ? rdf_rdfa_attributes($rdf_mapping, $item['value']) : array();
-          $element[$delta] = array('#markup' => theme('date_display_interval', $variables));
-        }
-      }
-      break;
-    default:
-      foreach ($items as $delta => $item) {
-        if (!empty($entity->date_id) && !in_array($delta, $selected_deltas)) {
-          continue;
-        }
-        else {
-          $variables['delta'] = $delta;
-          $variables['item'] = $item;
-          $variables['dates'] = date_formatter_process($formatter, $entity_type, $entity, $field, $instance, $langcode, $item, $display);
-          $variables['attributes'] = !empty($rdf_mapping) ? rdf_rdfa_attributes($rdf_mapping, $item['value']) : array();
-          $output = theme('date_display_combination', $variables);
-          if (!empty($output)) {
-            $element[$delta] = array('#markup' => $output);
-          }
-        }
-      }
-      break;
-  }
-  return $element;
-}
-
-/**
  * Implements hook_field_is_empty().
  */
 function date_field_is_empty($item, $field) {
@@ -238,31 +42,23 @@ function date_field_info() {
       'default_value2' => 'same',
       'default_value_code2' => '',
     ),
-    // Integrate with the Entity Metadata module.
-    'property_type' => 'date',
-    'property_callbacks' => array('date_entity_metadata_property_info_alter'),
+    'default_widget' => 'date_select',
+    'default_formatter' => 'date_default',
+    'default_token_formatter' => 'date_plain',
+    'field item class' => '\Drupal\date\Type\DateItem',
   );
   return array(
     'datetime' => array(
       'label' => 'Date',
       'description' => t('Store a date in the database as a datetime field, recommended for complete dates and times that may need timezone conversion.'),
-      'default_widget' => 'date_select',
-      'default_formatter' => 'date_default',
-      'default_token_formatter' => 'date_plain',
       ) + $settings,
     'date' => array(
       'label' => 'Date (ISO format)',
       'description' => t('Store a date in the database as an ISO date, recommended for historical or partial dates.'),
-      'default_widget' => 'date_select',
-      'default_formatter' => 'date_default',
-      'default_token_formatter' => 'date_plain',
       ) + $settings,
     'datestamp' => array(
       'label' => 'Date (Unix timestamp)',
       'description' => t('Store a date in the database as a timestamp, deprecated format to support legacy data.'),
-      'default_widget' => 'date_select',
-      'default_formatter' => 'date_default',
-      'default_token_formatter' => 'date_plain',
       ) + $settings,
   );
 }

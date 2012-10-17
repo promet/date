@@ -55,7 +55,6 @@ function date_all_day_date_formatter_dates_alter(&$dates, $context) {
   $field = $context['field'];
   $instance = $context['instance'];
   $format = $context['format'];
-  $entity_type = $context['entity_type'];
   $entity = $context['entity'];
   $date1 = $dates['value']['local']['object'];
   $date2 = $dates['value2']['local']['object'];
@@ -72,7 +71,6 @@ function date_all_day_date_formatter_dates_alter(&$dates, $context) {
       'date1' => $date1,
       'date2' => $date2,
       'format' => $format,
-      'entity_type' => $entity_type,
       'entity' => $entity));
     $all_day2 = theme('date_all_day', array(
       'field' => $field,
@@ -81,7 +79,6 @@ function date_all_day_date_formatter_dates_alter(&$dates, $context) {
       'date1' => $date1,
       'date2' => $date2,
       'format' => $format,
-      'entity_type' => $entity_type,
       'entity' => $entity));
     $dates['value']['formatted_time'] = theme('date_all_day_label');
     $dates['value2']['formatted_time'] = theme('date_all_day_label');

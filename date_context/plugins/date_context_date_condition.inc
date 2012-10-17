@@ -92,7 +92,7 @@ class date_context_date_condition extends context_condition_node {
               date_timezone_set($date, timezone_open($timezone));
               $date2 = $date->format(DATE_FORMAT_DATETIME);
               str_replace('now', 'today', $options['value']);
-              $date = date_create($options['value'], date_default_timezone_object());
+              $date = new DrupalDateTime($options['value']);
               $compdate = $date->format(DATE_FORMAT_DATETIME);
               switch($options['operation']) {
                 case '=':

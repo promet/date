@@ -151,21 +151,6 @@ function date_format_interval($date, $granularity = 2, $display_ago = TRUE) {
 }
 
 /**
- * Returns a timezone object for the default timezone.
- *
- * @param bool $check_user
- *   (optional) Whether or not to check for a user-configured timezone.
- *   Defaults to TRUE.
- *
- * @return object
- *   The default timezone for a user, if available, otherwise the site.
- */
-function date_default_timezone_object($check_user = TRUE) {
-  return timezone_open(drupal_get_user_timezone());
-}
-
-
-/**
  * Implements hook_element_info().
  */
 function date_api_element_info() {
@@ -698,7 +683,6 @@ function date_sql_pad($str, $size = 2, $pad = '0', $side = 'l') {
    */
 function date_calendar_week_range($week, $year) {
   $min_date = new DrupalDateTime($year . '-01-01 00:00:00');
-  $min_date->setTimezone(date_default_timezone_object());
 
   // Move to the right week.
   date_modify($min_date, '+' . strval(7 * ($week - 1)) . ' days');
@@ -733,7 +717,6 @@ function date_calendar_week_range($week, $year) {
 function date_iso_week_range($week, $year) {
   // Get to the last ISO week of the previous year.
   $min_date = new DrupalDateTime(($year - 1) . '-12-28 00:00:00');
-  date_timezone_set($min_date, date_default_timezone_object());
 
   // Find the first day of the first ISO week in the year.
   date_modify($min_date, '+1 Monday');

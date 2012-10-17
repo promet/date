@@ -274,15 +274,13 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
     $description['!count'] = trim(t('!repeats_every_interval !count times', array('!repeats_every_interval ' => '', '!count' => $rrule['COUNT'])));
   }
   if (!empty($rrule['UNTIL'])) {
-    $until = DateiCalParse::ical_date($rrule['UNTIL'], 'UTC');
-    date_timezone_set($until, date_default_timezone_object());
+    $until = DateiCalParse::ical_date($rrule['UNTIL'], drupal_get_user_timezone());
     $description['!until'] = trim(t('!repeats_every_interval until !until_date', array('!repeats_every_interval ' => '', '!until_date' => $until->format($format))));
   }
   if ($exceptions) {
     $values = array();
     foreach ($exceptions as $exception) {
-      $except = DateiCalParse::ical_date($exception, 'UTC');
-      date_timezone_set($except, date_default_timezone_object());
+      $except = DateiCalParse::ical_date($exception, drupal_get_user_timezone());
       $values[] = $except->format($format);
     }
     $description['!except'] = trim(t('!repeats_every_interval except !except_dates', array('!repeats_every_interval ' => '', '!except_dates' => implode(', ', $values))));
@@ -294,8 +292,7 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
   if ($additions) {
     $values = array();
     foreach ($additions as $addition) {
-      $add = DateiCalParse::ical_date($addition, 'UTC');
-      date_timezone_set($add, date_default_timezone_object());
+      $add = DateiCalParse::ical_date($addition, drupal_get_user_timezone());
       $values[] = $add->format($format);
     }
     $description['!additional'] = trim(t('Also includes !additional_dates.', array('!additional_dates' => implode(', ', $values))));
