@@ -13,6 +13,43 @@ module_load_include('inc', 'date', 'date.field');
 module_load_include('inc', 'date', 'date_elements');
 
 /**
+ * A callback for the time element to add an 'All day' checkbox to
+ * the form.
+ */
+function _timestamp_time_callback(&$element, &$form_state, $date) {
+  if (!empty($element['#date_all_day_toggle'])) {
+    $parents = $element['#parents'];
+    array_pop($parents);
+    $first_parent = array_shift($parents);
+    $all_day_id = $first_parent . '[' . implode('][', $parents) . '][all_day]';;
+    $element['time']['#states'] = array(
+      'visible' => array(
+        'input[name="' . $all_day_id . '"]' => array('checked' => FALSE),
+      ));
+  }
+}
+
+/**
+ * Custom validation for the timestamp form element.
+ * The date element contains an ISO date created from user input,
+ * convert it back to a timestamp.
+ */
+function _timestamp_validate(&$element, &$form_state) {
+  $input_exists = FALSE;
+  $input = drupal_array_get_nested_value($form_state['values'], $element['#parents'], $input_exists);
+  if ($input_exists) {
+    $date = new DrupalDateTime($input['value'], $element['value']['#date_timezone']);
+    dsm($date);
+    // If this is an all day date, set the time back to midnight before saving it.
+    if (!empty($input['all_day'])) {
+      $date->setTime(0, 0, 0);
+    }
+    $date->setTimeZone(timezone_open('UTC'));
+    form_set_value($element['value'], $date->getTimestamp(), $form_state);
+  }
+}
+
+/**
  * Helper function to figure out the bundle name for an entity.
  */
 function date_get_entity_bundle($entity_type, $entity) {
@@ -46,14 +83,11 @@ function date_default_format($type) {
  */
 function date_input_date($field, $instance, $element, $input) {
   switch ($instance['widget']['type']) {
-    case 'date_text':
-      $function = 'date_text_input_date';
-      break;
     case 'date_popup':
-      $function = 'date_popup_input_date';
+      $function = 'datetime_get_input_date';
       break;
     default:
-      $function = 'date_select_input_date';
+      $function = 'datelist_get_input_date';
   }
   return $function($element, $input);
 }
@@ -141,7 +175,7 @@ function date_theme() {
  *
  * date_combo will create a 'start' and optional 'end' date, along with
  * an optional 'timezone' column for date-specific timezones. Each
- * 'start' and 'end' date will be constructed from date_select or date_text.
+ * 'start' and 'end' date will be constructed from date_select.
  */
 function date_element_info() {
   $type = array();

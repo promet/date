@@ -41,27 +41,6 @@ function theme_date_select($variables) {
 }
 
 /**
- * Returns HTML for a date text element.
- */
-function theme_date_text($variables) {
-  $element = $variables['element'];
-  $attributes = !empty($element['#wrapper_attributes']) ? $element['#wrapper_attributes'] : array('class' => array());
-  $attributes['class'][] = 'container-inline-date';
-  // If there is no description, the floating date elements need some extra
-  // padding below them.
-  $wrapper_attributes = array('class' => array('date-padding'));
-  if (empty($element['date']['#description'])) {
-    $wrapper_attributes['class'][] = 'clearfix';
-  }
-  // Add a wrapper to mimic the way a single value field works, for ease in
-  // using #states.
-  if (isset($element['#children'])) {
-    $element['#children'] = '<div id="' . $element['#id'] . '" ' . new Attribute($wrapper_attributes) . '>' . $element['#children'] . '</div>';
-  }
-  return '<div ' . new Attribute($attributes) . '>' . theme('form_element', $element) . '</div>';
-}
-
-/**
  * Returns HTML for a date select input form element.
  */
 function theme_date_select_element($variables) {
@@ -69,16 +48,6 @@ function theme_date_select_element($variables) {
   $parents = $element['#parents'];
   $part = array_pop($parents);
   return '<div class="date-' . $part . '">' . theme('select', $element) . '</div>';
-}
-
-/**
- * Returns HTML for a date textfield input form element.
- */
-function theme_date_textfield_element($variables) {
-  $element = $variables['element'];
-  $parents = $element['#parents'];
-  $part = array_pop($parents);
-  return '<div class="date-' . $part . '">' . theme('textfield', $element) . '</div>';
 }
 
 /**

@@ -39,7 +39,7 @@ class DateTimezoneTest extends DateFieldBase {
           $granularity = DateGranularity::arrayFromPrecision($max_granularity);
           $options = array(
             'label' => $label,
-            'widget_type' => 'date_text',
+            'widget_type' => 'date_popup',
             'field_name' => $field_name,
             'field_type' => $field_type,
             'input_format' => 'custom',

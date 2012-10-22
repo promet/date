@@ -111,23 +111,6 @@ function hook_date_formatter_dates_alter(&$dates, $context) {
 }
 
 /**
- * Alter the date_text element before the rest of the validation is run.
- *
- * @param array $element
- *   The $element array.
- * @param array $form_state
- *   A keyed array containing the current state of the form.
- * @param array $input
- *   The array of input values to be validated.
- */
-function hook_date_text_pre_validate_alter(&$element, &$form_state, &$input) {
-  // Let Date module massage the format for all day values so they will pass
-  // validation. The All day flag, if used, actually exists on the parent
-  // element.
-  date_all_day_value($element, $form_state);
-}
-
-/**
  * Alter the date_select element before the rest of the validation is run.
  *
  * @param array $element
@@ -184,9 +167,9 @@ function hook_date_combo_pre_validate_alter(&$element, &$form_state, $context) {
     // If we have an all day flag on this date and the time is empty, change the
     // format to match the input value so we don't get validation errors.
     $element['#date_is_all_day'] = TRUE;
-    $element['value']['#date_format'] = date_part_format('date', $element['value']['#date_format']);
+    $element['value']['#date_date_format'] = date_part_format('date', $element['value']['#date_date_format']);
     if (!empty($field['settings']['todate'])) {
-      $element['value2']['#date_format'] = date_part_format('date', $element['value2']['#date_format']);
+      $element['value2']['#date_date_format'] = date_part_format('date', $element['value2']['#date_date_format']);
     }
   }
 }
@@ -236,27 +219,6 @@ function hook_date_combo_validate_date_end_alter(&$date, &$form_state, $context)
   // If this is an 'All day' value, set the time to midnight.
   if (!empty($context['element']['#date_is_all_day'])) {
     $date->setTime(0, 0, 0);
-  }
-}
-
-/**
- * Alter the date_text widget element.
- *
- * @param array $element
- *   An associative array containing the properties of the date_text element.
- * @param array $form_state
- *   A keyed array containing the current state of the form.
- * @param array $context
- *   An associative array containing the following keys:
- *   - form: Nested array of form elements that comprise the form.
- *
- * @see date_text_element_process()
- */
-function hook_date_text_process_alter(&$element, &$form_state, $context) {
-  $all_day_id = !empty($element['#date_all_day_id']) ? $element['#date_all_day_id'] : '';
-  if ($all_day_id != '') {
-    // All Day handling on text dates works only if the user leaves the time out
-    // of the input value. There is no element to hide or show.
   }
 }
 

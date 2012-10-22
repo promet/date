@@ -53,7 +53,6 @@ class DateRepeatFormTest extends WebTestBase {
     // Testing options.
     $widget_options = array(
       'date_select' => 'select',
-      'date_text' => 'text',
       'date_popup' => 'popup');
 
     foreach ($widget_options as $widget => $options) {

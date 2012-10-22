@@ -28,7 +28,7 @@ class DateFieldTest extends DateFieldBase {
   public function testField() {
     // Create a date fields with simple values.
     foreach (array('date', 'datestamp', 'datetime') as $field_type) {
-      foreach (array('date_select', 'date_popup', 'date_text') as $widget_type) {
+      foreach (array('date_select', 'date_popup') as $widget_type) {
         $field_name = "field_test_$widget_type";
         $label = 'Test';
         $options = array(
@@ -65,13 +65,6 @@ class DateFieldTest extends DateFieldBase {
         $edit[$field_name . '[und][0][value2][day]'] = '7';
         $edit[$field_name . '[und][0][value2][hour]'] = '11';
         $edit[$field_name . '[und][0][value2][minute]'] = '30';
-      }
-    }
-    elseif ($widget_type == 'date_text') {
-      $edit[$field_name . '[und][0][value][date]'] = '10/07/2010 - 10:30';
-      if ($todate) {
-        $edit[$field_name . '[und][0][show_todate]'] = '1';
-        $edit[$field_name . '[und][0][value2][date]'] = '10/07/2010 - 11:30';
       }
     }
     elseif ($widget_type == 'date_popup') {

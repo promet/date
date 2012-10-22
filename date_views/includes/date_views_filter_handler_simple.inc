@@ -177,7 +177,6 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
   function widget_options() {
     $options = array(
       'date_select' => t('Select'),
-      'date_text' => t('Text'),
       'date_popup' => t('Popup'),
       );
     if (!module_exists('date_popup')) {
@@ -315,9 +314,6 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
     }
 
     $type = $this->options['form_type'];
-    if ($type == 'date_popup' && !module_exists('date_popup')) {
-      $type = 'date_text';
-    }
 
     $format = $this->date_handler->views_formats($this->options['granularity'], 'sql');
     $granularity = array_keys($this->date_handler->date_parts($this->options['granularity']));
@@ -332,7 +328,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
         '#type' => $type,
         '#size' => 20,
         '#default_value' => !empty($this->value[$prefix]) ? $this->value[$prefix] : $default_date,
-        '#date_format' => DateGranularity::limitFormat($format, $granularity),
+        '#date_date_format' => DateGranularity::limitFormat($format, $granularity),
         '#date_label_position' => 'within',
         '#date_year_range' => $this->options['year_range'],
         '#process' => array($type . '_element_process'),

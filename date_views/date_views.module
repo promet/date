@@ -377,7 +377,7 @@ function date_views_select_validate(&$form, &$form_state) {
   if (empty($form['value']) && empty($form['min'])) {
     return;
   }
-  $granularity = (!empty($form['min']['#date_format'])) ? DateGranularity::formatOrder($form['min']['#date_format']) : DateGranularity::formatOrder($form['value']['#date_format']);
+  $granularity = (!empty($form['min']['#date_date_format'])) ? date_format_order($form['min']['#date_date_format']) : date_format_order($form['value']['#date_date_format']);
   $filled = array();
   $value = drupal_array_get_nested_value($form_state['input'], $form['#parents']);
   foreach ($granularity as $part) {

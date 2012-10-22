@@ -136,37 +136,45 @@ function date_combo_element_process($element, &$form_state, $form) {
     '#default_value' => isset($element['#default_value'][$from_field]) ? $element['#default_value'][$from_field] : '',
     '#delta'         => $delta,
     '#date_timezone' => $element['#date_timezone'],
-    '#date_format'      => DateGranularity::limitFormat(date_input_format($element, $field, $instance), $field['settings']['granularity']),
-    '#date_text_parts'  => (array) $instance['widget']['settings']['text_parts'],
+    '#date_date_format'=> date_get_format($instance, 'date'),
     '#date_increment'   => $instance['widget']['settings']['increment'],
     '#date_year_range'  => $instance['widget']['settings']['year_range'],
     '#date_label_position' => $instance['widget']['settings']['label_position'],
+    '#date_time_callbacks' => array('timestamp_time_callback'),
     );
+
+    $element[$from_field]['all_day'] = array(
+      '#title' => t('All Day'),
+      '#type' => !empty($instance['settings']['all_day_toggle']) ? 'checkbox' : 'hidden',
+      '#default_value' => isset($items[$delta][$from_field]['all_day']) ? $items[$delta][$from_field]['all_day'] : NULL,
+    );
+
 
   $description =  !empty($instance['description']) ? t($instance['description']) : '';
 
   // Give this element the right type, using a Date API
   // or a Date Popup element type.
-  $element[$from_field]['#attributes'] = array('class' => array('date-clear'));
-  $element[$from_field]['#wrapper_attributes'] = array('class' => array());
-  $element[$from_field]['#wrapper_attributes']['class'][] = 'date-no-float';
+  //$element[$from_field]['#attributes'] = array('class' => array('date-clear'));
+  //$element[$from_field]['#wrapper_attributes'] = array('class' => array());
+  //$element[$from_field]['#wrapper_attributes']['class'][] = 'date-no-float';
 
   switch ($instance['widget']['type']) {
     case 'date_select':
-      $element[$from_field]['#type'] = 'date_select';
-      $element[$from_field]['#theme_wrappers'] = array('date_select');
+      $element[$from_field]['#type'] = 'datelist';
+      $element[$from_field]['#date_text_parts'] = (array) $instance['widget']['settings']['text_parts'];
+      //$element[$from_field]['#theme_wrappers'] = array('datelist');
       $element['#attached']['js'][] = drupal_get_path('module', 'date') . '/date.js';
       $element[$from_field]['#ajax'] = !empty($element['#ajax']) ? $element['#ajax'] : FALSE;
       break;
     case 'date_popup':
-      $element[$from_field]['#type'] = 'date_popup';
-      $element[$from_field]['#theme_wrappers'] = array('date_popup');
-      $element[$from_field]['#ajax'] = !empty($element['#ajax']) ? $element['#ajax'] : FALSE;
-      break;
-    default:
-      $element[$from_field]['#type'] = 'date_text';
-      $element[$from_field]['#theme_wrappers'] = array('date_text');
-      $element[$from_field]['#ajax'] = !empty($element['#ajax']) ? $element['#ajax'] : FALSE;
+      $element[$from_field]['#type'] = 'datetime';
+      $element[$from_field]['#date_time_format'] = date_get_format($instance, 'time');
+      $element[$from_field]['#date_date_element'] = 'date';
+      $element[$from_field]['#date_time_element'] = 'time';
+      $element[$from_field]['#date_date_callback'] = 'datetime_jquery_datepicker';
+      $element[$from_field]['#date_time_callback'] = '';
+      //$element[$from_field]['#theme_wrappers'] = array('datetime');
+      //$element[$from_field]['#ajax'] = !empty($element['#ajax']) ? $element['#ajax'] : FALSE;
       break;
   }
 
@@ -178,8 +186,8 @@ function date_combo_element_process($element, &$form_state, $form) {
     $element[$from_field]['#title'] = '';
     $element[$to_field] = $element[$from_field];
     $element[$to_field]['#title'] = t('to:');
-    $element[$from_field]['#wrapper_attributes']['class'][] = 'start-date-wrapper';
-    $element[$to_field]['#wrapper_attributes']['class'][] = 'end-date-wrapper';
+    //$element[$from_field]['#wrapper_attributes']['class'][] = 'start-date-wrapper';
+    //$element[$to_field]['#wrapper_attributes']['class'][] = 'end-date-wrapper';
     $element[$to_field]['#default_value'] = isset($element['#default_value'][$to_field]) ? $element['#default_value'][$to_field] : '';
     $element[$to_field]['#required'] = ($element[$from_field]['#required'] && $field['settings']['todate'] == 'required');
     $element[$to_field]['#weight'] += .2;
@@ -269,6 +277,7 @@ function date_combo_validate($element, &$form_state) {
 
   $field = field_widget_field($element, $form_state);
   $instance = field_widget_instance($element, $form_state);
+  $format = date_get_format($instance);
 
   $context = array(
     'field' => $field,
@@ -393,7 +402,7 @@ function date_combo_validate($element, &$form_state) {
       // test a roundtrip back to the original timezone to catch
       // invalid dates, like 2AM on the day that spring daylight savings
       // time begins in the US.
-      $granularity = DateGranularity::formatOrder($element[$from_field]['#date_format']);
+      $granularity = date_format_order($format);
       if ($timezone != $timezone_db && DateGranularity::hasTime($granularity)) {
         date_timezone_set($from_date, timezone_open($timezone));
         date_timezone_set($to_date, timezone_open($timezone));
@@ -438,13 +447,6 @@ function date_input_format($element, $field, $instance) {
  * Implements hook_date_select_pre_validate_alter().
  */
 function date_date_select_pre_validate_alter(&$element, &$form_state, &$input) {
-  date_empty_end_date($element, $form_state, $input);
-}
-
-/**
- * Implements hook_date_text_pre_validate_alter().
- */
-function date_date_text_pre_validate_alter(&$element, &$form_state, &$input) {
   date_empty_end_date($element, $form_state, $input);
 }
 

@@ -60,6 +60,16 @@ function _date_field_instance_settings_form($field, $instance) {
     '#fieldset' => 'default_values',
   );
 
+  $form['all_day_toggle'] = array(
+    '#type' => 'select',
+    '#title' => t('All day toggle'),
+    '#description' => t("Add an 'All day' checkbox to the form to allow the user to hide or show the time."),
+    '#default_value' => $settings['all_day_toggle'],
+    '#options' => array(0 => t('No'), 1 => t('Yes')),
+    '#weight' => 2,
+  );
+
+
   $form['#element_validate'] = array('date_field_instance_settings_form_validate');
 
   $context = array(

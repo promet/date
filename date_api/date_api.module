@@ -11,6 +11,96 @@
 use Drupal\Core\Datetime\DrupalDateTime;
 
 /**
+ * Format options array.
+ *
+ * TODO Remove any formats not supported by the widget, if any.
+ */
+function date_datepicker_formats() {
+  $formats = str_replace('i', 'i:s', array_keys(system_get_date_formats('short')));
+  $formats = drupal_map_assoc($formats);
+  return $formats;
+}
+
+function date_get_format($instance, $part = 'all') {
+  switch ($instance['widget']['type']) {
+    case 'date_select':
+      $date_format = $instance['widget']['date_date_format'];
+      $time_format = '';
+      break;
+    case 'date_popup':
+      $date_format = datetime_get_format('date', $instance['widget']['date_date_format']);
+      $time_format = datetime_get_format('date', $instance['widget']['date_time_format']);
+      break;
+  }
+  switch ($part) {
+    case 'date':
+      return $date_format;
+    case 'time':
+      return $time_format;
+    default:
+      return trim($date_format . ' ' . $time_format);
+  }
+  return $format;
+}
+
+/**
+ * Converts a date format to an ordered array of parts.
+ *
+ * Example:
+ *   date_format_order('m/d/Y H:i')
+ *   returns
+ *     array(
+ *       0 => 'month',
+ *       1 => 'day',
+ *       2 => 'year',
+ *       3 => 'hour',
+ *       4 => 'minute',
+ *     );
+ *
+ * @param string $format
+ *   A date format string.
+ *
+ * @return array
+ *   An array of ordered elements from the given format string that
+ *   includes only the date parts that exist in that string.
+ */
+function date_format_order($format) {
+  $order = array();
+  $max = strlen($format);
+  for ($i = 0; $i < $max; $i++) {
+    switch ($format[$i]) {
+      case 'd':
+      case 'j':
+        $order[] = 'day';
+        break;
+      case 'F':
+      case 'M':
+      case 'm':
+      case 'n':
+        $order[] = 'month';
+        break;
+      case 'Y':
+      case 'y':
+        $order[] = 'year';
+        break;
+      case 'g':
+      case 'G':
+      case 'h':
+      case 'H':
+        $order[] = 'hour';
+        break;
+      case 'i':
+        $order[] = 'minute';
+        break;
+      case 's':
+        $order[] = 'second';
+        break;
+    }
+  }
+  return $order;
+}
+
+/**
  * Set up some constants.
  *
  * Includes standard date types, format strings, strict regex strings for ISO
@@ -162,6 +252,7 @@ function date_api_element_info() {
  * Implements hook_theme().
  */
 function date_api_theme($existing, $type, $theme, $path) {
+
   $base = array(
     'file' => 'theme.inc',
     'path' => "$path/theme",
@@ -170,7 +261,6 @@ function date_api_theme($existing, $type, $theme, $path) {
     'date_nav_title' => $base + array('variables' => array('granularity' => NULL, 'view' => NULL, 'link' => NULL, 'format' => NULL)),
     'date_timezone' => $base + array('render element' => 'element'),
     'date_select' => $base + array('render element' => 'element'),
-    'date_text' => $base + array('render element' => 'element'),
     'date_select_element' => $base + array('render element' => 'element'),
     'date_textfield_element' => $base + array('render element' => 'element'),
     'date_part_hour_prefix' => $base + array('render element' => 'element'),
@@ -188,7 +278,37 @@ function date_api_theme($existing, $type, $theme, $path) {
     'date_views_filter_form' => $base + array('template' => 'date-views-filter-form', 'render element' => 'form'),
     'date_calendar_day' => $base + array('variables' => array('date' => NULL)),
     'date_time_ago' => $base + array('variables' => array('start_date' => NULL, 'end_date' => NULL, 'interval' => NULL)),
+    'datelist' => array(
+      'render element' => 'element',
+    ),
   );
+}
+
+/**
+ * Returns HTML for a date selection form element.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #title, #value, #options, #description, #required,
+ *     #attributes.
+ *
+ * @ingroup themeable
+ */
+function theme_datelist($variables) {
+
+  $element = $variables['element'];
+
+  $attributes = array();
+  if (isset($element['#id'])) {
+    $attributes['id'] = $element['#id'];
+  }
+  if (!empty($element['#attributes']['class'])) {
+    $attributes['class'] = (array) $element['#attributes']['class'];
+  }
+  $attributes['class'][] = 'container-inline';
+
+  return '<div' . new Attribute($attributes) . '>' . drupal_render_children($element) . '</div>';
 }
 
 /**
@@ -287,60 +407,6 @@ function date_order() {
 function date_range_valid($string) {
   $matches = preg_match('@^(\-[0-9]+|[0-9]{4}):([\+|\-][0-9]+|[0-9]{4})$@', $string);
   return $matches < 1 ? FALSE : TRUE;
-}
-
-/**
- * Splits a string like -3:+3 or 2001:2010 into an array of min and max years.
- *
- * Center the range around the current year, if any, but expand it far
- * enough so it will pick up the year value in the field in case
- * the value in the field is outside the initial range.
- *
- * @param string $string
- *   A min and max year string like '-3:+1'.
- * @param object $date
- *   (optional) A date object. Defaults to NULL.
- *
- * @return array
- *   A numerically indexed array, containing a minimum and maximum year.
- */
-function date_range_years($string, $date = NULL) {
-  $this_year = date_format(new DrupalDateTime(), 'Y');
-  list($min_year, $max_year) = explode(':', $string);
-
-  // Valid patterns would be -5:+5, 0:+1, 2008:2010.
-  $plus_pattern = '@[\+|\-][0-9]{1,4}@';
-  $year_pattern = '@^[0-9]{4}@';
-  if (!preg_match($year_pattern, $min_year, $matches)) {
-    if (preg_match($plus_pattern, $min_year, $matches)) {
-      $min_year = $this_year + $matches[0];
-    }
-    else {
-      $min_year = $this_year;
-    }
-  }
-  if (!preg_match($year_pattern, $max_year, $matches)) {
-    if (preg_match($plus_pattern, $max_year, $matches)) {
-      $max_year = $this_year + $matches[0];
-    }
-    else {
-      $max_year = $this_year;
-    }
-  }
-  // We expect the $min year to be less than the $max year.
-  // Some custom values for -99:+99 might not obey that.
-  if ($min_year > $max_year) {
-    $temp = $max_year;
-    $max_year = $min_year;
-    $min_year = $temp;
-  }
-  // If there is a current value, stretch the range to include it.
-  $value_year = $date instanceOf DrupalDateTime ? $date->format('Y') : '';
-  if (!empty($value_year)) {
-    $min_year = min($value_year, $min_year);
-    $max_year = max($value_year, $max_year);
-  }
-  return array($min_year, $max_year);
 }
 
 /**
@@ -829,3 +895,214 @@ function date_calendar_week($date) {
   return $week;
 }
 
+/**
+ * Expands a date element into an array of individual elements (i.e.
+ * year, month, day). All form elements are designed to have sane
+ * defaults so any or all can be omitted.
+ *
+ * Required settings:
+ *   #default_value
+ *     The default value should be expressed in ISO datetime format,
+ *     using the format used by DrupalDateTime's __toString() function.
+ *     Provide a date with or without a timzone name appended to it,
+ *     adjusted to the proper local timezone, i.e. '2012-01-31 10:30:00
+ *     America/Chicago'. NOTE - Converting a date stored in the database
+ *     from UTC to the local zone and converting it back to UTC before
+ *     storing it is not handled here. This element simply explodes and
+ *     displays the string date that is provided to it and converts the
+ *     user input back into a string value on submission.
+ * Optional properties in the $form may include:
+ *   #date_date_format
+ *     A date format string that describes the sub-elements that should
+ *     be displayed to the end user and their order. Punctuation and
+ *     other values in the format string will be ignored.
+ *     Defaults to the site 'short' date format.
+ *   #date_year_range
+ *     A description of the range of years to display, like '1900:2050',
+ *     '-3:+3' or '2000:+3', where the first value describes the earliest
+ *     year and the second the latest year in the range. A year
+ *     in either position means that specific year. A +/- value
+ *     describes a dynamic value that is that many years earlier or
+ *     later than the current year at the time the form is displayed.
+ *     Defaults to '1900:2050'.
+ *   #date_increment
+ *     The increment to use for minutes and seconds, i.e. '15' would show
+ *     only :00, :15, :30 and :45.
+ *     Defaults to 1 to show every minute and second.
+ *   #date_calendar
+ *     The calendar system to use for displaying possible date parts.
+ *     Depends on the calendar plugins available on this site.
+ *     Defaults to 'gregorian'.
+ *
+ * Example:
+ *   $form = array(
+ *     '#type' => 'date',
+ *     '#default_value' => '2000-01-01 00:00:00',
+ *     '#date_input_format' => 'd.m.Y H:i',
+ *     '#date_year_range' => '2010:2020',
+ *     '#date_increment' => 15,
+ *   );
+ */
+function form_process_datelist($element, &$form_state) {
+
+  // Load translated date part labels from the appropriate calendar plugin.
+  $calendar = system_calendar($element['#date_calendar']);
+
+  // If empty, this will default to the current date.
+  $date = new \Drupal\Core\Datetime\DrupalDateTime($element['#value']);
+
+  $element['#tree'] = TRUE;
+
+  $hours_format  = strpos(strtolower($element['#date_date_format']), 'a') ? 'g': 'G';
+  $month_function  = strpos($element['#date_date_format'], 'F') !== FALSE ? 'month_names' : 'month_names_abbr';
+
+  // Determine the order of day, month, year in the site's chosen date format.
+  $format = $element['#date_date_format'];
+  $order = date_format_order($format);
+  $has_time = FALSE;
+
+  // Output multi-selector for date.
+  foreach ($order as $part) {
+    switch ($part) {
+      case 'day':
+        $options = $calendar->days($element['#required']);
+        $format = 'j';
+        $title = t('Day');
+        break;
+      case 'month':
+        $options = $calendar->$month_function($element['#required']);
+        $format = 'n';
+        $title = t('Month');
+        break;
+      case 'year':
+        $range = date_range_years($element['#date_year_range'], $date);
+        $options = $calendar->years($range[0], $range[1], $element['#required']);
+        $format = 'Y';
+        $title = t('Year');
+        break;
+      case 'hour':
+        $format = $hours_format;
+        $options = $calendar->hours($hours_format, $element['#required']);
+        $has_time = TRUE;
+        $title = t('Hour');
+        break;
+      case 'minute':
+        $format = 'i';
+        $options = $calendar->minutes('i', $element['#required'], $element['#date_increment']);
+        $has_time = TRUE;
+        $title = t('Minute');
+        break;
+      case 'second':
+        $format = 's';
+        $options = $calendar->seconds('s', $element['#required'], $element['#date_increment']);
+        $has_time = TRUE;
+        $title = t('Second');
+        break;
+    }
+
+    $default = !empty($element['#value'][$part]) ? $element['#value'][$part] : '';
+    $value = $date instanceOf \Drupal\Core\Datetime\DrupalDateTime && !$date->hasErrors() ? intval($date->format($format)) : $default;
+
+    $element['#attributes']['title'] = $title;
+    $element[$part] = array(
+      '#type' => 'select',
+      '#title' => $title,
+      '#title_display' => 'invisible',
+      '#value' => $value,
+      '#attributes' => $element['#attributes'],
+      '#options' => $options,
+      '#required' => $element['#required'],
+    );
+  }
+
+  // Add the am/pm element if the format requires it.
+  if (($hours_format == 'g' || $hours_format == 'h') && $has_time) {
+    $default = !empty($element['#value']['ampm']) ? $element['#value']['ampm'] : 'am';
+    $value = $date instanceOf \Drupal\Core\Datetime\DrupalDateTime && !$date->hasErrors() ? ($date->format('G') >= 12 ? 'pm' : 'am') : $default;
+    $element['ampm'] = array(
+      '#type' => 'select',
+      '#title' => t('AM/PM'),
+      '#title_display' => 'invisible',
+      '#theme' => 'date_select_element',
+      '#default_value' => $value,
+      '#options' => $calendar->ampm($element['#required']),
+      '#required' => $element['#required'],
+      '#weight' => 10,
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Element value callback for datelist element.
+ */
+function datelist_value_callback($element, $input = FALSE, &$form_state = array()) {
+  $parts = date_format_order($element['#date_date_format']);
+  $return = array_fill_keys($parts, '');
+  $date = NULL;
+  if ($input !== FALSE) {
+    $date = datelist_get_input_date($element, $input);
+  }
+  elseif (!empty($element['#default_value'])) {
+    $date = new \Drupal\Core\Datetime\DrupalDateTime($element['#default_value']);
+  }
+  if ($date instanceOf \Drupal\Core\Datetime\DrupalDateTime && !$date->hasErrors()) {
+    $parse = date_parse($date);
+    foreach ($parts as $part) {
+      $return[$part] = $parse[$part];
+    }
+  }
+  return $return;
+}
+
+/**
+ * Helper function to turn the user input for a date list back into
+ * a qualified date object.
+ */
+function datelist_get_input_date($element, $input) {
+
+  // Was anything entered? If not, we have no date.
+  if (empty($input) || !is_array($input)) {
+    return NULL;
+  }
+  $test_values = array_values(array_filter($input));
+  if (empty($test_values)) {
+    return NULL;
+  }
+
+  if (isset($input['ampm'])) {
+    if ($input['ampm'] == 'pm' && $input['hour'] < 12) {
+      $input['hour'] += 12;
+    }
+    elseif ($input['ampm'] == 'am' && $input['hour'] == 12) {
+      $input['hour'] -= 12;
+    }
+    unset($input['ampm']);
+  }
+  return new \Drupal\Core\Datetime\DrupalDateTime($input);
+}
+
+/**
+ * Validates the date type to adjust 12 hour time and prevent invalid
+ * dates (e.g., February 30, 2006).
+ *
+ * If the date is valid, the date is set in the form as a string
+ * using the format designated in __toString().
+ */
+function datelist_validate($element, &$form_state) {
+  $input_exists = FALSE;
+  $input = drupal_array_get_nested_value($form_state['values'], $element['#parents'], $input_exists);
+  if ($input_exists) {
+    $date = datelist_get_input_date($element, $input);
+    if ($date instanceOf \Drupal\Core\Datetime\DrupalDateTime && !$date->hasErrors()) {
+      form_set_value($element, $date->__toString(), $form_state);
+    }
+    elseif (!$element['#required']) {
+      form_set_value($element, NULL, $form_state);
+    }
+    else {
+      form_error($element, t('The specified date is invalid.'));
+    }
+  }
+}

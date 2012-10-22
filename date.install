@@ -86,3 +86,10 @@ function date_field_schema($field) {
 function date_update_last_removed() {
   return 7004;
 }
+
+// @TODO Write upgrade path for text widgets to combine them with Popup widgets as new 'Datetime' widgets.
+// @TOTO Write upgrade path for select widgets convert them to new 'Datelist' widgets.
+// @TODO Write upgrade path for 'input_format' widget settings to create 'date_date_format' and 'date_time_format'.
+// @TODO Write upgrade path to remove 'input_format_custom'.
+// @TODO Write upgrade path to remove datetime storage method.
+// @TODO Removing custom formats that won't work in datepicker for consistency.

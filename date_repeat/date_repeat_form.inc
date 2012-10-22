@@ -512,7 +512,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
       '#title' => t('Until', array(), array('context' => 'Date repeat')),
       '#title_display' => 'invisible',
       '#default_value' => $UNTIL,
-      '#date_format' => !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d',
+      '#date_date_format' => !empty($element['#date_date_format']) ? $element['#date_date_format'] : 'Y-m-d',
       '#date_timezone' => $timezone,
       '#date_text_parts'  => !empty($element['#date_text_parts']) ? $element['#date_text_parts'] : array(),
       '#date_year_range'  => !empty($element['#date_year_range']) ? $element['#date_year_range'] : '-3:+3',
@@ -602,7 +602,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
         '#type' => $element['#date_repeat_widget'],
         '#default_value' => $EXCEPT,
         '#date_timezone' => !empty($element['#date_timezone']) ? $element['#date_timezone'] : drupal_get_user_timezone(),
-        '#date_format' => !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d',
+        '#date_date_format' => !empty($element['#date_date_format']) ? DateGranularity::limitFormat($element['#date_date_format'], array('year', 'month', 'day')) : 'Y-m-d',
         '#date_text_parts'  => !empty($element['#date_text_parts']) ? $element['#date_text_parts'] : array(),
         '#date_year_range'  => !empty($element['#date_year_range']) ? $element['#date_year_range'] : '-3:+3',
         '#date_label_position' => !empty($element['#date_label_position']) ? $element['#date_label_position'] : 'within',
@@ -660,7 +660,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
         '#name' => 'additions|' . $instance,
         '#default_value' => $RDATE,
         '#date_timezone' => !empty($element['#date_timezone']) ? $element['#date_timezone'] : drupal_get_user_timezone(),
-        '#date_format' => !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d',
+        '#date_date_format' => !empty($element['#date_date_format']) ? DateGranularity::limitFormat($element['#date_date_format'], array('year', 'month', 'day')) : 'Y-m-d',
         '#date_text_parts'  => !empty($element['#date_text_parts']) ? $element['#date_text_parts'] : array(),
         '#date_year_range'  => !empty($element['#date_year_range']) ? $element['#date_year_range'] : '-3:+3',
         '#date_label_position' => !empty($element['#date_label_position']) ? $element['#date_label_position'] : 'within',
@@ -850,7 +850,7 @@ function date_repeat_merge($form_values, $element) {
   if (array_key_exists('UNTIL', $form_values) && is_array($form_values['UNTIL']['datetime'])) {
     $function = $element['#date_repeat_widget'] . '_input_date';
     $until_element = $element;
-    $until_element['#date_format'] = !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d';
+    $until_element['#date_date_format'] = !empty($element['#date_date_format']) ? DateGranularity::limitFormat($element['#date_date_format'], array('year', 'month', 'day')) : 'Y-m-d';
     $date = $function($until_element, $form_values['UNTIL']['datetime']);
     $form_values['UNTIL']['datetime'] = $date instanceOf DrupalDateTime ? $date->format(DATE_FORMAT_DATETIME) : '';
   }
@@ -862,7 +862,7 @@ function date_repeat_merge($form_values, $element) {
     $exdate_element = $element;
     foreach ($form_values['EXDATE'] as $delta => $value) {
       if (is_array($value['datetime'])) {
-        $exdate_element['#date_format'] = !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d';
+        $exdate_element['#date_date_format'] = !empty($element['#date_date_format']) ? DateGranularity::limitFormat($element['#date_date_format'], array('year', 'month', 'day')) : 'Y-m-d';
         $date = $function($exdate_element, $form_values['EXDATE'][$delta]['datetime']);
         $form_values['EXDATE'][$delta]['datetime'] = $date instanceOf DrupalDateTime ? $date->format(DATE_FORMAT_DATETIME) : '';
       }
@@ -877,7 +877,7 @@ function date_repeat_merge($form_values, $element) {
     $rdate_element = $element;
     foreach ($form_values['RDATE'] as $delta => $value) {
       if (is_array($value['datetime'])) {
-        $rdate_element['#date_format'] = !empty($element['#date_format']) ? DateGranularity::limitFormat($element['#date_format'], array('year', 'month', 'day')) : 'Y-m-d';
+        $rdate_element['#date_date_format'] = !empty($element['#date_date_format']) ? DateGranularity::limitFormat($element['#date_date_format'], array('year', 'month', 'day')) : 'Y-m-d';
         $date = $function($rdate_element, $form_values['RDATE'][$delta]['datetime']);
         $form_values['RDATE'][$delta]['datetime'] = $date instanceOf DrupalDateTime ? $date->format(DATE_FORMAT_DATETIME) : '';
       }

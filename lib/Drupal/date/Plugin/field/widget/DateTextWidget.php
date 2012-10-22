@@ -28,8 +28,8 @@ use Drupal\date_api\DateGranularity;
  *     "datetime"
  *   },
  *   settings = {
- *     "input_format" = "",
- *     "input_format_custom" = "",
+ *     "date_date_format" = "",
+ *     "date_time_format" = "",
  *     "increment" = 15,
  *     "text_parts" = "",
  *     "year_range" = "-3:+3",
@@ -69,8 +69,8 @@ class DateTextWidget extends WidgetBase {
     $widget = $instance['widget'];
     $settings = $widget['settings'];
 
-    if (empty($settings['input_format'])) {
-      $settings['input_format'] = date_default_format('date_select');
+    if (empty($settings['date_date_format'])) {
+      $settings['date_date_format'] = date_default_format('date_select');
     }
     
     $element = array(
@@ -78,51 +78,30 @@ class DateTextWidget extends WidgetBase {
     );
     
     $options = array();
-    if ($widget['type'] == 'date_popup' && module_exists('date_popup')) {
-      $formats = date_popup_formats();
-    }
-    else {
-      // Example input formats must show all possible date parts, so add seconds.
-      $formats = str_replace('i', 'i:s', array_keys(system_get_date_formats('short')));
-      $formats = drupal_map_assoc($formats);
-    }
+    $formats = date_datepicker_formats();
     $example_date = date_example_date();
     foreach ($formats as $f) {
       $options[$f] = $example_date->format($f);
     }
-    $element['input_format'] = array(
+
+    $element['date_date_format'] = array(
       '#type' => 'select',
-      '#title' => t('Date entry options'),
-      '#default_value' => $settings['input_format'],
+      '#title' => t('Date entry format'),
+      '#default_value' => $settings['date_date_format'],
       '#options' => $options,
       '#description' => t('Control the order and format of the options users see.'),
       '#weight' => 3,
       '#fieldset' => 'date_format',
     );
-    // Only a limited set of formats is available for the Date Popup module.
-    if ($widget['type'] != 'date_popup') {
-      $element['input_format']['#options']['custom'] = t('Custom format');
-      $element['input_format_custom'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Custom input format'),
-        '#default_value' => $settings['input_format_custom'],
-        '#description' => t("Override the input format selected above. Define a php date format string like 'm-d-Y H:i' (see <a href=\"@link\">http://php.net/date</a> for more details).", array('@link' => 'http://php.net/date')),
-        '#weight' => 5,
-        '#fieldset' => 'date_format',
-        '#attributes' => array('class' => array('indent')),
-        '#states' => array(
-          'visible' => array(
-            ':input[name="instance[widget][settings][input_format]"]' => array('value' => 'custom'),
-          ),
-        ),
-      );
-    }
-    else {
-      $element['input_format_custom'] = array(
-        '#type' => 'hidden',
-        '#value' => '',
-      );
-    }
+    $element['date_time_format'] = array(
+      '#type' => 'select',
+      '#title' => t('Time entry format'),
+      '#default_value' => $settings['date_time_format'],
+      '#options' => $options,
+      '#description' => t('Control the order and format of the options users see.'),
+      '#weight' => 3,
+      '#fieldset' => 'date_format',
+    );
     
     if (in_array($widget['type'], array('date_select', 'date_popup'))) {
       $element['year_range'] = array(

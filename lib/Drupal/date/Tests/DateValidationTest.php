@@ -28,7 +28,7 @@ class DateValidationTest extends DateFieldBase {
     // Attempts to create text date field stored as a date with default settings
     // (from input which is not valid).
     foreach (array('date', 'datestamp', 'datetime') as $field_type) {
-      foreach (array('date_select', 'date_popup', 'date_text') as $widget_type) {
+      foreach (array('date_select', 'date_popup') as $widget_type) {
         $field_name = 'field_test';
         $label = 'Test';
         $options = array(
@@ -67,9 +67,6 @@ class DateValidationTest extends DateFieldBase {
       $edit[$field_name . '[und][0][value][hour]'] = '10';
       $edit[$field_name . '[und][0][value][minute]'] = '30';
     }
-    elseif ($widget_type == 'date_text') {
-      $edit[$field_name . '[und][0][value][date]'] = '15/49/2011 - 10:30';
-    }
     elseif ($widget_type == 'date_popup') {
       $edit[$field_name . '[und][0][value][date]'] = '15/49/2011';
       $edit[$field_name . '[und][0][value][time]'] = '10:30';
@@ -86,9 +83,6 @@ class DateValidationTest extends DateFieldBase {
       $edit[$field_name . '[und][0][value][day]'] = '10';
       $edit[$field_name . '[und][0][value][hour]'] = '10';
       $edit[$field_name . '[und][0][value][minute]'] = '30';
-    }
-    elseif ($widget_type == 'date_text') {
-      $edit[$field_name . '[und][0][value][date]'] = '12/10/11 - 10:30';
     }
     elseif ($widget_type == 'date_popup') {
       $edit[$field_name . '[und][0][value][date]'] = '12/10/11';
@@ -107,9 +101,6 @@ class DateValidationTest extends DateFieldBase {
       $edit[$field_name . '[und][0][value][day]'] = '10';
       $edit[$field_name . '[und][0][value][hour]'] = '29';
       $edit[$field_name . '[und][0][value][minute]'] = '95';
-    }
-    elseif ($widget_type == 'date_text') {
-      $edit[$field_name . '[und][0][value][date]'] = '12/10/2011 - 29:95';
     }
     elseif ($widget_type == 'date_popup') {
       $edit[$field_name . '[und][0][value][date]'] = '12/10/2011';
@@ -137,9 +128,6 @@ class DateValidationTest extends DateFieldBase {
       $edit[$field_name . '[und][0][value][day]'] = '10';
       $edit[$field_name . '[und][0][value][hour]'] = '';
       $edit[$field_name . '[und][0][value][minute]'] = '';
-    }
-    elseif ($widget_type == 'date_text') {
-      $edit[$field_name . '[und][0][value][date]'] = '12/10/2011';
     }
     elseif ($widget_type == 'date_popup') {
       $edit[$field_name . '[und][0][value][date]'] = '12/10/2011';

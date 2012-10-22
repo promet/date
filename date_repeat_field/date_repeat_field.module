@@ -339,7 +339,6 @@ function date_repeat_field_widget_validate($element, &$form_state) {
   $error_field_until =  $error_field_base . '][rrule][until_child][datetime][';
   if (!empty($item['rrule']) && $rrule_values['range_of_repeat'] === 'UNTIL' && empty($rrule_values['UNTIL']['datetime'])) {
     switch ($instance['widget']['type']) {
-      case 'date_text':
       case 'date_popup':
         form_set_error($error_field_until . 'date', t("Missing value in 'Range of repeat'. (UNTIL).", array(), array('context' => 'Date repeat')));
         break;
@@ -531,7 +530,7 @@ function date_repeat_field_date_combo_process_alter(&$element, &$form_state, $co
       '#theme_wrappers' => array('date_repeat_rrule'),
       '#default_value' => isset($item['rrule']) ? $item['rrule'] : '',
       '#date_timezone' => $element['#date_timezone'],
-      '#date_format'      => DateGranularity::limitFormat(date_input_format($element, $field, $instance), $field['settings']['granularity']),
+      '#date_date_format' => date_input_format($element, $field, $instance),
       '#date_text_parts'  => (array) $instance['widget']['settings']['text_parts'],
       '#date_increment'   => $instance['widget']['settings']['increment'],
       '#date_year_range'  => $instance['widget']['settings']['year_range'],
