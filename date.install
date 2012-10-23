@@ -9,75 +9,75 @@
  * Implements hook_field_schema().
  */
 function date_field_schema($field) {
-  $db_columns = array();
-  switch ($field['type']) {
-    case 'datestamp':
-      $db_columns['value'] = array(
-        'type' => 'int',
-        'not null' => FALSE,
-        'sortable' => TRUE,
-        'views' => TRUE,
+  switch ($field['settings']['todate']) {
+    case '':
+      $db_columns = array(
+        'value' => array(
+          'description' => 'The date value',
+          'type' => 'varchar',
+          'length' => 20,
+          'not null' => FALSE,
+        ),
+        'data' => array(
+          'description' => 'A serialized array with more date info.',
+          'type' => 'text',
+          'not null' => FALSE,
+        ),
       );
-      break;
-    case 'datetime':
-      $db_columns['value'] = array(
-        'type' => 'datetime',
-        'mysql_type' => 'datetime',
-        'pgsql_type' => 'timestamp without time zone',
-        'sqlite_type' => 'varchar',
-        'sqlsrv_type' => 'smalldatetime',
-        'not null' => FALSE,
-        'sortable' => TRUE,
-        'views' => TRUE,
+      $indexes = array(
+        'value' => 'value',
       );
       break;
     default:
-      $db_columns['value'] = array(
-        'type' => 'varchar',
-        'length' => 20,
-        'not null' => FALSE,
-        'sortable' => TRUE,
-        'views' => TRUE,
+      $db_columns = array(
+        'value' => array(
+          'description' => 'The start date value',
+          'type' => 'varchar',
+          'length' => 20,
+          'not null' => FALSE,
+        ),
+        'value2' => array(
+          'description' => 'The end date value',
+          'type' => 'varchar',
+          'length' => 20,
+          'not null' => FALSE,
+        ),
+        'data' => array(
+          'description' => 'A serialized array with more date info.',
+          'type' => 'text',
+          'not null' => FALSE,
+        ),
+      );
+      $indexes = array(
+        'value' => 'value',
       );
       break;
+
+
   }
 
   // If a second date is needed for 'End date', make a copy of the first one.
   if (!empty($field['settings']['todate'])) {
     $db_columns['value2'] = $db_columns['value'];
-
-    // We don't want Field API to create additional columns, just the first.
-    // We modify them our own way in views data.
-    $db_columns['value2']['views'] = FALSE;
+    $db_columns['value']['description'] = 'The start date value';
+    $db_columns['value2']['description'] = 'The end date value';
+    $db_columns['data2']  = $db_columns['data'];
+    $db
+    $indexes += array(
+      'value2' => 'value2',
+    );
   }
   // Timezone and offset columns are used only if date-specific dates are used.
   if (isset($field['settings']['tz_handling']) && $field['settings']['tz_handling'] == 'date') {
-    $db_columns['timezone'] = array(
-      'type' => 'varchar',
-      'length' => 50,
-      'not null' => FALSE,
-      'sortable' => TRUE,
-      'views' => FALSE,
-    );
     $db_columns['offset'] = array(
       'type' => 'int',
       'not null' => FALSE,
-      'sortable' => TRUE,
-      'views' => FALSE,
     );
     if (!empty($field['settings']['todate'])) {
-      $db_columns['offset2'] = array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE, 'views' => FALSE);
+      $db_columns['offset2'] = array('type' => 'int', 'not null' => FALSE);
     }
   }
-  if (isset($field['settings']['repeat']) && $field['settings']['repeat'] == 1) {
-    $db_columns['rrule'] = array(
-      'type' => 'text',
-      'not null' => FALSE,
-      'sortable' => FALSE,
-      'views' => FALSE,
-    );
-  }
-  return array('columns' => $db_columns);
+  return array('columns' => $db_columns, 'indexes' => $indexes);
 }
 
 /**
@@ -89,7 +89,9 @@ function date_update_last_removed() {
 
 // @TODO Write upgrade path for text widgets to combine them with Popup widgets as new 'Datetime' widgets.
 // @TOTO Write upgrade path for select widgets convert them to new 'Datelist' widgets.
-// @TODO Write upgrade path for 'input_format' widget settings to create 'date_date_format' and 'date_time_format'.
+// @TODO Write upgrade path for 'input_format' widget settings to create 'date_date_format' and 'date_time_format', date_date_element, date_time_element.
 // @TODO Write upgrade path to remove 'input_format_custom'.
-// @TODO Write upgrade path to remove datetime storage method.
+// @TODO Write upgrade path to remove datetime and datestamp storage methods and make all into iso.
 // @TODO Removing custom formats that won't work in datepicker for consistency.
+// @TODO Write upgrade path adding indexes, if not already set.
+// @TODO Write upgrade path to add timezone, rrule, and all_day into new data column and delete rrule and timezone columns.

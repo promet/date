@@ -96,13 +96,13 @@ function date_combo_element_process($element, &$form_state, $form) {
   // to the timezone of an individual user, so we cache the UTC values
   // instead and do our conversion to local dates in the form and
   // in the formatters.
-  $process = date_process_values($field, $instance);
-  foreach ($process as $processed) {
-    if (!isset($element['#default_value'][$processed])) {
-      $element['#default_value'][$processed] = '';
+  $keys = date_available_values($field, $instance);
+  foreach ($keys as $key) {
+    if (!isset($element['#default_value'][$key])) {
+      $element['#default_value'][$key] = '';
     }
-    $date = date_local_date($element['#default_value'], $element['#date_timezone'], $field, $instance, $processed);
-    $element['#default_value'][$processed] = $date instanceOf DrupalDateTime ? date_format($date, DATE_FORMAT_DATETIME) : '';
+    $date = date_local_date($element['#default_value'], $element['#date_timezone'], $field, $instance, $key);
+    $element['#default_value'][$key] = $date instanceOf DrupalDateTime ? date_format($date, DATE_FORMAT_DATETIME) : '';
   }
 
   // Blank out the end date for optional end dates that match the start date,
@@ -140,7 +140,7 @@ function date_combo_element_process($element, &$form_state, $form) {
     '#date_increment'   => $instance['widget']['settings']['increment'],
     '#date_year_range'  => $instance['widget']['settings']['year_range'],
     '#date_label_position' => $instance['widget']['settings']['label_position'],
-    '#date_time_callbacks' => array('timestamp_time_callback'),
+    '#date_time_callbacks' => array('date_all_day_toggle_callback'),
     );
 
     $element[$from_field]['all_day'] = array(
@@ -171,8 +171,8 @@ function date_combo_element_process($element, &$form_state, $form) {
       $element[$from_field]['#date_time_format'] = date_get_format($instance, 'time');
       $element[$from_field]['#date_date_element'] = 'date';
       $element[$from_field]['#date_time_element'] = 'time';
-      $element[$from_field]['#date_date_callback'] = 'datetime_jquery_datepicker';
-      $element[$from_field]['#date_time_callback'] = '';
+      $element[$from_field]['#date_date_callbacks'] = array('datetime_jquery_datepicker');
+      $element[$from_field]['#date_time_callbacks'] = array('date_all_day_toggle_callback');
       //$element[$from_field]['#theme_wrappers'] = array('datetime');
       //$element[$from_field]['#ajax'] = !empty($element['#ajax']) ? $element['#ajax'] : FALSE;
       break;

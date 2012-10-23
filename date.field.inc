@@ -29,37 +29,27 @@ function date_field_is_empty($item, $field) {
  * Implements hook_field_info().
  */
 function date_field_info() {
-  $settings = array(
-    'settings' => array(
-      'todate' => '',
-      'granularity' => drupal_map_assoc(array('year', 'month', 'day', 'hour', 'minute')),
-      'tz_handling' => 'site',
-      'timezone_db' => 'UTC',
-    ),
-    'instance_settings' => array(
-      'default_value' => 'now',
-      'default_value_code' => '',
-      'default_value2' => 'same',
-      'default_value_code2' => '',
-    ),
-    'default_widget' => 'date_select',
-    'default_formatter' => 'date_default',
-    'default_token_formatter' => 'date_plain',
-    'field item class' => '\Drupal\date\Type\DateItem',
-  );
   return array(
-    'datetime' => array(
-      'label' => 'Date',
-      'description' => t('Store a date in the database as a datetime field, recommended for complete dates and times that may need timezone conversion.'),
-      ) + $settings,
     'date' => array(
-      'label' => 'Date (ISO format)',
-      'description' => t('Store a date in the database as an ISO date, recommended for historical or partial dates.'),
-      ) + $settings,
-    'datestamp' => array(
-      'label' => 'Date (Unix timestamp)',
-      'description' => t('Store a date in the database as a timestamp, deprecated format to support legacy data.'),
-      ) + $settings,
+      'label' => 'Date Range',
+      'description' => t('Store a start and optional end date in the database as ISO dates.'),
+      'settings' => array(
+        'todate' => '',
+        'granularity' => drupal_map_assoc(array('year', 'month', 'day', 'hour', 'minute')),
+        'tz_handling' => 'site',
+        'timezone_db' => 'UTC',
+      ),
+      'instance_settings' => array(
+        'default_value' => 'now',
+        'default_value_code' => '',
+        'default_value2' => 'same',
+        'default_value_code2' => '',
+      ),
+      'default_widget' => 'date_select',
+      'default_formatter' => 'date_default',
+      'default_token_formatter' => 'date_plain',
+      'field item class' => '\Drupal\date\Type\DateItem',
+    ),
   );
 }
 
@@ -69,23 +59,19 @@ function date_field_info() {
 function date_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
   $timezone_db = date_get_timezone_db($field['settings']['tz_handling']);
   $db_format = date_type_format($field['type']);
-  $process = date_process_values($field);
+  $keys = date_available_values($field);
   foreach ($entities as $id => $entity) {
     foreach ($items[$id] as $delta => &$item) {
       // If the file does not exist, mark the entire item as empty.
       if (is_array($item)) {
-        $timezone = isset($item['timezone']) ? $item['timezone'] : '';
-        $item['timezone'] = date_get_timezone($field['settings']['tz_handling'], $timezone);
+        $item['data'] = isset($item['data']) ? unserialize($item['data']) : array();
         $item['timezone_db'] = $timezone_db;
         $item['date_type'] = $field['type'];
         if (!empty($field['settings']['cache_enabled']) && ($delta < $field['settings']['cache_count'] || $field['settings']['cache_count'] == 0)) {
-          foreach ($process as $processed) {
-            if (!empty($item[$processed])) {
-              $item['db'][$processed] = $date;
+          foreach ($keys as $key) {
+            if (!empty($item[$key])) {
+              $item['db'][$key] = $date;
             }
-          }
-          if (!empty($item['db']['value']) && empty($item['db']['value2'])) {
-            $item['db']['value2'] = $item['db']['value'];
           }
         }
       }
@@ -108,9 +94,9 @@ function date_field_validate($entity_type, $entity, $field, $instance, $langcode
   if (!form_get_errors()) {
     foreach ($items as $delta => $item) {
       if (is_array($item) && isset($item['value'])) {
-        $process = date_process_values($field, $instance);
+        $keys = date_available_values($field, $instance);
         $date1 = new DrupalDateTime($item['value'], $item['timezone'], date_type_format($field['type']));
-        if (count($process) == 1 || (empty($item['value2']) && $item['value2'] !== 0)) {
+        if (count($keys) == 1 || (empty($item['value2']) && $item['value2'] !== 0)) {
           $date2 = clone($date1);
         }
         else {
@@ -120,14 +106,14 @@ function date_field_validate($entity_type, $entity, $field, $instance, $langcode
         $valid1 = $date1->validGranularity($field['settings']['granularity'], $flexible);
         $valid2 = $date2->validGranularity($field['settings']['granularity'], $flexible);
 
-        foreach ($process as $processed) {
-          if ($processed == 'value' && $field['settings']['todate'] && !$valid1 && $valid2) {
+        foreach ($keys as $key) {
+          if ($ == 'value' && $field['settings']['todate'] && !$valid1 && $valid2) {
             $errors[$field['field_name']][$langcode][$delta][] = array(
               'error' => 'value',
               'message' => t("A 'Start date' date is required for field %field #%delta.", array('%delta' => $field['cardinality'] ? intval($delta + 1) : '', '%field' => $instance['label'])),
             );
           }
-          if ($processed == 'value2' && $field['settings']['todate'] == 'required' && ($instance['required'] && $valid1 && !$valid2)) {
+          if ($key == 'value2' && $field['settings']['todate'] == 'required' && ($instance['required'] && $valid1 && !$valid2)) {
             $errors[$field['field_name']][$langcode][$delta][] = array(
               'error' => 'value2',
               'message' => t("An 'End date' is required for field %field #%delta.", array('%delta' => $field['cardinality'] ? intval($delta + 1) : '', '%field' => $instance['label'])),
@@ -157,6 +143,14 @@ function date_field_presave($entity_type, $entity, $field, $instance, $langcode,
       $items[$delta]['timezone'] = date_get_timezone($field['settings']['tz_handling'], $timezone);
       $items[$delta]['timezone_db'] = date_get_timezone_db($field['settings']['tz_handling']);
       $items[$delta]['date_type'] = $field['type'];
+      $data = array();
+      foreach (date_data_keys() as $key) {
+        if (isset($item[$key])) {
+          $data[$delta][$key] = $item[$key];
+          unset($items[$delta][$key]);
+        }
+      }
+      $items[$delta]['data'] = serialize($data);
     }
   }
   $entity->{$field['field_name']}[$langcode] = $items;

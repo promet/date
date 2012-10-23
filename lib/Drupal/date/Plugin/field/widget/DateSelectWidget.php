@@ -21,19 +21,37 @@ use Drupal\date\Plugin\field\widget\DateTextWidget;
  *   field_types = {
  *     "date", 
  *     "datestamp",
- *     "datetime"
  *   },
  *   settings = {
- *     "input_format" = "",
+ *     "date_date_format" = "Y-m-d",
+ *     "date_date_element" = "date",
  *     "input_format_custom" = "",
  *     "increment" = 15,
- *     "text_parts" = "",
+ *     "text_parts" = {},
  *     "year_range" = "-3:+3",
- *     "label_position" = "above",
  *   }
  * )
  */
-class DateSelectWidget extends DateTextWidget {
+class DateSelectWidget extends DateWidgetBase {
 
+  function settingsForm(array $form, array &$form_state) {
+    $element = parent::settingsForm(array $form, array &$form_state);
 
+    $element['text_parts'] = array(
+      '#type' => 'value',
+      '#value' => $settings['text_parts'],
+    );
+
+    $element['advanced']['text_parts'] = array('#theme' => 'date_text_parts');
+    $text_parts = (array) $settings['text_parts'];
+    foreach (DateGranularity::granularityNames() as $key => $value) {
+      $element['advanced']['text_parts'][$key] = array(
+        '#type' => 'radios',
+        '#default_value' => in_array($key, $text_parts) ? 1 : 0,
+        '#options' => array(0 => '', 1 => ''),
+      ); 
+    }
+
+    return $element;
+  }
 }
