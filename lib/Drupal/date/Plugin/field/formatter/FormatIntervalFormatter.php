@@ -22,9 +22,7 @@ use Drupal\Core\Entity\EntityInterface;
  *   module = "date",
  *   label = @Translation("Time Ago"),
  *   field_types = {
- *     "date",
- *     "datestamp",
- *     "datetime"
+ *     "date"
  *   },
  *   settings = {
  *     "interval" = "2",

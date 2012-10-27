@@ -220,7 +220,7 @@ function date_tools_wizard_build($form_values) {
         // The number of years to go back and forward in drop-down year
         // selectors.
         'year_range' => !empty($year_range) ? $year_range : '-0:+1',
-        'input_format' => date_default_format($widget_type),
+        'input_format' => variable_get('date_format_html_date', 'Y-m-d') . ' ' . variable_get('date_format_html_time', 'H:i:s'),
         'text_parts' => array(),
         'label_position' => 'above',
       ),

@@ -10,7 +10,7 @@ use Drupal\date_api\DateGranularity;
  */
 class DateSqlHandler {
   var $db_type = NULL;
-  var $date_type = DATE_DATETIME;
+  var $date_type = DATE_ISO;
   // A string timezone name.
   var $db_timezone = 'UTC';
   // A string timezone name.
@@ -25,7 +25,7 @@ class DateSqlHandler {
   /**
    * The object constuctor.
    */
-  function __construct($date_type = DATE_DATETIME, $local_timezone = NULL, $offset = '+00:00') {
+  function __construct($date_type = DATE_ISO, $local_timezone = NULL, $offset = '+00:00') {
     $this->db_type = db_driver();
     $this->date_type = $date_type;
     $this->db_timezone = 'UTC';
@@ -145,8 +145,6 @@ class DateSqlHandler {
           case DATE_ISO:
             $field = "STR_TO_DATE($field, '%Y-%m-%dT%T')";
             break;
-          case DATE_DATETIME:
-            break;
         }
         break;
       case 'pgsql':
@@ -157,8 +155,6 @@ class DateSqlHandler {
           case DATE_ISO:
             $field = "TO_DATE($field, 'FMYYYY-FMMM-FMDDTFMHH24:FMMI:FMSS')";
             break;
-          case DATE_DATETIME:
-            break;
         }
         break;
       case 'sqlite':
@@ -167,7 +163,6 @@ class DateSqlHandler {
             $field = "datetime($field, 'unixepoch')";
             break;
           case DATE_ISO:
-          case DATE_DATETIME:
             $field = "datetime($field)";
             break;
         }
@@ -178,7 +173,6 @@ class DateSqlHandler {
             $field = "DATEADD(s, $field, '19700101 00:00:00:000')";
             break;
           case DATE_ISO:
-          case DATE_DATETIME:
             $field = "CAST($field as smalldatetime)";
             break;
         }

@@ -13,7 +13,7 @@ class DateMigrateFieldHandler extends MigrateFieldHandler {
    * Declares the types of fields used.
    */
   public function __construct() {
-    $this->registerTypes(array('date', 'datestamp', 'datetime'));
+    $this->registerTypes(array('date'));
   }
 
   /**
@@ -132,16 +132,6 @@ class DateMigrateFieldHandler extends MigrateFieldHandler {
 
       // What does the destination field expect?
       switch ($field_info['type']) {
-        case 'datestamp':
-          // Already done.
-          break;
-        case 'datetime':
-          // YYYY-MM-DD HH:MM:SS.
-          $from = format_date($from, 'custom', 'Y-m-d H:i:s', $timezone);
-          if ($to) {
-            $to = format_date($to, 'custom', 'Y-m-d H:i:s', $timezone);
-          }
-          break;
         case 'date':
           // ISO date: YYYY-MM-DDTHH:MM:SS.
           $from = format_date($from, 'custom', 'Y-m-d\TH:i:s', $timezone);

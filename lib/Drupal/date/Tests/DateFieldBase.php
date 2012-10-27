@@ -64,7 +64,7 @@ abstract class DateFieldBase extends WebTestBase {
     $tz_handling = !empty($tz_handing) ? $tz_handling : 'site';
     $granularity = !empty($granularity) ? $granularity : array('year', 'month', 'day', 'hour', 'minute');
     $year_range = !empty($year_range) ? $year_range : '2010:+1';
-    $input_format = !empty($input_format) ? $input_format : date_default_format($widget_type);
+    $input_format = !empty($input_format) ? $input_format : variable_get('date_format_html_date', 'Y-m-d') . ' ' . variable_get('date_format_html_time', 'H:i:s');
     $input_format_custom = !empty($input_format_custom) ? $input_format_custom : '';
     $text_parts = !empty($text_parts) ? $text_parts : array();
     $increment = !empty($increment) ? $increment : 15;

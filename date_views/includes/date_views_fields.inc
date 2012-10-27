@@ -76,11 +76,6 @@ function _date_views_fields($base = 'node') {
        case 'date':
           $sql_type = DATE_ISO;
           break;
-        case 'datestamp':
-          break;
-        case 'datetime':
-          $sql_type = DATE_DATETIME;
-          break;
         default:
           // If this is not a date field, nothing more to do.
           continue;

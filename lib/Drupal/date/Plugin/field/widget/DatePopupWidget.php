@@ -19,9 +19,7 @@ use Drupal\date\Plugin\field\widget\DateTextWidget;
  *   module = "date",
  *   label = @Translation("Pop-up calendar"),
  *   field_types = {
- *     "date", 
- *     "datestamp",
- *     "datetime"
+ *     "date"
  *   },
  *   settings = {
  *     "date_date_format" = "Y-m-d",
@@ -30,7 +28,7 @@ use Drupal\date\Plugin\field\widget\DateTextWidget;
  *     "date_time_element" = "time",
  *     "input_format_custom" = "",
  *     "increment" = 15,
- *     "text_parts" = {},
+ *     "text_parts" = {""},
  *     "year_range" = "-3:+3",
  *   }
  * )
@@ -68,6 +66,23 @@ class DatePopupWidget extends DateWidgetBase {
       '#weight' => 5,
       '#fieldset' => 'date_format',
     );
+    return $element;
+  }
+
+  function formElement(array $items, $delta, array $element, $langcode, array &$form, array &$form_state) {
+
+    $element = parent::formElement($items, $delta, $element, $langcode, $form, $form_state)
+
+    $element += array(
+      '#type' => 'datetime',
+      '#date_date_format'=>  $this->getSetting('date_date_format'),
+      '#date_date_element' => $this->getSetting('date_date_element'),
+      '#date_date_callbacks' => array('datetime_jquery_datepicker'),
+      '#date_time_format' => $this->getSetting('date_time_format'),
+      '#date_time_element' => $this->getSetting('date_time_element'),
+      '#date_time_callbacks' => array(),
+    );
+
     return $element;
   }
 }

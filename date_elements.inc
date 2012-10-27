@@ -36,7 +36,7 @@ function date_local_date($item, $timezone, $field, $instance, $part = 'value') {
   }
   else {
     $db_timezone = date_get_timezone_db($field['settings']['tz_handling']);
-    $value = date_convert($value, $field['type'], DATE_DATETIME, $db_timezone);
+    $value = date_convert($value, $field['type'], DATE_ISO, $db_timezone);
   }
   */
 

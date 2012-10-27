@@ -126,7 +126,7 @@ function date_repeat_field_show($entity_type = 'node', $entity = NULL) {
   $bundle = date_get_entity_bundle($entity_type, $entity);
   $fields = field_info_field_map();
   foreach ($fields as $field_name => $value) {
-    if (in_array($value['type'], array('date', 'datestamp', 'datetime'))) {
+    if ($value['type'] == 'date') {
       if (array_key_exists($entity_type, $value['bundles'])) {
         if (in_array($bundle, $value['bundles'][$entity_type])) {
           $field = field_info_field($field_name);
@@ -154,7 +154,7 @@ function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
   $output = '';
   $fields = field_info_field_map();
   foreach ($fields as $field_name => $value) {
-    if (in_array($value['type'], array('date', 'datestamp', 'datetime'))) {
+    if (in_array($value['type'], array('date'))) {
       $field = field_info_field($field_name);
       if (date_is_repeat_field($field)) {
         foreach ($value['bundles'] as $entity_type => $bundles) {
@@ -177,7 +177,7 @@ function date_repeat_field_bundles() {
   $values = array();
   $fields = field_info_field_map();
   foreach ($fields as $field_name => $value) {
-    if (in_array($value['type'], array('date', 'datestamp', 'datetime'))) {
+    if (in_array($value['type'], array('date'))) {
       $field = field_info_field($field_name);
       if (date_is_repeat_field($field)) {
         foreach ($value['bundles'] as $entity_type => $bundles) {
@@ -264,7 +264,7 @@ function date_repeat_field_field_widget_form_alter(&$element, &$form_state, $con
   $items = $context['items'];
   $delta = $context['delta'];
 
-  if (in_array($field['type'], array('date', 'datetime', 'datestamp'))) {
+  if (in_array($field['type'], array('date'))) {
     if (!empty($field['settings']['repeat'])) {
       $element['#element_validate'][] = 'date_repeat_field_widget_validate';
       $element['show_repeat_settings'] = array(
@@ -489,7 +489,7 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
 
   $value = array();
   foreach ($dates as $delta => $date) {
-    // date_repeat_calc always returns DATE_DATETIME dates, which is
+    // date_repeat_calc always returns DATE_ISO dates, which is
     // not necessarily $field['type'] dates.
     // Convert returned dates back to db timezone before storing.
     $date_start = new DrupalDateTime($date, $timezone, DATE_FORMAT_DATETIME);
@@ -559,7 +559,7 @@ function date_repeat_field_date_combo_pre_validate_alter(&$element, &$form_state
  * This Field API hook lets us add a new setting to the fields.
  */
 function date_repeat_field_field_info_alter(&$info) {
-
+  return;
   $info['date']['settings'] += array(
     'repeat' => 0,
   );

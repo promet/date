@@ -19,15 +19,14 @@ use Drupal\date\Plugin\field\widget\DateTextWidget;
  *   module = "date",
  *   label = @Translation("Select list"),
  *   field_types = {
- *     "date", 
- *     "datestamp",
+ *     "date"
  *   },
  *   settings = {
  *     "date_date_format" = "Y-m-d",
  *     "date_date_element" = "date",
  *     "input_format_custom" = "",
  *     "increment" = 15,
- *     "text_parts" = {},
+ *     "text_parts" = {""},
  *     "year_range" = "-3:+3",
  *   }
  * )
@@ -37,9 +36,27 @@ class DateSelectWidget extends DateWidgetBase {
   function settingsForm(array $form, array &$form_state) {
     $element = parent::settingsForm(array $form, array &$form_state);
 
-    $element['text_parts'] = array(
+    $element['date_date_format'] = array(
+      '#type' => 'select',
+      '#title' => t('Date entry format'),
+      '#default_value' => $settings['date_date_format'],
+      '#options' => $this->formatOptions(),
+      '#description' => t('Control the order and format of the options users see.'),
+      '#weight' => 3,
+      '#fieldset' => 'date_format',
+    );
+
+    $element['advanced'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Advanced settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#fieldset' => 'date_format',
+      '#weight' => 9,
+    );
+    $element['advanced']['text_parts'][$key] = array(
       '#type' => 'value',
-      '#value' => $settings['text_parts'],
+      '#value' => (int) in_array($key, (array) $settings['text_parts']),
     );
 
     $element['advanced']['text_parts'] = array('#theme' => 'date_text_parts');
@@ -49,7 +66,7 @@ class DateSelectWidget extends DateWidgetBase {
         '#type' => 'radios',
         '#default_value' => in_array($key, $text_parts) ? 1 : 0,
         '#options' => array(0 => '', 1 => ''),
-      ); 
+      );
     }
 
     return $element;

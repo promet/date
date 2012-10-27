@@ -41,20 +41,6 @@ $calendar->seconds();
 $calendar->ampm();
 
 ============================================================================
-Miscellaneous date manipulation functions
-============================================================================
-Pre-defined constants and functions that will handle pre-1970 and post-2038
-dates in both PHP 4 and PHP 5, in any OS. Dates can be converted from one
-type to another and date parts can be extracted from any date type.
-
-DATE_DATETIME
-DATE_ISO
-DATE_UNIX
-DATE_ARRAY
-DATE_OBJECT
-DATE_ICAL
-
-============================================================================
 Date calculation and navigation
 ============================================================================
 date_difference() will find the time difference between any two days, measured

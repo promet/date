@@ -20,9 +20,7 @@ use Drupal\Core\Entity\EntityInterface;
  *   module = "adate",
  *   label = @Translation("Default"),
  *   field_types = {
- *     "date",
- *     "datestamp",
- *     "datetime"
+ *     "date"
  *   },
  *   settings = {
  *     "format_type" = "long",

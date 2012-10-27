@@ -23,9 +23,7 @@ use Drupal\date_api\DateGranularity;
  *   module = "date",
  *   label = @Translation("Text input"),
  *   field_types = {
- *     "date", 
- *     "datestamp",
- *     "datetime"
+ *     "date"
  *   },
  *   settings = {
  *     "date_date_format" = "",
@@ -70,7 +68,7 @@ class DateTextWidget extends WidgetBase {
     $settings = $widget['settings'];
 
     if (empty($settings['date_date_format'])) {
-      $settings['date_date_format'] = date_default_format('date_select');
+      $settings['date_date_format'] = variable_get('date_format_html_date', 'Y-m-d') . ' ' . variable_get('date_format_html_time', 'H:i:s');
     }
     
     $element = array(

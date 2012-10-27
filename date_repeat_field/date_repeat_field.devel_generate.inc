@@ -39,18 +39,7 @@ function date_repeat_field_date_field_insert(&$items, $context) {
   $increment = $instance['widget']['settings']['increment'];
   $timezone = date_get_timezone($field['settings']['tz_handling'], $item['timezone']);
   $timezone_db = date_get_timezone_db($field['settings']['tz_handling']);
-
-  switch ($field['type']) {
-    case 'date':
-      $format = DATE_FORMAT_ISO;
-      break;
-    case 'datestamp':
-      $format = DATE_FORMAT_UNIX;
-      break;
-    case 'datetime':
-      $format = DATE_FORMAT_DATETIME;
-      break;
-  }
+  $format = DATE_FORMAT_ISO;
 
   $start = new DrupalDateTime($item['value'], $timezone_db, $format);
   $start2 = new DrupalDateTime($item['value2'], $timezone_db, $format);

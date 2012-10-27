@@ -10,7 +10,7 @@ class date_context_date_condition extends context_condition_node {
     $values = array();
     $fields = field_info_field_map();
     foreach ($fields as $field_name => $value) {
-      if (in_array($value['type'], array('date', 'datestamp', 'datetime'))) {
+      if ($value['type'] == 'date') {
         $field = field_info_field($field_name);
         $values[$field_name] = $field_name;
       }

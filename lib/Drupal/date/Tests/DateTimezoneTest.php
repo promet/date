@@ -27,7 +27,7 @@ class DateTimezoneTest extends DateFieldBase {
   public function testTimezone() {
     // Create a date fields with combinations of various timezone handling and
     // granularity.
-    foreach (array('date', 'datestamp', 'datetime') as $field_type) {
+    foreach (array('date') as $field_type) {
       foreach (array('site', 'none', 'date', 'user', 'utc') as $tz_handling) {
         foreach (array('year', 'month', 'day', 'hour', 'minute', 'second') as $max_granularity) {
           // Skip invalid combinations.

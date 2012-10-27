@@ -70,15 +70,6 @@ function date_get_entity_bundle($entity_type, $entity) {
 }
 
 /**
- * Gets the default date format for the given field widget.
- */
-function date_default_format($type) {
-  // Example input formats must show all possible date parts, so add seconds.
-  $default_format = str_replace('i', 'i:s', variable_get('date_format_short', 'm/d/Y - H:i'));
-  return $default_format;
-}
-
-/**
  * Wrapper function around each of the widget types for creating a date object.
  */
 function date_input_date($field, $instance, $element, $input) {
@@ -359,7 +350,7 @@ function date_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id
   $field = $form['#field'];
   $instance = $form['#instance'];
 
-  if (!in_array($field['type'], array('date', 'datetime', 'datestamp'))) {
+  if ($field['type'] != 'date') {
     return;
   }
 
@@ -651,5 +642,17 @@ function date_field_widget_settings_form_validate(&$form, &$form_state) {
 
   if ($widget['settings']['input_format'] === 'custom' && empty($widget['settings']['input_format_custom'])) {
     form_set_error('instance][widget][settings][input_format_custom', t('Please enter a custom date format, or choose one of the preset formats.'));
+  }
+
+  switch($widget['settings']['date_date_type']) {
+    case 'date':
+      $widget['settings']['date_date_format'] = variable_get('date_format_html_date', 'Y-m-d');
+      break;
+  }
+  switch($widget['settings']['date_time_type']) {
+    case 'time':
+      $widget['settings']['date_times_format'] = variable_get('date_format_html_time', 'H:i:s');
+      break;
+
   }
 }

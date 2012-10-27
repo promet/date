@@ -27,7 +27,7 @@ class DateValidationTest extends DateFieldBase {
   public function testValidation() {
     // Attempts to create text date field stored as a date with default settings
     // (from input which is not valid).
-    foreach (array('date', 'datestamp', 'datetime') as $field_type) {
+    foreach (array('date') as $field_type) {
       foreach (array('date_select', 'date_popup') as $widget_type) {
         $field_name = 'field_test';
         $label = 'Test';

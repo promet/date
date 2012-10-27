@@ -59,17 +59,7 @@ function date_devel_generate($entity, $field, $instance, $bundle) {
     $timezone = date_get_timezone($field['settings']['tz_handling']);
   }
 
-  switch ($field['type']) {
-    case 'date':
-      $format = DATE_FORMAT_ISO;
-      break;
-    case 'datestamp':
-      $format = DATE_FORMAT_UNIX;
-      break;
-    case 'datetime':
-      $format = DATE_FORMAT_DATETIME;
-      break;
-  }
+  $format = DATE_FORMAT_ISO;
   $entity_field['value'] = date_format($start, $format);
   if ($field['settings']['todate']) {
     $entity_field['value2'] = date_format($start2, $format);

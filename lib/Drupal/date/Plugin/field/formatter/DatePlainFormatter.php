@@ -20,9 +20,7 @@ use Drupal\Core\Entity\EntityInterface;
  *   module = "date",
  *   label = @Translation("Plain"),
  *   field_types = {
- *     "date",
- *     "datestamp",
- *     "datetime"
+ *     "date"
  *   }
  * )
  */

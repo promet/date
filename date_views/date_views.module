@@ -129,7 +129,7 @@ function date_views_base_tables() {
  */
 function date_views_date_views_fields($field) {
   $values = array(
-    // The type of date: DATE_UNIX, DATE_ISO, DATE_DATETIME.
+    // The type of date: DATE_UNIX, DATE_ISO, DATE_ISO.
     'sql_type' => DATE_UNIX,
     // Timezone handling options: 'none', 'site', 'date', 'utc' .
     'tz_handling' => 'site',

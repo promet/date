@@ -111,11 +111,7 @@ function date_format_order($format) {
  * and with either a 'T' or a space separating date and time.
  */
 const DATE_ISO = 'date';
-const DATE_UNIX = 'datestamp';
-const DATE_DATETIME = 'datetime';
-const DATE_ARRAY = 'array';
-const DATE_OBJECT = 'object';
-const DATE_ICAL = 'ical';
+const DATE_UNIX = 'timestamp';
 
 const DATE_FORMAT_ISO = "Y-m-d\TH:i:s";
 const DATE_FORMAT_UNIX = "U";

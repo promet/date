@@ -27,7 +27,7 @@ class DateFieldTest extends DateFieldBase {
    */
   public function testField() {
     // Create a date fields with simple values.
-    foreach (array('date', 'datestamp', 'datetime') as $field_type) {
+    foreach (array('date') as $field_type) {
       foreach (array('date_select', 'date_popup') as $widget_type) {
         $field_name = "field_test_$widget_type";
         $label = 'Test';

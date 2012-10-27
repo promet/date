@@ -66,34 +66,6 @@ class DateUITest extends WebTestBase {
     $this->dateForm($options = 'popup');
     $this->assertText('Thu, 10/07/2010 - 10:30', 'Found the correct date for a date field using the date_popup widget.');
     $this->deleteDateField();
-    // Creates select list field stored as a datestamp with default settings.
-    $this->createDateField($type = 'datestamp', $widget = 'date_select');
-    $edit = array();
-    $this->drupalPost(NULL, $edit, t('Save field settings'));
-    $this->dateForm($options = 'select');
-    $this->assertText('Thu, 10/07/2010 - 10:30', 'Found the correct date for a datestamp field using the date_select widget.');
-    $this->deleteDateField();
-    // Creates popup field stored as a datestamp with default settings.
-    $this->createDateField($type = 'datestamp', $widget = 'date_popup');
-    $edit = array();
-    $this->drupalPost(NULL, $edit, t('Save field settings'));
-    $this->dateForm($options = 'popup');
-    $this->assertText('Thu, 10/07/2010 - 10:30', 'Found the correct date for a datestamp field using the date_popup widget.');
-    $this->deleteDateField();
-    // Creates select list field stored as a datetime with default settings.
-    $this->createDateField($type = 'datetime', $widget = 'date_select');
-    $edit = array();
-    $this->drupalPost(NULL, $edit, t('Save field settings'));
-    $this->dateForm($options = 'select');
-    $this->assertText('Thu, 10/07/2010 - 10:30', 'Found the correct date for a datetime field using the date_select widget.');
-    $this->deleteDateField();
-    // Creates popup field stored as a datetime with default settings.
-    $this->createDateField($type = 'datetime', $widget = 'date_popup');
-    $edit = array();
-    $this->drupalPost(NULL, $edit, t('Save field settings'));
-    $this->dateForm($options = 'popup');
-    $this->assertText('Thu, 10/07/2010 - 10:30', 'Found the correct date for a datetime field using the date_popup widget.');
-    $this->deleteDateField();
 
     // Test timezone handling validation on the field settings form.
     $this->createDateField($type = 'date', $widget = 'date_select');
@@ -117,9 +89,6 @@ class DateUITest extends WebTestBase {
       $edit['field_test[und][0][value][day]'] = '7';
       $edit['field_test[und][0][value][hour]'] = '10';
       $edit['field_test[und][0][value][minute]'] = '30';
-    }
-    elseif ($options == 'text') {
-      $edit['field_test[und][0][value][date]'] = '10/07/2010 - 10:30';
     }
     elseif ($options == 'popup') {
       $edit['field_test[und][0][value][date]'] = '10/07/2010';
