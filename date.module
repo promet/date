@@ -12,22 +12,6 @@ module_load_include('theme', 'date', 'date');
 module_load_include('inc', 'date', 'date.field');
 module_load_include('inc', 'date', 'date_elements');
 
-/**
- * A callback for the time element to add an 'All day' checkbox to
- * the form.
- */
-function date_all_day_toggle_callback(&$element, &$form_state, $date) {
-  if (!empty($element['#date_all_day_toggle'])) {
-    $parents = $element['#parents'];
-    array_pop($parents);
-    $first_parent = array_shift($parents);
-    $all_day_id = $first_parent . '[' . implode('][', $parents) . '][all_day]';;
-    $element['time']['#states'] = array(
-      'visible' => array(
-        'input[name="' . $all_day_id . '"]' => array('checked' => FALSE),
-      ));
-  }
-}
 
 /**
  * Custom validation for the timestamp form element.
