@@ -10,6 +10,7 @@ use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
 use Drupal\field\Plugin\Type\Widget\WidgetBase;
 use Drupal\date_field\Plugin\field\widget\DateFieldWidgetBase;
+use Drupal\date_api\DateGranularity;
 
 /**
  * Plugin implementation of the 'date' widget.

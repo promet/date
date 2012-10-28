@@ -1,10 +1,10 @@
 <?php
 /**
  * @file
- * Definition of Drupal\date_field\Plugin\field\widget\DateFieldWidgetBase.
+ * Definition of Drupal\date\Plugin\field\widget\DateWidgetBase.
  */
 
-namespace Drupal\date_field\Plugin\field\widget;
+namespace Drupal\date\Plugin\field\widget;
 
 use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
@@ -13,12 +13,13 @@ use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\field\Plugin\PluginSettingsBase;
 use Drupal\field\FieldInstance;
+use Drupal\date_api\DateGranularity;
 use Drupal\Core\Datetime\DrupalDateTime;
 
 /**
  * Abstract class for all date widgets.
  */
-abstract class DateFieldWidgetBase extends WidgetBase {
+abstract class DateWidgetBase extends WidgetBase {
 
   /**
    * Constructs a DateWidget object.
@@ -67,6 +68,8 @@ abstract class DateFieldWidgetBase extends WidgetBase {
   public function settingsForm(array $form, array &$form_state) {
     $field = $this->field;
     $instance = $this->instance;
+    $widget = $instance['widget'];
+    $settings = $widget['settings'];
 
     if (empty($settings['date_date_format'])) {
       $settings['date_date_format'] = variable_get('date_format_html_date', 'Y-m-d') . ' ' . variable_get('date_format_html_time', 'H:i:s');
@@ -76,13 +79,13 @@ abstract class DateFieldWidgetBase extends WidgetBase {
     
     $element['year_range'] = array(
       '#type' => 'date_year_range',
-      '#default_value' => $this->getSetting('year_range'),
+      '#default_value' => $settings['year_range'],
       '#fieldset' => 'date_format',
       '#weight' => 6,
     );
     $element['increment'] = array(
       '#type' => 'select', '#title' => t('Time increments'),
-      '#default_value' => $this->getSetting('increment'),
+      '#default_value' => $settings['increment'],
       '#options' => array(
         1 => t('1 minute'),
         5 => t('5 minute'),
@@ -144,14 +147,47 @@ abstract class DateFieldWidgetBase extends WidgetBase {
     $field_name = $field['field_name'];
     $entity_type = $instance['entity_type'];
   
+  
+    // @TODO Repeating dates should probably be made into their own field type and completely separated out.
+    // That will have to wait for a new branch since it may break other things, including other modules
+    // that have an expectation of what the date field types are.
+  
+    // Since repeating dates cannot use the default Add more button, we have to handle our own behaviors here.
+    // Return only the first multiple value for repeating dates, then clean up the 'Add more' bits in #after_build.
+    // The repeating values will be re-generated when the repeat widget form is validated.
+    // At this point we can't tell if this form element is going to be hidden by #access, and we're going to
+    // lose all but the first value by doing this, so store the original values in case we need to replace them later.
+    if (!empty($field['settings']['repeat'])) {
+      if ($delta == 0) {
+        $form['#after_build'] = array('date_repeat_after_build');
+        $form_state['storage']['repeat_fields'][$field_name] = array_merge($form['#parents'], array($field_name));
+        $form_state['storage']['date_items'][$field_name][$langcode] = $items;
+      }
+      else {
+        return;
+      }
+    }
+  
     module_load_include('inc', 'date_api', 'date_api_elements');
     $timezone = date_get_timezone($field['settings']['tz_handling'], isset($items[0]['timezone']) ? $items[0]['timezone'] : drupal_get_user_timezone());
+  
+    // TODO see if there's a way to keep the timezone element from ever being
+    // nested as array('timezone' => 'timezone' => value)). After struggling
+    // with this a while, I can find no way to get it displayed in the form
+    // correctly and get it to use the timezone element without ending up
+    // with nesting.
+    if (is_array($timezone)) {
+      $timezone = $timezone['timezone'];
+    }
   
     $element += array(
       '#weight' => $delta,
       '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
       '#date_timezone' => $timezone,
       '#element_validate' => array('date_combo_validate'),
+      '#date_is_default' => $is_default,
+      '#date_increment' => $this->getSetting('increment'),
+      '#date_year_range' => $this->getSetting('year_range'),
       '#required' => $element['#required'],
   
       // Store the original values, for use with disabled and hidden fields.

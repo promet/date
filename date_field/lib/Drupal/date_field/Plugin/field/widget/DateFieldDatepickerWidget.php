@@ -64,16 +64,6 @@ class DateFieldDatepickerWidget extends DateFieldWidgetBase {
       )),
     );
 
-    $options = module_invoke_all('date_field_date_callbacks');
-    $element['date_callbacks'] = array(
-      '#type' => 'checkboxes',
-      '#title' => t('Additional date features'),
-      '#default_value' => $this->getSetting('date_callbacks'),
-      '#description' => t('Callbacks for the date part of the date.'),
-      '#options' => $options,
-      '#fieldset' => 'date_format',
-    );
-
     $element['time_element'] = array(
       '#type' => 'select',
       '#title' => t('Time element'),
@@ -95,14 +85,30 @@ class DateFieldDatepickerWidget extends DateFieldWidgetBase {
       )),
     );
 
+    $options = module_invoke_all('date_field_date_callbacks');
+    $element['date_callbacks'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Additional date features'),
+      '#default_value' => $this->getSetting('date_callbacks'),
+      '#options' => $options,
+      '#fieldset' => 'date_format',
+      '#states' => array(
+        'invisible' => array(
+          ":input[name=\"instance[widget][settings][date_element]\"]" => array('value' => 'none'),
+      )),
+    );
+
     $options = module_invoke_all('date_field_time_callbacks');
     $element['time_callbacks'] = array(
       '#type' => 'checkboxes',
       '#title' => t('Additional time features'),
       '#default_value' => $this->getSetting('time_callbacks'),
-      '#description' => t('Callbacks for the time part of the date.'),
       '#options' => $options,
       '#fieldset' => 'date_format',
+      '#states' => array(
+        'invisible' => array(
+          ":input[name=\"instance[widget][settings][time_element]\"]" => array('value' => 'none'),
+      )),
     );
 
     return $element;
